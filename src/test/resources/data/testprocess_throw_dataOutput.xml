@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1342870412164" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+xmlns:catify="http://www.catify.com/processengine/core/processdefinition"
+
+exporter="Yaoqiang BPMN Editor" exporterVersion="2.0"
+expressionLanguage="http://www.w3.org/1999/XPath" id="_1342870412164" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1342870412164" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
+
+<import location="catifyExtension.xsd" namespace="http://www.catify.com/processengine/core/processdefinition"
+  importType="http://www.w3.org/2001/XMLSchema"/>
+
+<extension mustUnderstand="true" definition="catify:catifyExtensions"/>
+
+  <process id="_9" isClosed="false" isExecutable="true" processType="None">
+    <extensionElements>
+	    <catify:version id="VERSION_ID" version="VERSIONONE"/>
+    </extensionElements>
+
+    <sequenceFlow id="_5" sourceRef="_11" targetRef="_3"/>
+    <sequenceFlow id="_6" sourceRef="_3" targetRef="_4"/>
+    <startEvent id="_11" isInterrupting="true" name="Start Event" parallelMultiple="false">
+      <dataOutput id="Dout_2_7" isCollection="false"/>
+      <dataOutputAssociation id="_8">
+        <sourceRef>Dout_2_7</sourceRef>
+        <targetRef>_7</targetRef>
+      </dataOutputAssociation>
+      <outputSet>
+        <dataOutputRefs>Dout_2_7</dataOutputRefs>
+      </outputSet>
+    </startEvent>
+    <endEvent id="_4" name="End Event">
+    </endEvent>
+    <intermediateThrowEvent id="_3" name="Intermediate Event">
+    </intermediateThrowEvent>
+    <dataObject id="DO_1_1" isCollection="false" name="Data Object"/>
+    <dataObjectReference dataObjectRef="DO_1_1" id="_7"/>
+  </process>
+</definitions>

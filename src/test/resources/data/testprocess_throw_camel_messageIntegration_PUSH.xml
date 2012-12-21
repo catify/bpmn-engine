@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1340971831366" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+xmlns:catify="http://www.catify.com/processengine/core/processdefinition"
+
+exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
+
+<process id="_PID:1" name="_PushTest">
+      <extensionElements>
+	    <catify:version id="VERSION_ID" version="_Version:1.0"/>
+    </extensionElements>
+<endEvent id="_4" name="End Event">
+  <messageEventDefinition id="_4_ED_1">
+    <extensionElements>
+	    <catify:messageIntegration prefix="camel" integrationstring="activemq:process.push"/>
+    </extensionElements>
+  </messageEventDefinition>
+</endEvent>
+<intermediateThrowEvent id="_3" name="Intermediate Event">
+  <messageEventDefinition id="_3_ED_1">
+    <extensionElements>
+	    <catify:messageIntegration prefix="camel" integrationstring="file:data/integrationOutput"/>
+    </extensionElements>
+  </messageEventDefinition>
+</intermediateThrowEvent>
+<sequenceFlow id="_5" sourceRef="_NID:2" targetRef="_3"/>
+<sequenceFlow id="_6" sourceRef="_3" targetRef="_4"/>
+<startEvent id="_NID:2" name="_StartEvent">
+</startEvent>
+</process>
+</definitions>

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mit XMLSpy v2012 rel. 2 sp1 (x64) (http://www.altova.com) von dfgsdf (sgtdfhdsth) bearbeitet -->
+<!-- edited with XMLSpy v2010 (http://www.altova.com) by Claus Straube (Hochschule München SCE-catify) -->
+<xsd:schema xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.omg.org/spec/BPMN/20100524/MODEL" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xsd:element name="definitions" type="tDefinitions"/>
+	<xsd:complexType name="tDefinitions">
+		<xsd:sequence>
+			<xsd:element ref="rootElement" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:ID" use="optional"/>
+		<xsd:attribute name="name" type="xsd:string"/>
+		<xsd:anyAttribute namespace="##other" processContents="lax"/>
+	</xsd:complexType>
+	<xsd:element name="process" type="tProcess" substitutionGroup="rootElement"/>
+	<xsd:complexType name="tProcess">
+		<xsd:complexContent>
+			<xsd:extension base="tRootElement">
+				<xsd:sequence>
+					<xsd:element ref="flowElement" minOccurs="0" maxOccurs="unbounded"/>
+				</xsd:sequence>
+				<xsd:attribute name="name" type="xsd:string"/>
+				<xsd:attribute name="version" type="xsd:string"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="subProcess" type="tSubProcess" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tSubProcess">
+		<xsd:complexContent>
+			<xsd:extension base="tActivity">
+				<xsd:sequence>
+					<xsd:element ref="flowElement" minOccurs="0" maxOccurs="unbounded"/>
+				</xsd:sequence>
+				<xsd:attribute name="triggeredByEvent" type="xsd:boolean" default="false"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="sequenceFlow" type="tSequenceFlow" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tSequenceFlow">
+		<xsd:complexContent>
+			<xsd:extension base="tFlowElement">
+				<xsd:attribute name="sourceRef" type="xsd:IDREF" use="required"/>
+				<xsd:attribute name="targetRef" type="xsd:IDREF" use="required"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="catchEvent" type="tCatchEvent"/>
+	<xsd:complexType name="tCatchEvent" abstract="true">
+		<xsd:complexContent>
+			<xsd:extension base="tEvent">
+				<xsd:sequence>
+					<xsd:element ref="eventDefinition" minOccurs="0"/>
+					<xsd:element name="eventDefinitionRef" type="xsd:QName" minOccurs="0"/>
+					<xsd:element ref="dataOutput" minOccurs="0"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="startEvent" type="tStartEvent" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tStartEvent">
+		<xsd:complexContent>
+			<xsd:extension base="tCatchEvent"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="intermediateCatchEvent" type="tIntermediateCatchEvent" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tIntermediateCatchEvent">
+		<xsd:complexContent>
+			<xsd:extension base="tCatchEvent"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="throwEvent" type="tThrowEvent"/>
+	<xsd:complexType name="tThrowEvent" abstract="true">
+		<xsd:complexContent>
+			<xsd:extension base="tEvent">
+				<xsd:sequence>
+					<xsd:element ref="eventDefinition" minOccurs="0"/>
+					<xsd:element name="eventDefinitionRef" type="xsd:QName" minOccurs="0"/>
+					<xsd:element ref="dataInput" minOccurs="0"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="intermediateThrowEvent" type="tIntermediateThrowEvent" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tIntermediateThrowEvent">
+		<xsd:complexContent>
+			<xsd:extension base="tThrowEvent"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="endEvent" type="tEndEvent" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tEndEvent">
+		<xsd:complexContent>
+			<xsd:extension base="tThrowEvent"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="event" type="tEvent" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tEvent" abstract="true">
+		<xsd:complexContent>
+			<xsd:extension base="tFlowNode"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="eventDefinition" type="tEventDefinition" substitutionGroup="rootElement"/>
+	<xsd:complexType name="tEventDefinition" abstract="true">
+		<xsd:complexContent>
+			<xsd:extension base="tRootElement"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="messageEventDefinition" type="tMessageEventDefinition" substitutionGroup="eventDefinition"/>
+	<xsd:complexType name="tMessageEventDefinition">
+		<xsd:complexContent>
+			<xsd:extension base="tEventDefinition">
+				<xsd:sequence>
+					<xsd:element name="operationRef" type="xsd:QName" minOccurs="0"/>
+					<xsd:element ref="messageIntegration" minOccurs="0"/>
+					<xsd:element name="messageIntegrationRef" type="xsd:QName"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="terminateEventDefinition" type="tTerminateEventDefinition" substitutionGroup="eventDefinition"/>
+	<xsd:complexType name="tTerminateEventDefinition">
+		<xsd:complexContent>
+			<xsd:extension base="tEventDefinition"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="serviceTask" type="tServiceTask" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tServiceTask">
+		<xsd:complexContent>
+			<xsd:extension base="tTask">
+				<xsd:sequence>
+					<xsd:element ref="dataInput" minOccurs="0"/>
+					<xsd:element ref="dataOutput" minOccurs="0"/>
+				</xsd:sequence>
+				<xsd:attribute name="implementation" type="xsd:string"/>
+				<xsd:attribute name="operationRef" type="xsd:QName" use="optional"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="task" type="tTask" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tTask">
+		<xsd:complexContent>
+			<xsd:extension base="tActivity"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="gateway" type="tGateway" abstract="true"/>
+	<xsd:complexType name="tGateway">
+		<xsd:complexContent>
+			<xsd:extension base="tFlowNode"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="parallelGateway" type="tParallelGateway" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tParallelGateway">
+		<xsd:complexContent>
+			<xsd:extension base="tGateway"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="exclusiveGateway" type="tExclusiveGateway" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tExclusiveGateway">
+		<xsd:complexContent>
+			<xsd:extension base="tGateway"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="eventBasedGateway" type="tEventBasedGateway" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tEventBasedGateway">
+		<xsd:complexContent>
+			<xsd:extension base="tGateway">
+				<xsd:attribute name="eventGatewayType" type="tEventBasedGatewayType" default="Exclusive"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:simpleType name="tEventBasedGatewayType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Exclusive"/>
+			<xsd:enumeration value="Parallel"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="complexGateway" type="tComplexGateway" substitutionGroup="flowElement"/>
+	<xsd:complexType name="tComplexGateway">
+		<xsd:complexContent>
+			<xsd:extension base="tGateway">
+				<xsd:sequence>
+					<xsd:element name="activationCondition" type="xsd:string" minOccurs="0"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="rootElement" type="tRootElement"/>
+	<xsd:complexType name="tRootElement" abstract="true">
+		<xsd:complexContent>
+			<xsd:extension base="tBaseElement"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="flowElement" type="tFlowElement"/>
+	<xsd:complexType name="tFlowElement" abstract="true">
+		<xsd:complexContent>
+			<xsd:extension base="tBaseElement">
+				<xsd:attribute name="name" type="xsd:string"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="flowNode" type="tFlowNode"/>
+	<xsd:complexType name="tFlowNode" abstract="true">
+		<xsd:complexContent>
+			<xsd:extension base="tFlowElement">
+				<xsd:sequence>
+					<xsd:element name="incoming" type="xsd:QName" minOccurs="0" maxOccurs="unbounded"/>
+					<xsd:element name="outgoing" type="xsd:QName" minOccurs="0" maxOccurs="unbounded"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="baseElement" type="tBaseElement"/>
+	<xsd:complexType name="tBaseElement" abstract="true">
+		<xsd:sequence>
+			<xsd:element ref="extensionElements" minOccurs="0"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:ID" use="optional"/>
+		<xsd:anyAttribute namespace="##other" processContents="lax"/>
+	</xsd:complexType>
+	<xsd:element name="activity" type="tActivity"/>
+	<xsd:complexType name="tActivity" abstract="true">
+		<xsd:complexContent>
+			<xsd:extension base="tFlowNode"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="dataInput" type="tDataOutput"/>
+	<xsd:complexType name="tDataInput">
+		<xsd:complexContent>
+			<xsd:extension base="tRootElement">
+				<xsd:attribute name="dataObjectName" type="xsd:string"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="dataOutput" type="tDataOutput"/>
+	<xsd:complexType name="tDataOutput">
+		<xsd:complexContent>
+			<xsd:extension base="tRootElement">
+				<xsd:attribute name="dataObjectName" type="xsd:string"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="extensionElements" type="tExtensionElements"/>
+	<xsd:complexType name="tExtensionElements">
+		<xsd:sequence>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="messageIntegration" type="tMessageIntegration" substitutionGroup="rootElement"/>
+	<xsd:complexType name="tMessageIntegration">
+		<xsd:complexContent>
+			<xsd:extension base="tRootElement">
+				<xsd:attribute name="prefix" type="xsd:string" use="required"/>
+				<xsd:attribute name="integrationstring" type="xsd:string" use="optional"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+</xsd:schema>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns="http://www.catify.com/processengine/core/processdefinition"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" targetNamespace="http://www.catify.com/processengine/core/processdefinition">
+
+	<xsd:import namespace="http://www.omg.org/spec/BPMN/20100524/MODEL" schemaLocation="BPMN20.xsd"/>
+	
+	<xsd:group id="catifyExtensions" name="catifyExtensions">
+		<xsd:sequence>
+			<xsd:element name="messageIntegration" type="tMessageIntegration" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="version" type="tVersion" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="nOfM" type="tNOfM" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:group>
+
+	<xsd:element name="messageIntegration" type="tMessageIntegration"/>
+	<xsd:complexType name="tMessageIntegration">
+		<xsd:complexContent>
+			<xsd:extension base="bpmn:tRootElement">
+				<xsd:sequence>
+					<xsd:element ref="metaData" minOccurs="0" maxOccurs="unbounded"/>
+				</xsd:sequence>
+				<xsd:attribute name="prefix" type="xsd:string" use="required"/>
+				<xsd:attribute name="integrationstring" type="xsd:string" use="required"/>
+				<xsd:attribute name="direction" type="tMessageIntegrationDirection" default="implicit"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:element name="nOfM" type="tNOfM"/>
+	<xsd:complexType name="tNOfM">
+		<xsd:attribute name="count" type="xsd:int" use="required"/>
+	</xsd:complexType>
+	
+	<xsd:element name="metaData" type="tMetaData"/>
+	<xsd:complexType name="tMetaData">
+		<xsd:attribute name="metaDataKey" type="xsd:string" use="required"/>
+		<xsd:attribute name="metaDataXpath" type="xsd:string" use="required"/>
+	</xsd:complexType>
+
+	<xsd:element name="version" type="tVersion"/>
+	<xsd:complexType name="tVersion">
+		<xsd:attribute name="version" type="xsd:string" use="required"/>
+	</xsd:complexType>
+
+	<xsd:simpleType name="tMessageIntegrationDirection">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="implicit"/>
+			<xsd:enumeration value="in"/>
+			<xsd:enumeration value="out"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+	xmlns="http://www.catify.com/processengine/core/processdefinition/binding"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:ext="http://www.catify.com/processengine/core/processdefinition"
+	targetNamespace="http://www.catify.com/processengine/core/processdefinition/binding"
+    >
+
+<xsd:import namespace="http://www.catify.com/processengine/core/processdefinition" schemaLocation="catifyExtension.xsd"/>
+
+	<xsd:complexType name="catifyBinding">
+			<xsd:sequence>
+    			<xsd:group ref="ext:catifyExtensions"/>
+    		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

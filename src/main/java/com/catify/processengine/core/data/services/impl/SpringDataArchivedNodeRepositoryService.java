@@ -1,0 +1,56 @@
+package com.catify.processengine.core.data.services.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.catify.processengine.core.data.model.entities.ArchiveNode;
+import com.catify.processengine.core.data.repositories.ArchivedNodeRepository;
+import com.catify.processengine.core.data.services.ArchivedNodeRepositoryService;
+
+/**
+ * The Class SpringDataArchivedNodeRepositoryService implements the {@link ArchivedNodeRepositoryService}. 
+ * It therefore uses methods from the Spring Data managed {@link ArchivedNodeRepository}.
+ */
+@Component
+public class SpringDataArchivedNodeRepositoryService implements
+		ArchivedNodeRepositoryService {
+
+	/** The archived node repository. */
+	@Autowired
+	private ArchivedNodeRepository archivedNodeRepository;
+	
+	/* (non-Javadoc)
+	 * @see com.catify.processengine.core.data.services.ArchivedNodeRepositoryService#findByUniqueClientId(java.lang.String)
+	 */
+	@Override
+	public ArchiveNode findByUniqueClientId(String uniqueClientId) {
+		return archivedNodeRepository.findByPropertyValue("uniqueClientId",
+				uniqueClientId);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.catify.processengine.core.data.services.ArchivedNodeRepositoryService#save(com.catify.processengine.core.data.model.entities.ArchiveNode)
+	 */
+	@Override
+	public ArchiveNode save(ArchiveNode archiveNode) {
+		return archivedNodeRepository.save(archiveNode);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.catify.processengine.core.data.services.ArchivedNodeRepositoryService#getOrCreateArchivedNode(java.lang.String)
+	 */
+	@Override
+	public ArchiveNode getOrCreateArchivedNode(String uniqueClientId) {
+		ArchiveNode node = findByUniqueClientId(uniqueClientId);
+
+		if (node == null) {
+			node = new ArchiveNode(uniqueClientId);
+		}
+		archivedNodeRepository.save(node);
+
+		return node;
+	}
+
+
+
+}
