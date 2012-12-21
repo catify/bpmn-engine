@@ -6,13 +6,8 @@ import javax.xml.bind.JAXBElement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import akka.actor.ActorSystem;
-
-import com.catify.processengine.core.messages.ActivationMessage;
-import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TDefinitions;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TRootElement;
@@ -28,12 +23,6 @@ import com.catify.processengine.core.processdefinition.jaxb.TRootElement;
 public class ProcessInitializer {
 
 	static final Logger LOG = LoggerFactory.getLogger(ProcessInitializer.class);
-
-	@Autowired
-	private ActorSystem actorSystem;
-
-	// FIXME: for testing purposes only
-//	public static Date start;
 
 	/**
 	 * Initialize process(es) of a jaxb definition object. A definition object
@@ -74,26 +63,6 @@ public class ProcessInitializer {
 		// initialize data entities (data representation)
 		EntityInitialization entityInit = new EntityInitialization();
 		entityInit.initializeProcess(clientId, processJaxb);
-
-		
-		// FIXME: testing only
-		try {
-			Thread.sleep(20000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		// causes the dependency cycle and will be removed after implementation of unit tests
-//		start = new Date();
-		for (int i = 0; i < 1; i++) {
-			actorSystem.actorFor(
-//					"user/TestClient_PID:1_PushTest_Version:1.0_NID:2_StartEvent").tell(
-//					new TriggerMessage());
-					
-					"user/Client_9nullProcessVersion_11Start_Event").tell(
-					new TriggerMessage());
-		}
-
 	}
 
 }

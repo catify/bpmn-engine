@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +38,6 @@ import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
  * 
  */
 @Component
-//@Scope(value="prototype")
 public class ProcessInstanceMediatorService {
 
 	static final Logger LOG = LoggerFactory.getLogger(ProcessInstanceMediatorService.class);
@@ -60,10 +58,6 @@ public class ProcessInstanceMediatorService {
 	private FlowNodeInstanceRepositoryService flowNodeInstanceRepositoryService;
 
 	private ProcessInstanceNode processInstanceNode;
-	
-	// FIXME: testing only remove when actual junit tests are written
-//	private AtomicInteger atomicInteger = new AtomicInteger(0);
-//	private AtomicInteger atomicFrequencyCount = new AtomicInteger(0);
 	
 	public ProcessInstanceMediatorService() {
 
@@ -222,24 +216,6 @@ public class ProcessInstanceMediatorService {
 		processInstanceNode.moveInstanceToArchive(archivedProcessNode, processInstanceId);
 		
 		processInstanceNode.setProcessInstanceEndTime(endTime);
-		
-		// FIXME: time measurement for live testing
-//		Date end = new Date();
-//		long elapsed = (end.getTime() - ProcessInitializer.start.getTime())/1000;
-//		long instanceCount = atomicInteger.incrementAndGet();
-//		long frequencyCount = atomicFrequencyCount.incrementAndGet();
-//		double average =  (double) elapsed / (double) instanceCount;
-//		
-//		BigDecimal averageDec = new BigDecimal( average );
-//		averageDec = averageDec.setScale( 5, BigDecimal.ROUND_HALF_UP );
-//		
-//		if (frequencyCount % 100 == 0) {
-//			LOG.info("############# Time from start to process instance end: " + elapsed 
-//					+ ". Number of instances completed: " + instanceCount
-//					+ ". Avarage time per process instance: " + averageDec
-//					+ " ##############");
-//		}
-
 	}
 	
 	/**

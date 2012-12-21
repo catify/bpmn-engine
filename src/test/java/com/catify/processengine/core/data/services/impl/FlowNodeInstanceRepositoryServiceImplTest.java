@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.test.context.ContextConfiguration;
@@ -25,31 +24,18 @@ import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
 import com.catify.processengine.core.data.model.entities.ProcessNode;
 import com.catify.processengine.core.data.model.entities.RootNode;
 import com.catify.processengine.core.data.model.entities.RunningNode;
-import com.catify.processengine.core.data.repositories.FlowNodeInstanceRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:META-INF/spring/spring-context.xml" })
 @Transactional
 public class FlowNodeInstanceRepositoryServiceImplTest {
 
-	
 	@Autowired
 	private FlowNodeInstanceRepositoryServiceImpl flowNodeInstanceRepositoryServiceImpl;
-	
-	@Autowired 
-	private FlowNodeInstanceRepository flowNodeInstanceRepository;
-	
-	@Autowired
-	private GraphDatabaseService databaseService;
 	
 	/** The neo4j template. */
 	@Autowired
 	private Neo4jTemplate neo4jTemplate;
-	
-//	@BeforeTransaction
-//	public void clearDatabase() {
-//		Neo4jHelper.cleanDb(databaseService);
-//	}
 	
 	@Before
 	public void before() {
