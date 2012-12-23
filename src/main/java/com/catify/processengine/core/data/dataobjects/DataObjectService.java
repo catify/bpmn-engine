@@ -55,6 +55,10 @@ public class DataObjectService {
 	 */
 	public void saveObject(String uniqueProcessId, String instanceId,
 			Object dataObject) {
+		System.out.println("Process Id: " + uniqueProcessId + "Instance Id: " + instanceId 
+			+"Data Obeject: " + dataObject 
+			+ "SPI Id: " + this.dataObjectHandlingSPI.getImplementationId() 
+			+ "Data Object Id: " + this.getDataOutputObjectId());
 		this.dataObjectHandlingSPI.saveObject(uniqueProcessId,
 				this.dataOutputObjectId, instanceId, dataObject);
 	}

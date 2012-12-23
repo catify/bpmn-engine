@@ -14,13 +14,18 @@ exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http:/
 <intermediateThrowEvent id="_3" name="Intermediate Event">
   <messageEventDefinition id="_3_ED_1">
     <extensionElements>
-	    <catify:messageIntegration prefix="camel" integrationstring="file:data/integrationOutput"/>
+	    <catify:messageIntegration prefix="camel" integrationstring="file:data/testprocess_throw_camel_messageIntegration/integrationOutput"/>
     </extensionElements>
   </messageEventDefinition>
 </intermediateThrowEvent>
 <sequenceFlow id="_5" sourceRef="_11" targetRef="_3"/>
 <sequenceFlow id="_6" sourceRef="_3" targetRef="_4"/>
 <startEvent id="_11" name="Start Event">
+  <messageEventDefinition id="_11_ED_1">
+    <extensionElements>
+	    <catify:messageIntegration prefix="camel" integrationstring="file:data/testprocess_throw_camel_messageIntegration/startInstance"/>
+    </extensionElements>
+  </messageEventDefinition>
 </startEvent>
 </process>
 </definitions>

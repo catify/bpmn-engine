@@ -708,6 +708,7 @@ public class NodeFactoryImpl implements NodeFactory {
 		
 		// only create a DataObjectHandling object if there is at least on object id
 		if (dataObjectIds.size() > 0) {
+			LOG.debug("Node factory appending data object service provider");
 			return new DataObjectService(dataObjectIds.get(DataObjectIdService.DATAINPUTOBJECTID), dataObjectIds.get(DataObjectIdService.DATAOUTPUTOBJECTID));
 		} else {
 			return new NoDataObjectHandling();

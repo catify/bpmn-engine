@@ -110,6 +110,7 @@ public class StartEventNode extends CatchEvent {
 		// work with the given process instance id, if the process instance has
 		// already been initialized, or create a new process instance
 		if (message.getProcessInstanceId() != null) {
+			LOG.debug("Already instantiated process instance detected with pid: " + message.getProcessInstanceId());
 			processInstanceId = message.getProcessInstanceId();
 		} else {
 			processInstanceId = processInstanceMediatorService.createProcessInstance(this.getUniqueProcessId());

@@ -88,7 +88,7 @@ public class ProcessInstanceMediatorService {
 				.findByUniqueProcessId(uniqueProcessId);
 
 		LOG.debug(String.format(
-				"Staring to instantiate process %s with instanceId %s",
+				"Starting to instantiate process %s with instanceId %s",
 				process, processInstanceId));
 		
 		// create a process instance node

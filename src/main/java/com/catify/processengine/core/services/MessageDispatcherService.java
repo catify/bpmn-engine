@@ -3,6 +3,9 @@ package com.catify.processengine.core.services;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.ActorRef;
@@ -21,6 +24,8 @@ import com.catify.processengine.core.nodes.eventdefinition.EventDefinition;
 @Configurable
 public class MessageDispatcherService {
 
+	static final Logger LOG = LoggerFactory.getLogger(MessageDispatcherService.class);
+
 	/**
 	 * Holds the message integration implementation.
 	 * 
@@ -28,8 +33,8 @@ public class MessageDispatcherService {
 	 */
 	private MessageIntegrationSPI integrationSPI;
 	
-//	@Autowired // autowiring does not work when needed in constructor, see redmine #98
-	private ActorSystem actorSystem = ActorSystem.create("ProcessEngine");
+	@Autowired // autowiring does not work when needed in constructor, see redmine #98
+	private ActorSystem actorSystem; //= ActorSystem.create("ProcessEngine");
 	
 	private ActorRef metaDataActor;
 
@@ -38,7 +43,7 @@ public class MessageDispatcherService {
 
 	public MessageDispatcherService(MessageIntegrationSPI integrationSPI) {
 		this.integrationSPI = integrationSPI;
-		this.metaDataActor = this.actorSystem.actorFor("akka://ProcessEngine/user/metaDataWriter");
+//		this.metaDataActor = this.actorSystem.actorFor("akka://ProcessEngine/user/metaDataWriter");
 	}
 	
 	/**
@@ -57,19 +62,27 @@ public class MessageDispatcherService {
 				.get(uniqueFlowNodeId);
 		ActorRef targetNodeActor = this.actorSystem
 				.actorFor("user/" + targetNodeActorString);
-
+		
 		// create the integration message
 		TriggerMessage triggerMessage = new TriggerMessage(
 				integrationMessage.getProcessInstanceId(),
 				integrationMessage.getPayload());
 
+		LOG.debug("Message Dispatcher sending trigger message to " + targetNodeActor);
+		
 		// send the integration message to the actor
 		targetNodeActor.tell(triggerMessage);
 		
-		// send the meta data to the meta data actor
-		MetaDataMessage metaDataMessage = new MetaDataMessage(integrationMessage.getProcessId(), integrationMessage.getProcessInstanceId(), metaData);
-		
-		metaDataActor.tell(metaDataMessage);
+		// send the meta data to the meta data actor (if it is not a start event)
+		if (integrationMessage.getProcessInstanceId() != null) {
+			MetaDataMessage metaDataMessage = new MetaDataMessage(integrationMessage.getProcessId(), integrationMessage.getProcessInstanceId(), metaData);
+			
+			this.metaDataActor = this.actorSystem.actorFor("akka://ProcessEngine/user/metaDataWriter");
+			
+			LOG.debug("Message Dispatcher sending meta data message to " + this.metaDataActor);
+			
+			metaDataActor.tell(metaDataMessage);
+		}
 	}
 
 	/**

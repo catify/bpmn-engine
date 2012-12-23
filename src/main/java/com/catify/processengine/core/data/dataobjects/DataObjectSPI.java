@@ -2,6 +2,11 @@ package com.catify.processengine.core.data.dataobjects;
 
 import java.util.ServiceLoader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.catify.processengine.core.nodes.FlowElement;
+
 /**
  * The DataObjectHandlingSPI defines the methods needed to implement the storing 
  * and loading of data objects bound to process nodes.
@@ -10,6 +15,8 @@ import java.util.ServiceLoader;
  * 
  */
 public abstract class DataObjectSPI {
+	
+	static final Logger LOG = LoggerFactory.getLogger(FlowElement.class);
 
 	/**
 	 * Custom implementation id to figure
@@ -78,9 +85,11 @@ public abstract class DataObjectSPI {
 	 */
 	public static DataObjectSPI getDataObjectHandlingImpl(String implementationId) {
 		 
-	     for (DataObjectSPI integrationProvider : DataObjectHandlingLoader) {
-	    	 if (integrationProvider.getImplementationId().equals(implementationId)) {
-				return integrationProvider;
+	     for (DataObjectSPI dataObjectProvider : DataObjectHandlingLoader) {
+	    	 LOG.debug("Applications Data Object SPI Id: " + dataObjectProvider.getImplementationId() + " Implementing Data Object SPI Id: " + implementationId);
+	    	 if (dataObjectProvider.getImplementationId().equals(implementationId)) {
+	    		LOG.debug("Data Object service provider found: " + dataObjectProvider);
+				return dataObjectProvider;
 	    	 }
 	     }
 	     

@@ -27,6 +27,11 @@ expressionLanguage="http://www.w3.org/1999/XPath" id="_1342870412164" name="" ta
       <outputSet>
         <dataOutputRefs>Dout_2_7</dataOutputRefs>
       </outputSet>
+      <messageEventDefinition id="_3_ED_1">
+		<extensionElements>
+			<catify:messageIntegration prefix="camel" integrationstring="file:data/testprocess_throw_dataOutput_integrationstart/startInstance"/>
+		</extensionElements>
+	   </messageEventDefinition>
     </startEvent>
     <endEvent id="_4" name="End Event">
     </endEvent>
