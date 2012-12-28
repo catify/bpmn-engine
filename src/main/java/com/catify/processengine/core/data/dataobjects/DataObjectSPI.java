@@ -78,22 +78,23 @@ public abstract class DataObjectSPI {
 	public abstract void deleteObject(String uniqueProcessId, String objectId, String instanceId);
 	
 	 /**
-	 * Gets the spi implementation.
+	 * Gets the data object service provider.
 	 *
-	 * @param implementationId the implementationId used by the implementation
-	 * @return the message integration implementation
+	 * @param implementationIdSet the implementationId set in the spring context
+	 * @return the data object implementation
 	 */
-	public static DataObjectSPI getDataObjectHandlingImpl(String implementationId) {
+	public static DataObjectSPI getDataObjectHandlingImpl(String implementationIdSet) {
 		 
 	     for (DataObjectSPI dataObjectProvider : DataObjectHandlingLoader) {
-	    	 LOG.debug("Applications Data Object SPI Id: " + dataObjectProvider.getImplementationId() + " Implementing Data Object SPI Id: " + implementationId);
-	    	 if (dataObjectProvider.getImplementationId().equals(implementationId)) {
+	    	 LOG.debug("Applications Data Object SPI Id: " + dataObjectProvider.getImplementationId() + " Implementing Data Object SPI Id: " + implementationIdSet);
+	    	 if (dataObjectProvider.getImplementationId().equals(implementationIdSet)) {
 	    		LOG.debug("Data Object service provider found: " + dataObjectProvider);
 				return dataObjectProvider;
 	    	 }
 	     }
 	     
 	     // if no provider could be found, return null
+	     LOG.warn("Could not find a data object provider, saving data objects will fail!");
 	     return null;
 	 }
 	 

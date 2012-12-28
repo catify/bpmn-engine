@@ -160,6 +160,10 @@
 					<groupId>ch.qos.logback</groupId>
 					<artifactId>logback-access</artifactId>
 				</exclusion>
+            <exclusion>
+                <artifactId>slf4j-log4j12</artifactId>
+                <groupId>org.slf4j</groupId>
+            </exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -172,6 +176,10 @@
 					<groupId>ch.qos.logback</groupId>
 					<artifactId>logback-access</artifactId>
 				</exclusion>
+				            <exclusion>
+                <artifactId>slf4j-log4j12</artifactId>
+                <groupId>org.slf4j</groupId>
+            </exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -242,7 +250,8 @@
 							<mainClass>com.catify.processengine.core.AppStarter</mainClass>
 						</manifest>
 						<manifestEntries>
-							<Class-Path>services/camel-0.0.1-SNAPSHOT.jar services/voldemort-0.0.1-SNAPSHOT.jar</Class-Path>
+<!-- 							<Class-Path>services/</Class-Path> -->
+						<Class-Path>services/camel-0.0.1-SNAPSHOT.jar services/voldemort-0.0.1-SNAPSHOT.jar</Class-Path>
 						</manifestEntries>
 					</archive>
 				</configuration>

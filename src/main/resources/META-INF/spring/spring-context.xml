@@ -98,8 +98,8 @@
 		</property>
 	</bean>
 
-	<bean id="dataObjectService"
-		class="com.catify.processengine.core.data.dataobjects.DataObjectService">
-		<property name="dataObjectHandlingImpl" value="${datastore.implementation}" />
-	</bean>
+<!-- 	<bean id="dataObjectService" -->
+<!-- 		class="com.catify.processengine.core.data.dataobjects.DataObjectService"> -->
+<!-- 		<property name="dataObjectServiceProviderIdSetting" value="${datastore.implementation}" /> -->
+<!-- 	</bean> -->
 </beans>

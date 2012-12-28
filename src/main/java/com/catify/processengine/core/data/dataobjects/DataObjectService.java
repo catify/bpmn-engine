@@ -13,8 +13,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataObjectService {
 
-	/** The data object handling implementation. */
-	private String dataObjectHandlingImpl;
+	/** The data object implementation id set in the spring context. */
+	private String dataObjectServiceProviderIdSetting = "voldemort";
+
+	public String getDataObjectServiceProviderIdSetting() {
+		return dataObjectServiceProviderIdSetting;
+	}
+
+	public void setDataObjectServiceProviderIdSetting(
+			String dataObjectServiceProviderIdSetting) {
+		this.dataObjectServiceProviderIdSetting = dataObjectServiceProviderIdSetting;
+	}
 
 	/** The data input object id. */
 	private String dataInputObjectId;
@@ -30,8 +39,14 @@ public class DataObjectService {
 	 */
 	public DataObjectService() {
 		this.dataObjectHandlingSPI = DataObjectSPI
-				.getDataObjectHandlingImpl(this.dataObjectHandlingImpl);
+				.getDataObjectHandlingImpl(this.dataObjectServiceProviderIdSetting);
 	}
+	
+//	@PostConstruct
+//	void initAnnotations() {
+//		this.dataObjectHandlingSPI = DataObjectSPI
+//				.getDataObjectHandlingImpl(this.dataObjectServiceProviderIdSetting);
+//	}
 	
 	/**
 	 * Instantiates a new data object service.
@@ -43,7 +58,7 @@ public class DataObjectService {
 		this.dataInputObjectId = dataInputObjectId;
 		this.dataOutputObjectId = dataOutputObjectId;
 		this.dataObjectHandlingSPI = DataObjectSPI
-				.getDataObjectHandlingImpl(this.dataObjectHandlingImpl);
+				.getDataObjectHandlingImpl(this.dataObjectServiceProviderIdSetting);
 	}
 
 	/**
@@ -55,10 +70,6 @@ public class DataObjectService {
 	 */
 	public void saveObject(String uniqueProcessId, String instanceId,
 			Object dataObject) {
-		System.out.println("Process Id: " + uniqueProcessId + "Instance Id: " + instanceId 
-			+"Data Obeject: " + dataObject 
-			+ "SPI Id: " + this.dataObjectHandlingSPI.getImplementationId() 
-			+ "Data Object Id: " + this.getDataOutputObjectId());
 		this.dataObjectHandlingSPI.saveObject(uniqueProcessId,
 				this.dataOutputObjectId, instanceId, dataObject);
 	}
@@ -112,7 +123,7 @@ public class DataObjectService {
 	 * @return the data object handling implementation
 	 */
 	public String getDataObjectHandlingImpl() {
-		return dataObjectHandlingImpl;
+		return dataObjectServiceProviderIdSetting;
 	}
 
 	/**
@@ -121,7 +132,7 @@ public class DataObjectService {
 	 * @param dataObjectHandlingImpl the new data object handling implementation
 	 */
 	public void setDataObjectHandlingImpl(String dataObjectHandlingImpl) {
-		this.dataObjectHandlingImpl = dataObjectHandlingImpl;
+		this.dataObjectServiceProviderIdSetting = dataObjectHandlingImpl;
 	}
 	
 	/**
