@@ -17,9 +17,9 @@
 	<groupId>catify</groupId>
 	<artifactId>process-engine-core</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
 
-	<name>a graph backed process engine</name>
+	<name>a graph backed bpmn process engine</name>
 	<url>http://www.catify.com</url>
 
 	<properties>
