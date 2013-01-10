@@ -205,9 +205,10 @@
 							<classpathPrefix>lib/</classpathPrefix>
 							<mainClass>com.catify.processengine.core.AppStarter</mainClass>
 						</manifest>
-<!-- 						<manifestEntries> -->
-<!-- 							<Class-Path>services/integration-spi-camel-1.0.jar services/data-spi-voldemort-1.0.jar</Class-Path> -->
-<!-- 						</manifestEntries> -->
+						<!-- if used without maven the service providers can be manually bound -->
+						<manifestEntries>
+							<Class-Path>services/integration-spi-camel-1.0.jar services/data-spi-voldemort-1.0.jar</Class-Path>
+						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
