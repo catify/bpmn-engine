@@ -31,15 +31,15 @@ public class DataObjectService {
 	/** The data output object id. */
 	private String dataOutputObjectId;
 	
-	/** The data object handling spi. */
-	private DataObjectSPI dataObjectHandlingSPI;
+	/** The data object spi. */
+	private DataObjectSPI dataObjectServiceProvider;
 
 	/**
 	 * Instantiates a new data object service.
 	 */
 	public DataObjectService() {
-		this.dataObjectHandlingSPI = DataObjectSPI
-				.getDataObjectHandlingImpl(this.dataObjectServiceProviderIdSetting);
+		this.dataObjectServiceProvider = DataObjectSPI
+				.getDataObjectServiceProvider(this.dataObjectServiceProviderIdSetting);
 	}
 	
 //	@PostConstruct
@@ -57,8 +57,8 @@ public class DataObjectService {
 	public DataObjectService(String dataInputObjectId, String dataOutputObjectId) {
 		this.dataInputObjectId = dataInputObjectId;
 		this.dataOutputObjectId = dataOutputObjectId;
-		this.dataObjectHandlingSPI = DataObjectSPI
-				.getDataObjectHandlingImpl(this.dataObjectServiceProviderIdSetting);
+		this.dataObjectServiceProvider = DataObjectSPI
+				.getDataObjectServiceProvider(this.dataObjectServiceProviderIdSetting);
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class DataObjectService {
 	 */
 	public void saveObject(String uniqueProcessId, String instanceId,
 			Object dataObject) {
-		this.dataObjectHandlingSPI.saveObject(uniqueProcessId,
+		this.dataObjectServiceProvider.saveObject(uniqueProcessId,
 				this.dataOutputObjectId, instanceId, dataObject);
 	}
 
@@ -82,7 +82,7 @@ public class DataObjectService {
 	 * @return the data object loaded
 	 */
 	public Object loadObject(String uniqueProcessId, String instanceId) {
-		return this.dataObjectHandlingSPI.loadObject(uniqueProcessId,
+		return this.dataObjectServiceProvider.loadObject(uniqueProcessId,
 				this.dataInputObjectId, instanceId);
 	}
 	
@@ -94,12 +94,12 @@ public class DataObjectService {
 	 */
 	public void deleteObject(String uniqueProcessId, String instanceId) {
 		if (this.dataInputObjectId != null) {
-			this.dataObjectHandlingSPI.deleteObject(uniqueProcessId,
+			this.dataObjectServiceProvider.deleteObject(uniqueProcessId,
 					this.dataInputObjectId, instanceId);
 		}
 		
 		if (this.dataOutputObjectId != null) {
-			this.dataObjectHandlingSPI.deleteObject(uniqueProcessId,
+			this.dataObjectServiceProvider.deleteObject(uniqueProcessId,
 					this.dataOutputObjectId, instanceId);
 		}
 	}
@@ -112,37 +112,37 @@ public class DataObjectService {
 	 */
 	public void deleteObject(String uniqueProcessId, String dataObjectId, String instanceId) {
 		if (dataObjectId != null) {
-			this.dataObjectHandlingSPI.deleteObject(uniqueProcessId,
+			this.dataObjectServiceProvider.deleteObject(uniqueProcessId,
 					dataObjectId, instanceId);
 		}
 	}
 
 	/**
-	 * Gets the data object handling implementation.
+	 * Gets the data object service providers id.
 	 *
-	 * @return the data object handling implementation
+	 * @return the data object service provider
 	 */
-	public String getDataObjectHandlingImpl() {
+	public String getDataObjectServiceProviderId() {
 		return dataObjectServiceProviderIdSetting;
 	}
 
 	/**
-	 * Sets the data object handling implementation.
+	 * Sets the data object service provider id.
 	 *
-	 * @param dataObjectHandlingImpl the new data object handling implementation
+	 * @param dataObjectServiceProviderId the new data object service provider id
 	 */
-	public void setDataObjectHandlingImpl(String dataObjectHandlingImpl) {
-		this.dataObjectServiceProviderIdSetting = dataObjectHandlingImpl;
+	public void setDataObjectServiceProviderId(String dataObjectServiceProviderId) {
+		this.dataObjectServiceProviderIdSetting = dataObjectServiceProviderId;
 	}
 	
 	/**
-	 * Sets the data object handling spi.
+	 * Sets the data object service provider.
 	 *
-	 * @param dataObjectHandlingSPI the new data object handling spi
+	 * @param dataObjectServiceProvider the new data object service provider
 	 */
-	public void setDataObjectHandlingSPI(
-			DataObjectSPI dataObjectHandlingSPI) {
-		this.dataObjectHandlingSPI = dataObjectHandlingSPI;
+	public void setDataObjectServiceProvider(
+			DataObjectSPI dataObjectServiceProvider) {
+		this.dataObjectServiceProvider = dataObjectServiceProvider;
 	}
 
 	/**

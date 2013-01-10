@@ -83,12 +83,13 @@ public abstract class DataObjectSPI {
 	 * @param implementationIdSet the implementationId set in the spring context
 	 * @return the data object implementation
 	 */
-	public static DataObjectSPI getDataObjectHandlingImpl(String implementationIdSet) {
+	public static DataObjectSPI getDataObjectServiceProvider(String implementationIdSet) {
 		 
 	     for (DataObjectSPI dataObjectProvider : DataObjectHandlingLoader) {
-	    	 LOG.debug("Applications Data Object SPI Id: " + dataObjectProvider.getImplementationId() + " Implementing Data Object SPI Id: " + implementationIdSet);
+	    	 LOG.debug("Data Object SPI Id set in config: " + dataObjectProvider.getImplementationId() 
+	    			 + "; Implementing Data Object SPI Id found: " + implementationIdSet);
 	    	 if (dataObjectProvider.getImplementationId().equals(implementationIdSet)) {
-	    		LOG.debug("Data Object service provider found: " + dataObjectProvider);
+	    		LOG.debug("Data Object service provider used: " + dataObjectProvider);
 				return dataObjectProvider;
 	    	 }
 	     }
