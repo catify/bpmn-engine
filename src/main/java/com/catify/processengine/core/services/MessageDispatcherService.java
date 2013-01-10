@@ -71,7 +71,7 @@ public class MessageDispatcherService {
 		LOG.debug("Message Dispatcher sending trigger message to " + targetNodeActor);
 		
 		// send the integration message to the actor
-		targetNodeActor.tell(triggerMessage);
+		targetNodeActor.tell(triggerMessage, null);
 		
 		// send the meta data to the meta data actor (if it is not a start event)
 		if (integrationMessage.getProcessInstanceId() != null) {
@@ -81,7 +81,7 @@ public class MessageDispatcherService {
 			
 			LOG.debug("Message Dispatcher sending meta data message to " + this.metaDataActor);
 			
-			metaDataActor.tell(metaDataMessage);
+			metaDataActor.tell(metaDataMessage, null);
 		}
 	}
 
