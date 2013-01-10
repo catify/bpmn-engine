@@ -49,8 +49,8 @@ public abstract class MessageIntegrationSPI {
 	 * This map is used to dispatch messages between the engine and the service provider,
 	 * so if used by receive(), send(), or requestReply() it needs to be filled on startReceive(), 
 	 * startSend() and startRequestReply().
-	 * <br><br>
-	 * Example content: <code>{"catchNodeId1", "file:data/catchNode1"}</code>
+	 * <li> Key: 'uniqueFlowNoedId' <br>
+	 * <li> Value: 'route'
 	 */
 	protected Map<String, String> flowNodeIdIntegrationMap = new HashMap<String, String>();
 
@@ -160,11 +160,14 @@ public abstract class MessageIntegrationSPI {
 	/**
 	 * Convert a list of TMetaData (which is a jaxb generated type that only consists of two strings) 
 	 * into a Map<String, String> that is easier to work with.
+	 * <li>Key: 'metaDataName' <br>
+	 * <li>Value: 'metaDataXpath'
+	 * <br><br>
 	 * 
 	 * @param tMetaDatas
-	 *            the meta data list holding the meta data names and xpath expressions 
+	 *            the list of TMetaData holding the meta data names and xpath expressions 
 	 * 			  of a flow node defined in the bpmn process.xml
-	 * @return the meta data xpaths map
+	 * @return the meta data names/xpaths map
 	 */
 	public Map<String, String> convertTMetaDataListToMap(
 			List<TMetaData> tMetaDatas) {
