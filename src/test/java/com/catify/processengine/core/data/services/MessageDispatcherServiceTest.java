@@ -45,7 +45,7 @@ public class MessageDispatcherServiceTest {
 	public void testDispatchToEngine() {
 		IntegrationMessage integrationMessage = getNewIntegrationMessage();
 		
-		messageDispatcherServiceMockInjected.dispatchToEngine("uniqueFlowNodeId", integrationMessage, null);
+		messageDispatcherServiceMockInjected.dispatchToEngine(integrationMessage, null);
 
 		// test of akka actor message receiving etc. can only be made when the upcoming JavaTestKit of akka 2.1 is released
 		// other functionality will be tested in integration tests
@@ -58,8 +58,7 @@ public class MessageDispatcherServiceTest {
 		
 		messageDispatcherServiceMockInjected.dispatchViaIntegrationSPI("uniqueFlowNodeId", integrationMessage);
 		
-		verify(integrationSPI).dispatchIntegrationMessageViaSpiImpl("uniqueFlowNodeId",
-				integrationMessage);
+		verify(integrationSPI).send(integrationMessage);
 	}
 
 	@Test
@@ -68,7 +67,7 @@ public class MessageDispatcherServiceTest {
 		
 		messageDispatcherServiceMockInjected.requestReplyViaIntegrationSPI("uniqueFlowNodeId", integrationMessage);
 		
-		verify(integrationSPI).requestReplyViaSpiImpl("uniqueFlowNodeId", integrationMessage);
+		verify(integrationSPI).requestReply(integrationMessage);
 	}
 
 	IntegrationMessage getNewIntegrationMessage() {

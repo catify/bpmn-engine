@@ -92,7 +92,7 @@ public class MessageEventDefinition_InOut implements SynchronousEventDefinition 
 			TMessageIntegration messageIntegration) {
 		// start the message integration implementation for this flow node (like
 		// routes etc.)
-		integrationSPI.startRequestReplyIntegrationImplementation(
+		integrationSPI.startRequestReply(
 				this.uniqueFlowNodeId,
 				messageIntegration.getIntegrationstring());
 	}

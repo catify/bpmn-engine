@@ -33,8 +33,8 @@ public class MessageDispatcherService {
 	 */
 	private MessageIntegrationSPI integrationSPI;
 	
-	@Autowired // autowiring does not work when needed in constructor, see redmine #98
-	private ActorSystem actorSystem; //= ActorSystem.create("ProcessEngine");
+	@Autowired
+	private ActorSystem actorSystem;
 	
 	private ActorRef metaDataActor;
 
@@ -43,23 +43,22 @@ public class MessageDispatcherService {
 
 	public MessageDispatcherService(MessageIntegrationSPI integrationSPI) {
 		this.integrationSPI = integrationSPI;
-//		this.metaDataActor = this.actorSystem.actorFor("akka://ProcessEngine/user/metaDataWriter");
 	}
 	
 	/**
 	 * Dispatch messages from message integration to the engine.
 	 * 
-	 * @param uniqueFlowNodeId
-	 *            the unique flow node id
 	 * @param integrationMessage
 	 *            the message that should be dispatched to the engine
+	 * @param metaData
+	 *            the meta Data map that holds meta data names and their 
+	 *            values returned by their according xpath query
 	 */
-	public void dispatchToEngine(String uniqueFlowNodeId,
-			IntegrationMessage integrationMessage, Map<String, Object> metaData) {
+	public void dispatchToEngine(IntegrationMessage integrationMessage, Map<String, Object> metaData) {
 
 		// get the actor to send the integration message to
 		String targetNodeActorString = uniqueFlowNodeIdToActorRefMap
-				.get(uniqueFlowNodeId);
+				.get(integrationMessage.getUniqueFlowNodeId());
 		ActorRef targetNodeActor = this.actorSystem
 				.actorFor("user/" + targetNodeActorString);
 		
@@ -73,7 +72,7 @@ public class MessageDispatcherService {
 		// send the integration message to the actor
 		targetNodeActor.tell(triggerMessage, null);
 		
-		// send the meta data to the meta data actor (if it is not a start event)
+		// send the meta data to the meta data actor (if it is not a start event, which can not collect meta data)
 		if (integrationMessage.getProcessInstanceId() != null) {
 			MetaDataMessage metaDataMessage = new MetaDataMessage(integrationMessage.getProcessId(), integrationMessage.getProcessInstanceId(), metaData);
 			
@@ -97,8 +96,7 @@ public class MessageDispatcherService {
 	 *            implementation
 	 */
 	public void dispatchViaIntegrationSPI(final String uniqueFlowNodeId, final IntegrationMessage message) {
-		integrationSPI.dispatchIntegrationMessageViaSpiImpl(uniqueFlowNodeId,
-				message);
+		integrationSPI.send(message);
 	}
 
 	/**
@@ -113,7 +111,6 @@ public class MessageDispatcherService {
 	 *            implementation
 	 */
 	public Object requestReplyViaIntegrationSPI(final String uniqueFlowNodeId, final IntegrationMessage message) {
-		return integrationSPI.requestReplyViaSpiImpl(uniqueFlowNodeId,
-				message);
+		return integrationSPI.requestReply(message);
 	}
 }

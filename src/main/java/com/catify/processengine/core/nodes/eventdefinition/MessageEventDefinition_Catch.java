@@ -76,7 +76,7 @@ public class MessageEventDefinition_Catch implements EventDefinition {
 			TMessageIntegration messageIntegration) {
 		// start the message integration implementation for this flow node (like
 		// routes etc.)
-		integrationSPI.startCatchingIntegrationImplementation(
+		integrationSPI.startReceive(
 				this.uniqueFlowNodeId,
 				messageIntegration.getIntegrationstring(),
 				messageIntegration.getMetaData());

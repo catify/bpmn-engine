@@ -36,11 +36,11 @@ public class IntegrationMessage  extends Message {
 		this.uniqueProcessId = processId;
 	}
 
-	public String getNodeId() {
+	public String getUniqueFlowNodeId() {
 		return uniqueFlowNodeId;
 	}
 
-	public void setNodeId(String nodeId) {
+	public void setUniqueFlowNodeId(String nodeId) {
 		this.uniqueFlowNodeId = nodeId;
 	}
 	

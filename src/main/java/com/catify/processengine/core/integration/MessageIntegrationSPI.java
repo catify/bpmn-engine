@@ -8,7 +8,6 @@ import java.util.ServiceLoader;
 import com.catify.processengine.core.processdefinition.jaxb.TMetaData;
 import com.catify.processengine.core.services.MessageDispatcherService;
 
-// TODO: Auto-generated Javadoc
 /**
  * The MessageIntegration Service Provider Interface allows to plug message
  * integration frameworks (like Apache Camel, Spring Integration) to the process
@@ -40,18 +39,20 @@ public abstract class MessageIntegrationSPI {
      = ServiceLoader.load(MessageIntegrationSPI.class);
 	
 	/**
-	 * You need to define your own implementation prefix as it is used to figure out
-	 * if the chosen implementation is the right one 
+	 * The implementation prefix is used to figure out if the chosen implementation is the right one. 
 	 */
 	protected String prefix = "implementationPrefix";
 	
 	/**
-	 * Map between the uniqueFlowNoedId, which uniquely identifies a FlowNode and its message integration implementation (eg. route).
+	 * Mapping between the uniqueFlowNoedId (which uniquely identifies a FlowNode in the bpmn engine) 
+	 * and its message integration destination (eg. route).
+	 * This map is used to dispatch messages between the engine and the service provider,
+	 * so if used by receive(), send(), or requestReply() it needs to be filled on startReceive(), 
+	 * startSend() and startRequestReply().
+	 * <br><br>
+	 * Example content: <code>{"catchNodeId1", "file:data/catchNode1"}</code>
 	 */
-	protected Map<String, String> flowNodeIdIntegrationImplMap = new HashMap<String, String>();
-	
-	protected Map<String, Object> metaDataValues;
-	protected Map<String, String> metaDataXpaths;
+	protected Map<String, String> flowNodeIdIntegrationMap = new HashMap<String, String>();
 
 	/**
 	 * Gets the prefix that is used to identify the message integration
@@ -66,38 +67,6 @@ public abstract class MessageIntegrationSPI {
 	}
 
 	/**
-	 * Dispatch an integration message via the spi implementation. The
-	 * {@link MessageDispatcherService} will call this method for outgoing
-	 * messages. The SPI implementation must provide a way to map between the
-	 * uniqueFlowNodeId and its message integration implementation
-	 * (eg. route). The preferred way to do so, should be the use of
-	 * the given hash map ({@link MessageDispatcherService}).
-	 * 
-	 * @param uniqueFlowNodeId the unique flow node id
-	 * @param integrationMessage
-	 *            the integration message
-	 */
-	public abstract void dispatchIntegrationMessageViaSpiImpl(final String uniqueFlowNodeId,
-			IntegrationMessage integrationMessage);
-
-	/**
-	 * Start a catching message integration implementation (eg. route). A
-	 * catching message integration receives a message and then needs to fulfill
-	 * the following steps: <li>create an Integration Message <li>send that
-	 * integration message to the engine via the
-	 * {@link MessageDispatcherService} <BR>
-	 * <BR>
-	 * 
-	 * @param messageIntegrationString
-	 *            the message integration string defined in the bpmn.xml
-	 * @return true, if the messageIntegrationString could be processed, false
-	 *         if the messageIntegrationString could not be processed (because
-	 *         it belongs to another implementation or is erroneous)
-	 */
-	public abstract void startCatchingIntegrationImplementation(
-			final String uniqueFlowNodeId, String messageIntegrationString, List<TMetaData> metaDataList);
-
-	/**
 	 * Start a throwing message integration implementation (eg. route). A
 	 * throwing message integration gets a message from the process engine to be
 	 * sent by the message integration implementation (to some other service).
@@ -106,73 +75,109 @@ public abstract class MessageIntegrationSPI {
 	 * method which will be invoked by the process engine for each message (see
 	 * {@link MessageDispatcherService}).
 	 * 
-	 * @param messageIntegrationString
-	 *            the message integration string defined in the bpmn.xml
-	 * @param messageIntegrationString
 	 * @param uniqueFlowNodeId the unique flow node id
+	 * @param messageIntegrationString
+	 *            the message integration string defined in the bpmn process.xml
 	 * @return true, if the messageIntegrationString could be processed, false
 	 *         if the messageIntegrationString could not be processed (because
 	 *         it belongs to another implementation or is erroneous)
 	 */
-	public abstract void startThrowingIntegrationImplementation(
+	public abstract void startSend(
 			final String uniqueFlowNodeId, String messageIntegrationString);
+	
+	/**
+	 * Start a catching message integration implementation (eg. route). A
+	 * catching message integration receives a message and then needs to fulfill
+	 * the following steps: <li>create an Integration Message <li>send that
+	 * integration message to the engine via the
+	 * {@link MessageDispatcherService} <BR>
+	 * <BR>
+	 * 
+	 * @param uniqueFlowNodeId
+	 * 			  the unique flow node id
+	 * @param messageIntegrationString
+	 *            the message integration string defined in the bpmn process.xml
+	 * @param tMetaDatas
+	 * 			  the meta data list holds the meta data expressions 
+	 * 			  of a flow node defined in the bpmn process.xml
+	 * @return true, if the messageIntegrationString could be processed, false
+	 *         if the messageIntegrationString could not be processed (because
+	 *         it belongs to another implementation or is erroneous)
+	 */
+	public abstract void startReceive(
+			final String uniqueFlowNodeId, String messageIntegrationString, List<TMetaData> tMetaDatas);
 	
 	/**
 	 * Start a request reply integration implementation.
 	 *
 	 * @param uniqueFlowNodeId the unique flow node id
-	 * @param messageIntegrationString the message integration string
+	 * @param messageIntegrationString
+	 *            the message integration string defined in the bpmn process.xml
 	 */
-	public abstract void startRequestReplyIntegrationImplementation(
+	public abstract void startRequestReply(
 			final String uniqueFlowNodeId, String messageIntegrationString);
 
 	/**
-	 * Shut down integration implementation (eg. route).
+	 * Shut down an integration implementation (eg. route) of a given flow node.
 	 * 
-	 * @param uniqueFlowNodeId
-	 *            the integration id that uniquely identifies the integration
-	 *            implementation (eg. route id)
+	 * @param uniqueFlowNodeId the unique flow node id
 	 * @return true, if successful
 	 */
 	public abstract boolean shutDownIntegrationImplementation(final String uniqueFlowNodeId);
-
-	/**
-	 * Dispatch message from outside to the process engine.
-	 * 
-	 * @param uniqueFlowNodeId
-	 *            the integration id
-	 * @param integrationMessage
-	 *            the integration message
-	 */
-	public abstract void dispatchToEngine(final String uniqueFlowNodeId,
-			IntegrationMessage integrationMessage, Map<String, Object> metaData);
 	
 	/**
-	 * Gets the meta data specified in the integration implementation.
-	 *
-	 * @return the meta data
+	 * Dispatch an integration message via the spi implementation. The
+	 * {@link MessageDispatcherService} will call this method for outgoing
+	 * messages. The SPI implementation must provide a way to map between the
+	 * uniqueFlowNodeId and its message integration implementation
+	 * (eg. route). The preferred way to do so, should be the use of
+	 * the given hash map ({@link MessageDispatcherService}).
+	 * @param integrationMessage
+	 *            the integration message to be sent which is generated by the bpmn engine
 	 */
-	public Map<String, Object> getMetaData() {
-		return metaDataValues;
-	}
-
+	public abstract void send(IntegrationMessage integrationMessage);
+	
 	/**
-	 * Sets the meta data specified in the integration implementation.
-	 *
-	 * @param metaData the meta data
+	 * Dispatch message from outside to the process engine.
+	 * @param integrationMessage
+	 *            the integration message
+	 * @param metaData
+	 *            the meta data map holding the meta data names and values 
+	 * 			  of a flow node to be saved in the process
 	 */
-	public void setMetaData(Map<String, Object> metaData) {
-		this.metaDataValues = metaData;
-	}
-
+	public abstract void receive(IntegrationMessage integrationMessage,
+			Map<String, Object> metaData);
+	
 	/**
 	 * Issue a request/reply via the spi implementation. The call must be synchronous and will 
 	 * send the reply back to the request initiator. 
+	 * @param message the message to be sent
 	 *
-	 * @param uniqueFlowNodeId the unique flow node id
-	 * @param message the message
-	 * @return the object
+	 * @return the object returned by the request
 	 */
-	public abstract Object requestReplyViaSpiImpl(String uniqueFlowNodeId,
-			IntegrationMessage message);
+	public abstract Object requestReply(IntegrationMessage message);
+
+	/**
+	 * Convert a list of TMetaData (which is a jaxb generated type that only consists of two strings) 
+	 * into a Map<String, String> that is easier to work with.
+	 * 
+	 * @param tMetaDatas
+	 *            the meta data list holding the meta data names and xpath expressions 
+	 * 			  of a flow node defined in the bpmn process.xml
+	 * @return the meta data xpaths map
+	 */
+	public Map<String, String> convertTMetaDataListToMap(
+			List<TMetaData> tMetaDatas) {
+		Map<String, String> metaData = new HashMap<String, String>();
+
+		if(tMetaDatas != null) {
+			for (TMetaData tMetaData : tMetaDatas) {
+				metaData.put(tMetaData.getMetaDataKey(),
+						tMetaData.getMetaDataXpath());
+			}
+		}
+
+		return metaData;
+	}
+
 }

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class DataObjectService {
 
 	/** The data object implementation id set in the spring context. */
-	private String dataObjectServiceProviderIdSetting = "voldemort";
+	private String dataObjectServiceProviderIdSetting = "voldemort"; // FIXME: setting this in Spring does not work, see issue #1 in github
 
 	public String getDataObjectServiceProviderIdSetting() {
 		return dataObjectServiceProviderIdSetting;

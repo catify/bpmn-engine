@@ -108,7 +108,7 @@ public class MessageEventDefinition_Throw implements EventDefinition {
 			TMessageIntegration messageIntegration) {
 		// start the message integration implementation for this flow node (like
 		// routes etc.)
-		integrationSPI.startThrowingIntegrationImplementation(
+		integrationSPI.startSend(
 				this.uniqueFlowNodeId,
 				messageIntegration.getIntegrationstring());
 
