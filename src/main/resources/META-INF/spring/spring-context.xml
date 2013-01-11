@@ -35,11 +35,7 @@
 	<context:spring-configured />
 	<context:annotation-config />
 
-<!-- 	<bean id="serverWrapper" class="org.neo4j.server.WrappingNeoServerBootstrapper" init-method="start" destroy-method="stop"> -->
-<!-- 		<constructor-arg index="0" ref="graphDatabaseService" /> -->
-<!-- 		<constructor-arg index="1" ref="configuration" /> -->
-<!-- 	</bean> -->
-
+	<!-- embedded neo4j db -->
 	<bean id="graphDatabaseService" class="org.neo4j.kernel.EmbeddedGraphDatabase">
 	 	<constructor-arg index="0" value="data/neo4j-db" />
 	        <constructor-arg index="1">
@@ -49,17 +45,13 @@
         </constructor-arg>
 	</bean>
 	
-	
+	<!-- enable for embedded web console in neo4j db -->
+<!-- 	<bean id="serverWrapper" class="org.neo4j.server.WrappingNeoServerBootstrapper" init-method="start" destroy-method="stop"> -->
+<!-- 		<constructor-arg index="0" ref="graphDatabaseService" /> -->
+<!-- 		<constructor-arg index="1" ref="configuration" /> -->
+<!-- 	</bean> -->
 <!-- 	<bean id="configuration" class="org.neo4j.server.configuration.PropertyFileConfigurator"> -->
 <!-- 		<constructor-arg value="config/neo4j.properties" /> -->
-<!-- 	</bean> -->
-
-	<neo4j:config graphDatabaseService="graphDatabaseService" />
-
-	<!-- embedded neo4j db (without web console) -->
-<!-- 	<bean id="configuration" class="org.neo4j.kernel.EmbeddedGraphDatabase" -->
-<!-- 	factory-method="loadConfigurations"> -->
-<!-- 	<constructor-arg value="config/neo4j.properties" /> -->
 <!-- 	</bean> -->
 
 	<!-- external neo4j db -->
@@ -67,6 +59,8 @@
 	<!-- class="org.springframework.data.neo4j.rest.SpringRestGraphDatabase"> -->
 	<!-- <constructor-arg index="0" value="http://172.17.16.95:7474/db/data" /> -->
 	<!-- </bean> -->
+	
+	<neo4j:config graphDatabaseService="graphDatabaseService" />
 
 	<neo4j:repositories base-package="com.catify.processengine.core" />
 
