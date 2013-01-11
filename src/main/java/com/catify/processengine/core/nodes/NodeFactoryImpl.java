@@ -19,7 +19,7 @@ import akka.actor.ActorRef;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectIdService;
 import com.catify.processengine.core.data.dataobjects.DataObjectService;
-import com.catify.processengine.core.data.dataobjects.NoDataObjectHandling;
+import com.catify.processengine.core.data.dataobjects.NoDataObjectSP;
 import com.catify.processengine.core.data.services.impl.IdService;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionFactory;
 import com.catify.processengine.core.nodes.eventdefinition.SynchronousEventDefinition;
@@ -706,12 +706,14 @@ public class NodeFactoryImpl implements NodeFactory {
 
 		Map<String, String> dataObjectIds = DataObjectIdService.getDataObjectIds(flowNodeJaxb);
 		
-		// only create a DataObjectHandling object if there is at least on object id
+		// only create a DataObjectService with a data object service provider if there is at least on object id
 		if (dataObjectIds.size() > 0) {
 			LOG.debug("Node factory appending data object service provider");
 			return new DataObjectService(dataObjectIds.get(DataObjectIdService.DATAINPUTOBJECTID), dataObjectIds.get(DataObjectIdService.DATAOUTPUTOBJECTID));
-		} else {
-			return new NoDataObjectHandling();
+		} 
+		// otherwise provide a dummy DataObjectService
+		else {
+			return new DataObjectService(new NoDataObjectSP());
 		}
 	}
 

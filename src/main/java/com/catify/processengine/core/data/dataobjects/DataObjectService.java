@@ -26,13 +26,11 @@ public class DataObjectService {
 	private DataObjectSPI dataObjectServiceProvider;
 
 	/**
-	 * Instantiates a new data object service.
+	 * Instantiates a new uninitialized data object service. Should not be used directly.
 	 */
 	public DataObjectService() {
-		this.dataObjectServiceProvider = DataObjectSPI
-				.getDataObjectServiceProvider(this.dataObjectServiceProviderIdSetting);
 	}
-	
+
 //	@PostConstruct
 //	void initAnnotations() {
 //		this.dataObjectHandlingSPI = DataObjectSPI
@@ -40,7 +38,9 @@ public class DataObjectService {
 //	}
 	
 	/**
-	 * Instantiates a new data object service.
+	 * Instantiates a new data object service that saves data via the user configured
+	 * data object service provider. The service provider will be loaded from the 
+	 * classpath or the java extension directory.
 	 *
 	 * @param dataInputObjectId the data input object id
 	 * @param dataOutputObjectId the data output object id
@@ -50,6 +50,16 @@ public class DataObjectService {
 		this.dataOutputObjectId = dataOutputObjectId;
 		this.dataObjectServiceProvider = DataObjectSPI
 				.getDataObjectServiceProvider(this.dataObjectServiceProviderIdSetting);
+	}
+	
+	/**
+	 * Instantiates a new data object service that saves data via a given
+	 * data object service provider.
+	 *
+	 * @param dataObjectServiceProvider the data object service provider
+	 */
+	public DataObjectService(DataObjectSPI dataObjectServiceProvider) {
+		this.dataObjectServiceProvider = dataObjectServiceProvider;
 	}
 
 	/**
