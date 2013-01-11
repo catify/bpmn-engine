@@ -43,7 +43,7 @@ public class NoDataObjectHandling extends DataObjectService {
 	@Override
 	public Object loadObject(String uniqueProcessId, String instanceId) {
 		LOG.debug(String
-				.format("%s triggered saveObject method, but no DataObjectHandlingSPI set because no Data Object was associated in process definition",
+				.format("%s triggered loadObject method, but no DataObjectHandlingSPI set because no Data Object was associated in process definition",
 						this.getClass().getSimpleName()));
 
 		return null;

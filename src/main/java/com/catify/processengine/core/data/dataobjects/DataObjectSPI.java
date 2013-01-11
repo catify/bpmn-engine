@@ -95,7 +95,7 @@ public abstract class DataObjectSPI {
 	     }
 	     
 	     // if no provider could be found, return null
-	     LOG.warn("Could not find a data object provider, saving data objects will fail!");
+	     LOG.error("Could not find a data object service provider. Saving data objects will fail!");
 	     return null;
 	 }
 	 

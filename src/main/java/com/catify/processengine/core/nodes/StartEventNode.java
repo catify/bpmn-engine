@@ -126,7 +126,7 @@ public class StartEventNode extends CatchEvent {
 			this.getNodeInstanceMediatorService().setNodeInstanceStartTime(processInstanceId, new Date());
 		}
 		
-		this.getDataObjectHandling().saveObject(this.getUniqueProcessId(),
+		this.getDataObjectService().saveObject(this.getUniqueProcessId(),
 				processInstanceId, message.getPayload());
 
 		eventDefinition.trigger(message);

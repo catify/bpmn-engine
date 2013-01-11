@@ -1,5 +1,8 @@
 package com.catify.processengine.core.nodes.eventdefinition;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.catify.processengine.core.integration.IntegrationMessage;
 import com.catify.processengine.core.integration.MessageIntegrationSPI;
 import com.catify.processengine.core.messages.ActivationMessage;
@@ -19,6 +22,9 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  */
 public class MessageEventDefinition_InOut implements SynchronousEventDefinition {
 
+	static final Logger LOG = LoggerFactory
+			.getLogger(MessageEventDefinition_InOut.class);
+	
 	private final String uniqueProcessId;
 	private final String uniqueFlowNodeId;
 

@@ -1,5 +1,8 @@
 package com.catify.processengine.core.nodes.eventdefinition;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.catify.processengine.core.integration.MessageIntegrationSPI;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
@@ -17,6 +20,9 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  * object defined in the process.xml. For instantiation of this node see {@link NodeFactory}.
  */
 public class MessageEventDefinition_Catch implements EventDefinition {
+	
+	static final Logger LOG = LoggerFactory
+			.getLogger(MessageEventDefinition_Catch.class);
 
 	private final String uniqueProcessId;
 	private final String uniqueFlowNodeId;
@@ -45,7 +51,7 @@ public class MessageEventDefinition_Catch implements EventDefinition {
 
 		if (messageIntegration != null) {
 			this.integrationSPI = MessageIntegrationSPI
-					.getMessageIntegrationImpl(messageIntegration.getPrefix());
+					.getMessageIntegrationImpl(messageIntegration.getPrefix());		
 			registerMessageEventDefinition_catch(messageIntegration);
 		}
 	}

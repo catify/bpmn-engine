@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.catify.processengine.core.processdefinition.jaxb.TMetaData;
 import com.catify.processengine.core.services.MessageDispatcherService;
 
@@ -16,6 +19,9 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  * landscape.
  */
 public abstract class MessageIntegrationSPI {
+	
+	static final Logger LOG = LoggerFactory
+			.getLogger(MessageIntegrationSPI.class);
 
 	 /**
  	 * Gets the message integration implementation.
@@ -31,7 +37,10 @@ public abstract class MessageIntegrationSPI {
 	    	 }
 	     }
 	     // return null if prefix could not be matched with implementation
-	     return null;
+		LOG.error(String
+				.format("The message integration service provider '%s' could not be found on the classpath. Message integration will fail!",
+						prefix));
+		return null;
 	 }
 	 
 	 /** The message integration loader. */

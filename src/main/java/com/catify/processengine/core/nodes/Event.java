@@ -33,7 +33,7 @@ public abstract class Event extends FlowElement {
 		this.eventDefinition = eventDefinition;
 	}
 	
-	public DataObjectService getDataObjectHandling() {
+	public DataObjectService getDataObjectService() {
 		return dataObjectHandling;
 	}
 

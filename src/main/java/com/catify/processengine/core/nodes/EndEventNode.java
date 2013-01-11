@@ -84,7 +84,7 @@ public class EndEventNode extends ThrowEvent {
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		
-		message.setPayload(this.getDataObjectHandling().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
+		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
 		eventDefinition.acitivate(message);
 		

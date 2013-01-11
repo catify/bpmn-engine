@@ -114,7 +114,7 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 	 */
 	@Override
 	protected void trigger(TriggerMessage message) {
-		this.getDataObjectHandling().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
+		this.getDataObjectService().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
 		
 		eventDefinition.trigger(message);
 		

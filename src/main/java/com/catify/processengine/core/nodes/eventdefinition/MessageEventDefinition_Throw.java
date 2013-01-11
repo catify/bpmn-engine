@@ -59,9 +59,9 @@ public class MessageEventDefinition_Throw implements EventDefinition {
 		if (messageIntegration != null) {
 			this.integrationSPI = MessageIntegrationSPI
 					.getMessageIntegrationImpl(messageIntegration.getPrefix());
+			registerMessageEventDefinition_throw(messageIntegration);
 			this.messageDispatcherService = new MessageDispatcherService(
 					this.integrationSPI);
-			registerMessageEventDefinition_throw(messageIntegration);
 		}
 	}
 

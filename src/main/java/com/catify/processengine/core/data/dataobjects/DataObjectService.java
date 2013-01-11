@@ -16,15 +16,6 @@ public class DataObjectService {
 	/** The data object implementation id set in the spring context. */
 	private String dataObjectServiceProviderIdSetting = "voldemort"; // FIXME: setting this in Spring does not work, see issue #1 in github
 
-	public String getDataObjectServiceProviderIdSetting() {
-		return dataObjectServiceProviderIdSetting;
-	}
-
-	public void setDataObjectServiceProviderIdSetting(
-			String dataObjectServiceProviderIdSetting) {
-		this.dataObjectServiceProviderIdSetting = dataObjectServiceProviderIdSetting;
-	}
-
 	/** The data input object id. */
 	private String dataInputObjectId;
 	
@@ -143,6 +134,15 @@ public class DataObjectService {
 	public void setDataObjectServiceProvider(
 			DataObjectSPI dataObjectServiceProvider) {
 		this.dataObjectServiceProvider = dataObjectServiceProvider;
+	}
+	
+	public String getDataObjectServiceProviderIdSetting() {
+		return dataObjectServiceProviderIdSetting;
+	}
+
+	public void setDataObjectServiceProviderIdSetting(
+			String dataObjectServiceProviderIdSetting) {
+		this.dataObjectServiceProviderIdSetting = dataObjectServiceProviderIdSetting;
 	}
 
 	/**
