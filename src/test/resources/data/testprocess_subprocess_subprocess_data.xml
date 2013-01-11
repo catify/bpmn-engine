@@ -34,91 +34,90 @@ exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http:/
 	<catify:version id="VERSION_ID" version="ProcessVersion"/>
 </extensionElements>
 
-  <startEvent id="_2" isInterrupting="true" name="Start Event" parallelMultiple="false">
-      <outgoing>_15</outgoing>
-      <dataOutput id="Dout_2_7" isCollection="false"/>
-      <dataOutputAssociation id="_8">
-        <sourceRef>Dout_2_7</sourceRef>
-        <targetRef>_7</targetRef>
-      </dataOutputAssociation>
-      <outputSet>
-        <dataOutputRefs>Dout_2_7</dataOutputRefs>
-      </outputSet>
-    </startEvent>
-    <endEvent id="_3" name="End Event">
-      <incoming>_24</incoming>
-    </endEvent>
-    <subProcess completionQuantity="1" id="_4" isForCompensation="false" name="Sub-Process" startQuantity="1" triggeredByEvent="false">
-      <incoming>_16</incoming>
-      <outgoing>_23</outgoing>
-      <startEvent id="_5" isInterrupting="true" name="Start Event" parallelMultiple="false">
-        <outgoing>_17</outgoing>
-	 <dataOutput id="SUBDout_2_7" isCollection="false"/>
-      <dataOutputAssociation id="SUB_8">
-        <sourceRef>SUBDout_2_7</sourceRef>
-        <targetRef>SUB_7</targetRef>
-      </dataOutputAssociation>
-      <outputSet>
-        <dataOutputRefs>SUBDout_2_7</dataOutputRefs>
-      </outputSet>
+  <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
+      <extensionElements>
+	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
+      </extensionElements>
+      <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
+	<dataOutput id="Dout_2_7" isCollection="false"/>
+	<dataOutputAssociation id="_8">
+	  <sourceRef>Dout_2_7</sourceRef>
+	  <targetRef>_7</targetRef>
+	</dataOutputAssociation>
+	<outputSet>
+	  <dataOutputRefs>Dout_2_7</dataOutputRefs>
+	</outputSet>
       </startEvent>
-      <endEvent id="_6" name="End Event">
-        <incoming>_22</incoming>
-      </endEvent>
-      <intermediateThrowEvent id="_9" name="Intermediate Event">
-        <incoming>_17</incoming>
-        <outgoing>_18</outgoing>
-      </intermediateThrowEvent>
-      <intermediateThrowEvent id="_10" name="Intermediate Event">
-        <incoming>_21</incoming>
-        <outgoing>_22</outgoing>
-      </intermediateThrowEvent>
-      <subProcess completionQuantity="1" id="_11" isForCompensation="false" name="Sub-Process" startQuantity="1" triggeredByEvent="false">
-        <incoming>_18</incoming>
-        <outgoing>_21</outgoing>
-        <startEvent id="_12" isInterrupting="true" name="Start Event" parallelMultiple="false">
-          <outgoing>_19</outgoing>
-	   <dataOutput id="SUBSUBDout_2_7" isCollection="false"/>
-      <dataOutputAssociation id="SUBSUB_8">
-        <sourceRef>SUBSUBDout_2_7</sourceRef>
-        <targetRef>SUBSUB_7</targetRef>
-      </dataOutputAssociation>
-      <outputSet>
-        <dataOutputRefs>SUBSUBDout_2_7</dataOutputRefs>
-      </outputSet>
-        </startEvent>
-        <intermediateThrowEvent id="_13" name="Intermediate Event">
-          <incoming>_19</incoming>
-          <outgoing>_20</outgoing>
-        </intermediateThrowEvent>
-        <endEvent id="_14" name="End Event">
-          <incoming>_20</incoming>
-        </endEvent>
-        <sequenceFlow id="_19" sourceRef="_12" targetRef="_13"/>
-        <sequenceFlow id="_20" sourceRef="_13" targetRef="_14"/>
+
+      <subProcess completionQuantity="1" id="subProcess1" isForCompensation="false" name="Sub-Process" startQuantity="1" triggeredByEvent="false">
+	<incoming>sequenceFlow1</incoming>
+	<outgoing>sequenceFlow2</outgoing>
+	<startEvent id="subStartEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
+	  <outgoing>subSequenceFlow1</outgoing>
+	 <dataOutput id="SUBDout_2_7" isCollection="false"/>
+	<dataOutputAssociation id="SUB_8">
+	  <sourceRef>SUBDout_2_7</sourceRef>
+	  <targetRef>SUB_7</targetRef>
+	</dataOutputAssociation>
+	<outputSet>
+	  <dataOutputRefs>SUBDout_2_7</dataOutputRefs>
+	</outputSet>
+	</startEvent>
+	<intermediateThrowEvent id="subThrowEvent1" name="Intermediate Event">
+	  <incoming>subSequenceFlow1</incoming>
+	  <outgoing>subSequenceFlow2</outgoing>
+	</intermediateThrowEvent>
+
+	<subProcess completionQuantity="1" id="subSubProcess1" isForCompensation="false" name="Sub-Process" startQuantity="1" triggeredByEvent="false">
+	  <incoming>subSequenceFlow2</incoming>
+	  <outgoing>subSequenceFlow3</outgoing>
+	  <startEvent id="subSubStartEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
+	    <outgoing>subSubSequenceFlow1</outgoing>
+	    <dataOutput id="SUBSUBDout_2_7" isCollection="false"/>
+	    <dataOutputAssociation id="SUBSUB_8">
+	      <sourceRef>SUBSUBDout_2_7</sourceRef>
+	      <targetRef>SUBSUB_7</targetRef>
+	    </dataOutputAssociation>
+	    <outputSet>
+	      <dataOutputRefs>SUBSUBDout_2_7</dataOutputRefs>
+	    </outputSet>
+	  </startEvent>
+	  <intermediateThrowEvent id="subSubThrowEvent1" name="Intermediate Event">
+	    <incoming>subSubSequenceFlow1</incoming>
+	    <outgoing>subSubSequenceFlow2</outgoing>
+	  </intermediateThrowEvent>
+	  <endEvent id="subSubEndEvent1" name="End Event">
+	    <incoming>subSubSequenceFlow2</incoming>
+	  </endEvent>
+	  <sequenceFlow id="subSubSequenceFlow1" sourceRef="subSubStartEvent1" targetRef="subSubThrowEvent1"/>
+	  <sequenceFlow id="subSubSequenceFlow2" sourceRef="subSubThrowEvent1" targetRef="subSubEndEvent1"/>
+	</subProcess>
+
+	<intermediateThrowEvent id="subThrowEvent2" name="Intermediate Event">
+	  <incoming>subSequenceFlow2</incoming>
+	  <outgoing>subSequenceFlow3</outgoing>
+	</intermediateThrowEvent>
+	<endEvent id="subEndEvent1" name="End Event">
+	  <incoming>subSequenceFlow3</incoming>
+	</endEvent>
+
+	<sequenceFlow id="subSequenceFlow1" sourceRef="subStartEvent1" targetRef="subThrowEvent1"/>
+	<sequenceFlow id="subSequenceFlow2" sourceRef="subThrowEvent1" targetRef="subSubProcess1"/>
+	<sequenceFlow id="subSequenceFlow3" sourceRef="subSubProcess1" targetRef="subThrowEvent2"/>
+	<sequenceFlow id="subSequenceFlow4" sourceRef="subThrowEvent2" targetRef="subEndEvent1"/>
       </subProcess>
-      <sequenceFlow id="_17" sourceRef="_5" targetRef="_9"/>
-      <sequenceFlow id="_18" sourceRef="_9" targetRef="_11"/>
-      <sequenceFlow id="_21" sourceRef="_11" targetRef="_10"/>
-      <sequenceFlow id="_22" sourceRef="_10" targetRef="_6"/>
-    </subProcess>
-    <intermediateThrowEvent id="_7" name="Intermediate Event">
-      <incoming>_15</incoming>
-      <outgoing>_16</outgoing>
-    </intermediateThrowEvent>
-    <intermediateThrowEvent id="_8" name="Intermediate Event">
-      <incoming>_23</incoming>
-      <outgoing>_24</outgoing>
-    </intermediateThrowEvent>
-    <sequenceFlow id="_15" sourceRef="_2" targetRef="_7"/>
-    <sequenceFlow id="_16" sourceRef="_7" targetRef="_4"/>
-    <sequenceFlow id="_23" sourceRef="_4" targetRef="_8"/>
-    <sequenceFlow id="_24" sourceRef="_8" targetRef="_3"/>
-    <dataObject id="DO_1_1" isCollection="false" name="Data Object"/>
-    <dataObjectReference dataObjectRef="DO_1_1" id="_7"/>
-    <dataObject id="SUBDO_1_1" isCollection="false" name="Data Object"/>
-    <dataObjectReference dataObjectRef="SUBDO_1_1" id="SUB_7"/>
-    <dataObject id="SUBSUBDO_1_1" isCollection="false" name="Data Object"/>
-    <dataObjectReference dataObjectRef="SUBSUBDO_1_1" id="SUBSUB_7"/>
+
+      <endEvent id="endEvent1" name="End Event">
+      </endEvent>
+      <sequenceFlow id="sequenceFlow1" sourceRef="startEvent1" targetRef="subProcess1"/>
+      <sequenceFlow id="sequenceFlow2" sourceRef="subProcess1" targetRef="endEvent1"/>
+      
+      <dataObject id="DO_1_1" isCollection="false" name="Data Object"/>
+      <dataObjectReference dataObjectRef="DO_1_1" id="_7"/>
+      <dataObject id="SUBDO_1_1" isCollection="false" name="Data Object"/>
+      <dataObjectReference dataObjectRef="SUBDO_1_1" id="SUB_7"/>
+      <dataObject id="SUBSUBDO_1_1" isCollection="false" name="Data Object"/>
+      <dataObjectReference dataObjectRef="SUBSUBDO_1_1" id="SUBSUB_7"/>
   </process>
+  
 </definitions>

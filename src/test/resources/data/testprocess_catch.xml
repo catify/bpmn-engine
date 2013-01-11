@@ -24,18 +24,18 @@ xmlns:catify="http://www.catify.com/processengine/core/processdefinition"
 
 exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
 
-  <process id="_9" isClosed="false" isExecutable="true" processType="Private">
-    <extensionElements>
-	    <catify:version id="VERSION_ID" version="ProcessVersion"/>
-    </extensionElements>
-    <endEvent id="_4" name="End Event">
-      <incoming>_6</incoming>
-    </endEvent>
-    <sequenceFlow id="_5" sourceRef="_11" targetRef="_3"/>
-    <sequenceFlow id="_6" sourceRef="_3" targetRef="_4"/>
-    <startEvent id="_11" isInterrupting="true" name="Start Event" parallelMultiple="false">
-    </startEvent>
-    <intermediateCatchEvent id="_3" name="Intermediate Event" parallelMultiple="false">
-    </intermediateCatchEvent>
+  <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
+      <extensionElements>
+	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
+      </extensionElements>
+      <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
+      </startEvent>
+      <intermediateCatchEvent id="catchEvent1" name="Intermediate Event" parallelMultiple="false">
+      </intermediateCatchEvent>
+      <endEvent id="endEvent1" name="End Event">
+      </endEvent>
+      <sequenceFlow id="sequenceFlow1" sourceRef="startEvent1" targetRef="catchEvent1"/>
+      <sequenceFlow id="sequenceFlow2" sourceRef="catchEvent1" targetRef="endEvent1"/>
   </process>
+  
 </definitions>

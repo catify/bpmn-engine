@@ -29,40 +29,39 @@ exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http:/
 
 <extension mustUnderstand="true" definition="catify:catifyExtensions"/>
 
-  <process id="_9" isClosed="false" isExecutable="true" processType="None">
-<extensionElements>
-	<catify:version id="VERSION_ID" version="ProcessVersion"/>
-</extensionElements>
-
-    <sequenceFlow id="_5" sourceRef="_11" targetRef="_3"/>
-    <sequenceFlow id="_6" sourceRef="_3" targetRef="_4"/>
-    
-    <startEvent id="_11" isInterrupting="true" name="Start Event" parallelMultiple="false">
-    </startEvent>
-    <endEvent id="_4" name="End Event">
-    </endEvent>
-
-    <subProcess completionQuantity="1" id="_3" isForCompensation="false" name="Sub-Process" startQuantity="1" triggeredByEvent="false">
-      <incoming>_13</incoming>
-      <outgoing>_23</outgoing>
-      <intermediateThrowEvent id="_12" name="Intermediate Event">
-        <incoming>_17</incoming>
-        <outgoing>_15</outgoing>
-      </intermediateThrowEvent>
-      <intermediateThrowEvent id="_14" name="Intermediate Event">
-        <incoming>_15</incoming>
-        <outgoing>_25</outgoing>
-      </intermediateThrowEvent>
-      <sequenceFlow id="_15" sourceRef="_12" targetRef="_14"/>
-      <startEvent id="_16" isInterrupting="true" name="Start Event" parallelMultiple="false">
-        <outgoing>_17</outgoing>
+  <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
+      <extensionElements>
+	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
+      </extensionElements>
+      <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
       </startEvent>
-      <sequenceFlow id="_17" sourceRef="_16" targetRef="_12"/>
-      <endEvent id="_24" name="End Event">
-        <incoming>_25</incoming>
+
+      <subProcess completionQuantity="1" id="subProcess1" isForCompensation="false" name="Sub-Process" startQuantity="1" triggeredByEvent="false">
+	<incoming>sequenceFlow1</incoming>
+	<outgoing>sequenceFlow2</outgoing>
+	<startEvent id="subStartEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
+	  <outgoing>subSequenceFlow1</outgoing>
+	</startEvent>
+	<intermediateThrowEvent id="subThrowEvent1" name="Intermediate Event">
+	  <incoming>subSequenceFlow1</incoming>
+	  <outgoing>subSequenceFlow2</outgoing>
+	</intermediateThrowEvent>
+	<intermediateThrowEvent id="subThrowEvent2" name="Intermediate Event">
+	  <incoming>subSequenceFlow2</incoming>
+	  <outgoing>subSequenceFlow3</outgoing>
+	</intermediateThrowEvent>
+	<endEvent id="subEndEvent1" name="End Event">
+	  <incoming>subSequenceFlow3</incoming>
+	</endEvent>
+	<sequenceFlow id="subSequenceFlow1" sourceRef="subStartEvent1" targetRef="subThrowEvent1"/>
+	<sequenceFlow id="subSequenceFlow2" sourceRef="subThrowEvent1" targetRef="subThrowEvent2"/>
+	<sequenceFlow id="subSequenceFlow3" sourceRef="subThrowEvent2" targetRef="subEndEvent1"/>
+      </subProcess>
+      
+      <endEvent id="endEvent1" name="End Event">
       </endEvent>
-      <sequenceFlow id="_25" sourceRef="_14" targetRef="_24"/>
-    </subProcess>
-    
+      <sequenceFlow id="sequenceFlow1" sourceRef="startEvent1" targetRef="subProcess1"/>
+      <sequenceFlow id="sequenceFlow2" sourceRef="subProcess1" targetRef="endEvent1"/>
   </process>
+  
 </definitions>

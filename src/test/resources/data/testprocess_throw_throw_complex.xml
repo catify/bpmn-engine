@@ -51,4 +51,33 @@ exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http:/
     <endEvent id="_5" name="End Event">
     </endEvent>
   </process>
+
+  <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
+      <extensionElements>
+	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
+      </extensionElements>
+      <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
+      </startEvent>
+      <intermediateThrowEvent id="throwEvent1" name="Intermediate Event">
+      </intermediateThrowEvent>
+      <intermediateThrowEvent id="throwEvent2" name="Intermediate Event">
+      </intermediateThrowEvent>
+      <complexGateway gatewayDirection="Unspecified" id="complexGateway1" name="Complex Gateway">
+	<incoming>sequenceFlow3</incoming>
+	<incoming>sequenceFlow4</incoming>
+	<outgoing>sequenceFlow5</outgoing>
+	<extensionElements>
+	  <catify:nOfM count="1"/>
+	</extensionElements>
+	<activationCondition>1</activationCondition>
+      </complexGateway>
+      <endEvent id="endEvent1" name="End Event">
+      </endEvent>
+      <sequenceFlow id="sequenceFlow1" sourceRef="startEvent1" targetRef="throwEvent1"/>
+      <sequenceFlow id="sequenceFlow2" sourceRef="startEvent1" targetRef="throwEvent2"/>
+      <sequenceFlow id="sequenceFlow3" sourceRef="throwEvent1" targetRef="complexGateway1"/>
+      <sequenceFlow id="sequenceFlow4" sourceRef="throwEvent2" targetRef="complexGateway1"/>
+      <sequenceFlow id="sequenceFlow5" sourceRef="complexGateway1" targetRef="endEvent1"/>
+  </process>
+  
 </definitions>

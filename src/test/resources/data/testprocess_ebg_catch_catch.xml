@@ -24,27 +24,28 @@ xmlns:catify="http://www.catify.com/processengine/core/processdefinition"
 
 exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
 
-  <process id="_9" isClosed="false" isExecutable="true" processType="None">
-     <extensionElements>
-	  <catify:version id="VERSION_ID" version="ProcessVersion"/>
-    </extensionElements>
-    <eventBasedGateway gatewayDirection="Unspecified" id="_7" name="Event Based Gateway">
-      <incoming>_17</incoming>
-      <outgoing>_9</outgoing>
-      <outgoing>_13</outgoing>
-    </eventBasedGateway>
-    <sequenceFlow id="_9" sourceRef="_7" targetRef="_15"/>
-    <sequenceFlow id="_13" sourceRef="_7" targetRef="_12"/>
-    <sequenceFlow id="_14" sourceRef="_15" targetRef="_5"/>
-    <sequenceFlow id="_16" sourceRef="_12" targetRef="_5"/>
-    <sequenceFlow id="_17" sourceRef="_11" targetRef="_7"/>
-    <intermediateCatchEvent id="_15" name="Intermediate Event">
-    </intermediateCatchEvent>
-    <intermediateCatchEvent id="_12" name="Intermediate Event" parallelMultiple="false">
-    </intermediateCatchEvent>
-    <startEvent id="_11" isInterrupting="true" name="Start Event" parallelMultiple="false">
-    </startEvent>
-    <endEvent id="_5" name="End Event">
-    </endEvent>
+  <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
+      <extensionElements>
+	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
+      </extensionElements>
+      <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
+      </startEvent>
+      <intermediateCatchEvent id="catchEvent1" name="Intermediate Event" parallelMultiple="false">
+      </intermediateCatchEvent>
+      <intermediateCatchEvent id="catchEvent2" name="Intermediate Event" parallelMultiple="false">
+      </intermediateCatchEvent>
+      <eventBasedGateway gatewayDirection="Unspecified" id="eventBasedGateway1" name="Event Based Gateway">
+	<incoming>sequenceFlow3</incoming>
+	<incoming>sequenceFlow4</incoming>
+	<outgoing>sequenceFlow5</outgoing>
+      </eventBasedGateway>
+      <endEvent id="endEvent1" name="End Event">
+      </endEvent>
+      <sequenceFlow id="sequenceFlow1" sourceRef="startEvent1" targetRef="eventBasedGateway1"/>
+      <sequenceFlow id="sequenceFlow2" sourceRef="eventBasedGateway1" targetRef="catchEvent1"/>
+      <sequenceFlow id="sequenceFlow3" sourceRef="eventBasedGateway1" targetRef="catchEvent2"/>
+      <sequenceFlow id="sequenceFlow4" sourceRef="catchEvent1" targetRef="endEvent1"/>
+      <sequenceFlow id="sequenceFlow5" sourceRef="catchEvent2" targetRef="endEvent1"/>
   </process>
+  
 </definitions>

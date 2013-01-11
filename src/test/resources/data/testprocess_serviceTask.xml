@@ -29,23 +29,21 @@ exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http:/
 
 <extension mustUnderstand="true" definition="catify:catifyExtensions"/>
 
-  <process id="_9" isClosed="false" isExecutable="true" processType="None">
-<extensionElements>
-	<catify:version id="VERSION_ID" version="ProcessVersion"/>
-</extensionElements>
-
-    <sequenceFlow id="_5" sourceRef="_11" targetRef="_3"/>
-    <sequenceFlow id="_6" sourceRef="_3" targetRef="_4"/>
-    <startEvent id="_11" isInterrupting="true" name="Start Event" parallelMultiple="false">
-    </startEvent>
-    <endEvent id="_4" name="End Event">
-    </endEvent>
-
-    <serviceTask completionQuantity="1" id="_3" implementation="##WebService" isForCompensation="false" name="Service Task" startQuantity="1">
-        <extensionElements>
-	    <catify:messageIntegration prefix="camel" integrationstring="file:data/integrationInOut"/>
-	</extensionElements>
-    </serviceTask>
-    
+  <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
+      <extensionElements>
+	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
+      </extensionElements>
+      <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
+      </startEvent>
+      <serviceTask completionQuantity="1" id="serviceTask1" implementation="##WebService" isForCompensation="false" name="Service Task" startQuantity="1">
+	  <extensionElements>
+	      <catify:messageIntegration prefix="camel" integrationstring="file:data/integrationInOut"/>
+	  </extensionElements>
+      </serviceTask>
+      <endEvent id="endEvent1" name="End Event">
+      </endEvent>
+      <sequenceFlow id="sequenceFlow1" sourceRef="startEvent1" targetRef="serviceTask1"/>
+      <sequenceFlow id="sequenceFlow2" sourceRef="serviceTask1" targetRef="endEvent1"/>
   </process>
+  
 </definitions>

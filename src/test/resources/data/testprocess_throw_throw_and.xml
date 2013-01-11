@@ -24,27 +24,28 @@ xmlns:catify="http://www.catify.com/processengine/core/processdefinition"
 
 exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
 
-  <process id="_9" isClosed="false" isExecutable="true" processType="None">
-    <extensionElements>
-	    <catify:version id="VERSION_ID" version="ProcessVersion"/>
-    </extensionElements>
-    <parallelGateway gatewayDirection="Unspecified" id="_7" name="Parallel Gateway">
-      <incoming>_13</incoming>
-      <incoming>_17</incoming>
-      <outgoing>_9</outgoing>
-    </parallelGateway>
-    <sequenceFlow id="_9" sourceRef="_7" targetRef="_5"/>
-    <sequenceFlow id="_13" sourceRef="_12" targetRef="_7"/>
-    <sequenceFlow id="_14" sourceRef="_11" targetRef="_12"/>
-    <sequenceFlow id="_16" sourceRef="_11" targetRef="_15"/>
-    <sequenceFlow id="_17" sourceRef="_15" targetRef="_7"/>
-    <intermediateThrowEvent id="_15" name="Intermediate Event">
-    </intermediateThrowEvent>
-    <intermediateThrowEvent id="_12" name="Intermediate Event" parallelMultiple="false">
-    </intermediateThrowEvent>
-    <startEvent id="_11" isInterrupting="true" name="Start Event" parallelMultiple="false">
-    </startEvent>
-    <endEvent id="_5" name="End Event">
-    </endEvent>
+  <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
+      <extensionElements>
+	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
+      </extensionElements>
+      <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
+      </startEvent>
+      <intermediateThrowEvent id="throwEvent1" name="Intermediate Event">
+      </intermediateThrowEvent>
+      <intermediateThrowEvent id="throwEvent2" name="Intermediate Event">
+      </intermediateThrowEvent>
+      <parallelGateway gatewayDirection="Unspecified" id="parallelGateway1" name="Parallel Gateway">
+	<incoming>sequenceFlow3</incoming>
+	<incoming>sequenceFlow4</incoming>
+	<outgoing>sequenceFlow5</outgoing>
+      </parallelGateway>
+      <endEvent id="endEvent1" name="End Event">
+      </endEvent>
+      <sequenceFlow id="sequenceFlow1" sourceRef="startEvent1" targetRef="throwEvent1"/>
+      <sequenceFlow id="sequenceFlow2" sourceRef="startEvent1" targetRef="throwEvent2"/>
+      <sequenceFlow id="sequenceFlow3" sourceRef="throwEvent1" targetRef="parallelGateway1"/>
+      <sequenceFlow id="sequenceFlow4" sourceRef="throwEvent2" targetRef="parallelGateway1"/>
+      <sequenceFlow id="sequenceFlow5" sourceRef="parallelGateway1" targetRef="endEvent1"/>
   </process>
+  
 </definitions>

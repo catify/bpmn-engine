@@ -29,18 +29,18 @@ exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http:/
 
 <extension mustUnderstand="true" definition="catify:catifyExtensions"/>
 
-  <process id="_9" isClosed="false" isExecutable="true" processType="None">
-<extensionElements>
-	<catify:version id="VERSION_ID" version="ProcessVersion"/>
-</extensionElements>
-
-    <sequenceFlow id="_5" sourceRef="_2" targetRef="_3"/>
-    <sequenceFlow id="_6" sourceRef="_3" targetRef="_4"/>
-    <startEvent id="_2" isInterrupting="true" name="Start Event" parallelMultiple="false">
-    </startEvent>
-    <endEvent id="_4" name="End Event">
-    </endEvent>
-    <intermediateThrowEvent id="_3" name="Intermediate Event">
-    </intermediateThrowEvent>
+   <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
+      <extensionElements>
+	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
+      </extensionElements>
+      <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
+      </startEvent>
+      <intermediateThrowEvent id="throwEvent1" name="Intermediate Event">
+      </intermediateThrowEvent>
+      <endEvent id="endEvent1" name="End Event">
+      </endEvent>
+      <sequenceFlow id="sequenceFlow1" sourceRef="startEvent1" targetRef="throwEvent1"/>
+      <sequenceFlow id="sequenceFlow2" sourceRef="throwEvent1" targetRef="endEvent1"/>
   </process>
+  
 </definitions>
