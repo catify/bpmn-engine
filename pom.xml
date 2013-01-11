@@ -211,6 +211,15 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+			
+			<!-- license -->
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<configuration>
+					<header>src/main/resources/apache_license.txt</header>
+				</configuration>
+			</plugin>
 
 			<!-- creates an executable jar -->
 			<plugin>
