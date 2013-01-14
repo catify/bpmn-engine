@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.catify.processengine.management.ProcessManagementSer;
+import com.catify.processengine.management.ProcessManagementService;
 import com.catify.processengine.management.ProcessManagementServiceImpl;
 
 
@@ -44,7 +44,7 @@ public class AppStarter {
 		AbstractApplicationContext context = new ClassPathXmlApplicationContext("META-INF/spring/spring-context.xml");
 	    context.registerShutdownHook();
 		
-	    ProcessManagementSer pm = new ProcessManagementServiceImpl();
+	    ProcessManagementService pm = new ProcessManagementServiceImpl();
 	    
 	    pm.startAllDeployedProcesses(clientId);
 	}
