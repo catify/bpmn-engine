@@ -43,7 +43,7 @@ public class ProcessInitializer {
 
 	/**
 	 * Initialize process(es) of a jaxb definition object. A definition object
-	 * can hold multiple process objects. (root element of bpmn definition) (immer eingelesen, da notwendige infos nicht im datenmodell)
+	 * can hold multiple process objects. (root element of bpmn definition)
 	 * 
 	 * @param definition
 	 *            {@link TDefinitions}

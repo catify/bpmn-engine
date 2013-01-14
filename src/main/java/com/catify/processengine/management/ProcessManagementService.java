@@ -17,6 +17,78 @@
  */
 package com.catify.processengine.management;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+
+import javax.xml.bind.JAXBException;
+
+import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
+import com.catify.processengine.core.processdefinition.jaxb.TProcess;
+import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
+
 public interface ProcessManagementService {
 
+	/**
+	 * Start all deployed processes found in the {@link ProcessImportService.DEPLOYDIR}.
+	 *
+	 * @param clientId the client id
+	 * @throws FileNotFoundException the file not found exception
+	 * @throws JAXBException the jAXB exception
+	 */
+	public abstract void startAllDeployedProcesses(String clientId)
+			throws FileNotFoundException, JAXBException;
+
+	/**
+	 * Start a deployed process by filename.
+	 *
+	 * @param clientId the client id
+	 * @param processDefinitionFileName the process definition file name
+	 * @throws FileNotFoundException the file not found exception
+	 * @throws JAXBException the jAXB exception
+	 */
+	public abstract void startDeployedProcess(String clientId,
+			String processDefinitionFileName) throws FileNotFoundException,
+			JAXBException;
+
+	/**
+	 * Start a process from a bpmn process definition file.
+	 *
+	 * @param clientId the client id
+	 * @param processDefinitionPath the process definition path
+	 * @throws FileNotFoundException the file not found exception
+	 * @throws JAXBException the jAXB exception
+	 */
+	public abstract void startProcessFromDefinitionFile(String clientId,
+			File processDefinition) throws FileNotFoundException, JAXBException;
+
+	/**
+	 * Create a process instance.
+	 *
+	 * @param uniqueFlowNodeId the unique flow node id
+	 */
+	public abstract void createProcessInstance(String uniqueFlowNodeId);
+
+	/**
+	 * Create a process instance.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param startEventId the start event id
+	 */
+	public abstract void createProcessInstance(String clientId,
+			TProcess processJaxb, String startEventId);
+
+	/**
+	 * Create a process instance.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @param flowNodeJaxb the flow node jaxb
+	 */
+	public abstract void createProcessInstance(String clientId,
+			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TFlowNode flowNodeJaxb);
+	
 }

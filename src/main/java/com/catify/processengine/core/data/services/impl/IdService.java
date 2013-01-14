@@ -64,10 +64,12 @@ public final class IdService {
 			TFlowNode flowNodeJaxb) {
 		StringBuilder parentSubProcesses = new StringBuilder();
 		
-		for (TSubProcess tSubProcess : subProcessesJaxb) {
-			parentSubProcesses.append(tSubProcess.getId() + tSubProcess.getName());
+		if (subProcessesJaxb != null) {
+			for (TSubProcess tSubProcess : subProcessesJaxb) {
+				parentSubProcesses.append(tSubProcess.getId() + tSubProcess.getName());
+			}
 		}
-		
+
 		return new String(clientId 
 				+ processJaxb.getId() + processJaxb.getName() + ExtensionService.getTVersion(processJaxb).getVersion() 
 				+ parentSubProcesses
