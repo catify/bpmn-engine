@@ -28,11 +28,9 @@ import javax.xml.bind.JAXBException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 
 import com.catify.processengine.core.ProcessInitializer;
 import com.catify.processengine.core.data.services.impl.IdService;
@@ -48,11 +46,6 @@ import com.catify.processengine.core.services.ActorReferenceService;
 public class ProcessManagementServiceImpl implements ProcessManagementService {
 
 	static final Logger LOG = LoggerFactory.getLogger(ProcessManagementServiceImpl.class);
-	
-	@Autowired
-	ActorSystem actorSystem;
-	
-	ActorReferenceService actorReferenceService = new ActorReferenceService();
 	
 	/* (non-Javadoc)
 	 * @see com.catify.processengine.management.ProcessManagementSer#startAllDeployedProcesses(java.lang.String)
@@ -137,7 +130,7 @@ public class ProcessManagementServiceImpl implements ProcessManagementService {
 	@Override
 	public void createProcessInstance(String uniqueFlowNodeId) {
 
-		ActorRef actorRef = actorReferenceService.getActorReference(uniqueFlowNodeId);
+		ActorRef actorRef = new ActorReferenceService().getActorReference(uniqueFlowNodeId);
 		
 		LOG.debug("Sending TriggerMessage to " + actorRef);
 		
@@ -155,7 +148,7 @@ public class ProcessManagementServiceImpl implements ProcessManagementService {
 
 		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, null, startEvent);
 		
-		ActorRef actorRef = actorReferenceService.getActorReference(uniqueFlowNodeId);
+		ActorRef actorRef = new ActorReferenceService().getActorReference(uniqueFlowNodeId);
 		
 		LOG.debug("Sending TriggerMessage to " + actorRef);
 		
@@ -171,7 +164,7 @@ public class ProcessManagementServiceImpl implements ProcessManagementService {
 		
 		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb);
 		
-		ActorRef actorRef = actorReferenceService.getActorReference(uniqueFlowNodeId);
+		ActorRef actorRef = new ActorReferenceService().getActorReference(uniqueFlowNodeId);
 		
 		LOG.debug("Sending TriggerMessage to " + actorRef);
 		

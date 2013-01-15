@@ -24,6 +24,8 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBElement;
 
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.RelationshipType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -349,12 +351,8 @@ public class EntityInitialization {
 
 		// FIXME: provide RootNode implementation
 		// create root node or get it from the db
-		RootNode rootNode = rootNodeRepositoryService
-				.getOrCreateRootNode("secretRootId");
-
-		LOG.debug(String.format("Added %s with grapId: %s to neo4j db",
-				rootNode, rootNode.getGraphId()));
-
+		RootNode rootNode = createRootContext();
+		
 		// create client node or get it from the db
 		ClientNode clientNode = clientNodeRepositoryService
 				.getOrCreateClientNode(clientId);
@@ -367,6 +365,33 @@ public class EntityInitialization {
 		rootNodeRepositoryService.save(rootNode);
 
 		return clientNode;
+	}
+
+	/**
+	 * Creates the root context.
+	 *
+	 * @return the root node
+	 */
+	private RootNode createRootContext() {
+		RootNode rootNode = rootNodeRepositoryService
+				.getOrCreateRootNode("secretRootId");
+
+		LOG.debug(String.format("Added %s with grapId: %s to neo4j db",
+				rootNode, rootNode.getGraphId()));
+		
+		RelationshipType referenceNodeRelationship = new RelationshipType() {
+			
+			@Override
+			public String name() {
+				return "REFERENCE_NODE";
+			}
+		};
+
+		Node n = neo4jTemplate.getPersistentState(rootNode);
+		neo4jTemplate.getReferenceNode().createRelationshipTo(n, referenceNodeRelationship);
+
+		rootNodeRepositoryService.save(rootNode);
+		return rootNode;
 	}
 	
 	/**

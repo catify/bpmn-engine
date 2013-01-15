@@ -103,7 +103,7 @@ public class ProcessInstanceMediatorService {
 		// get the process
 		ProcessNode process = processRepositoryService
 				.findByUniqueProcessId(uniqueProcessId);
-
+		
 		LOG.debug(String.format(
 				"Starting to instantiate process %s with instanceId %s",
 				process, processInstanceId));
