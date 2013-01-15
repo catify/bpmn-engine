@@ -20,6 +20,8 @@
  */
 package com.catify.processengine.core.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -37,6 +39,9 @@ import com.catify.processengine.core.messages.DeletionMessage;
 @Configurable
 public class ProcessInstanceCleansingService extends UntypedActor {
 
+	static final Logger LOG = LoggerFactory
+			.getLogger(ProcessInstanceCleansingService.class);
+	
 	@Autowired
 	private ProcessInstanceMediatorService processInstanceMediatorService;
 	
@@ -53,12 +58,15 @@ public class ProcessInstanceCleansingService extends UntypedActor {
 	@Override
 	public void onReceive(Object message) {
 		
+		LOG.debug(this.getSelf() + " received " + message.getClass().getSimpleName());
+		
 		// the handling of the data objects saved by a process instance must be evaluated, see redmine #113
 		if (message instanceof ArchiveMessage) {
 			processInstanceMediatorService.archiveProcessInstance(
 					((ArchiveMessage) message).getUniqueProcessId(),
 					((ArchiveMessage) message).getProcessInstanceId(), 
 					((ArchiveMessage) message).getEndTime());
+			LOG.debug(String.format("Successfully archived process instance with instance id '%s'", ((ArchiveMessage) message).getProcessInstanceId()));
 		} else if (message instanceof DeletionMessage) {
 			processInstanceMediatorService.deleteProcessInstance(
 					((DeletionMessage) message).getUniqueProcessId(),
@@ -68,6 +76,7 @@ public class ProcessInstanceCleansingService extends UntypedActor {
 				this.getDataObjectService().deleteObject(((DeletionMessage) message).getUniqueProcessId(), 
 						dataObjectId, ((DeletionMessage) message).getProcessInstanceId());
 			}
+			LOG.debug(String.format("Successfully deleted process instance with instance id '%s'", ((ArchiveMessage) message).getProcessInstanceId()));
 		} else {
 			unhandled(message);
 		}

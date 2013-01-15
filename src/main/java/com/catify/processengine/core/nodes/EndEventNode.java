@@ -164,6 +164,7 @@ public class EndEventNode extends ThrowEvent {
 					this.sendMessageToNodeActor(new DeletionMessage(this.getUniqueProcessId(), processInstanceId, this.dataObjectIds),
 							this.getActorSystem().actorFor("akka://ProcessEngine/user/processInstanceCleansingActor"));
 				} 
+				LOG.debug(String.format("Process instance with instance id '%s' ended sucessfully", processInstanceId));
 			}
 			// return instance has ended
 			return true;
