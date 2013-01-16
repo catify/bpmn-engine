@@ -20,8 +20,6 @@ package com.catify.processengine.management;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -38,8 +36,6 @@ import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
-import com.catify.processengine.core.processdefinition.jaxb.TStartEvent;
-import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.core.services.ActorReferenceService;
 
 @Configurable
@@ -128,86 +124,82 @@ public class ProcessManagementServiceImpl implements ProcessManagementService {
 	 * @see com.catify.processengine.management.ProcessManagementSer#createProcessInstance(java.lang.String)
 	 */
 	@Override
-	public void createProcessInstance(String uniqueFlowNodeId) {
+	public void createProcessInstance(String uniqueFlowNodeId, TriggerMessage triggerMessage) {
+
+		sendTriggerMessage(uniqueFlowNodeId, triggerMessage);
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.catify.processengine.management.ProcessManagementService#createProcessInstance(java.lang.String, com.catify.processengine.core.processdefinition.jaxb.TProcess, java.lang.String, com.catify.processengine.core.messages.TriggerMessage)
+	 */
+	@Override
+	public void createProcessInstance(String clientId, TProcess processJaxb,
+			String startEventId, TriggerMessage triggerMessage) {
+		this.sendTriggerMessage(clientId, processJaxb, startEventId, triggerMessage);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.catify.processengine.management.ProcessManagementService#sendTriggerMessage(java.lang.String, com.catify.processengine.core.processdefinition.jaxb.TProcess, java.lang.String, com.catify.processengine.core.messages.TriggerMessage)
+	 */
+	@Override
+	public void sendTriggerMessage(String clientId, TProcess processJaxb,
+			String nodeId, TriggerMessage triggerMessage) {
+		
+		String uniqueFlowNodeId = getUniqueFlowNodeId(clientId, processJaxb,
+				nodeId);
+		
+		sendTriggerMessage(uniqueFlowNodeId, triggerMessage);
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.catify.processengine.management.ProcessManagementService#sendTriggerMessage(java.lang.String, com.catify.processengine.core.messages.TriggerMessage)
+	 */
+	@Override
+	public void sendTriggerMessage(String uniqueFlowNodeId, TriggerMessage triggerMessage) {
 
 		ActorRef actorRef = new ActorReferenceService().getActorReference(uniqueFlowNodeId);
 		
 		LOG.debug("Sending TriggerMessage to " + actorRef);
 		
-		actorRef.tell(new TriggerMessage(), null);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.catify.processengine.management.ProcessManagementSer#createProcessInstance(java.lang.String, com.catify.processengine.core.processdefinition.jaxb.TProcess, java.lang.String)
-	 */
-	@Override
-	public void createProcessInstance(String clientId, TProcess processJaxb, String startEventId) {
-		
-		List<TStartEvent> startEventsJaxb = getTopLevelStartEvents(processJaxb);
-		TStartEvent startEvent = getStartEventById(startEventsJaxb, startEventId);
-
-		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, null, startEvent);
-		
-		ActorRef actorRef = new ActorReferenceService().getActorReference(uniqueFlowNodeId);
-		
-		LOG.debug("Sending TriggerMessage to " + actorRef);
-		
-		actorRef.tell(new TriggerMessage(), null);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.catify.processengine.management.ProcessManagementSer#createProcessInstance(java.lang.String, com.catify.processengine.core.processdefinition.jaxb.TProcess, java.util.ArrayList, com.catify.processengine.core.processdefinition.jaxb.TFlowNode)
-	 */
-	@Override
-	public void createProcessInstance(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb) {
-		
-		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb);
-		
-		ActorRef actorRef = new ActorReferenceService().getActorReference(uniqueFlowNodeId);
-		
-		LOG.debug("Sending TriggerMessage to " + actorRef);
-		
-		actorRef.tell(new TriggerMessage(), null);
+		actorRef.tell(triggerMessage, null);
 	}
 
 	/**
-	 * Gets a start event by id from a list of start events.
+	 * Gets the unique flow node id.
 	 *
-	 * @param startEventsJaxb the start events jaxb
-	 * @param startEventId the start event id
-	 * @return the start event by id
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param nodeId the node id
+	 * @return the unique flow node id
 	 */
-	private TStartEvent getStartEventById(List<TStartEvent> startEventsJaxb, String startEventId) {
-		for (TStartEvent tStartEvent : startEventsJaxb) {
-			if (tStartEvent.getId().equals(startEventId)) {
-				return tStartEvent;
-			}
-		}
-		LOG.error("Start Event with id " + startEventId + " could not be found!");
-		return null;
+	private String getUniqueFlowNodeId(String clientId, TProcess processJaxb,
+			String nodeId) {
+		TFlowNode flowNode = getFlowNodeById(processJaxb, nodeId);
+
+		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, null, flowNode);
+		return uniqueFlowNodeId;
 	}
 
 	/**
-	 * Gets the top level start events.
+	 * Gets the flow node by id.
 	 *
 	 * @param processJaxb the process jaxb
-	 * @return the top level start events
+	 * @param nodeId the node id
+	 * @return the flow node by id
 	 */
-	private List<TStartEvent> getTopLevelStartEvents(TProcess processJaxb) {
-		List<TStartEvent> flowNodeJaxb = new ArrayList<TStartEvent>();
-
-		// iterate through process elements and separate flow nodes and
-		// sequenceFlows (because they need to be activated after each other)
+	private TFlowNode getFlowNodeById(TProcess processJaxb, String nodeId) {
+		
 		for (JAXBElement<? extends TFlowElement> flowElementJaxb : processJaxb
 				.getFlowElement()) {
-
-			if (flowElementJaxb.getValue() instanceof TStartEvent) {
-				LOG.debug(String.format("Found Start Event with id ",
+			if (flowElementJaxb.getValue() instanceof TFlowNode
+					&& flowElementJaxb.getValue().getId().equals(nodeId)) {
+				LOG.debug(String.format("Found Flow Node with id ",
 						flowElementJaxb.getValue().getId()));
-				flowNodeJaxb.add((TStartEvent) flowElementJaxb.getValue());
+				return (TFlowNode) flowElementJaxb.getValue();
 			}
 		}
-		return flowNodeJaxb;
+		LOG.error("The node id " + nodeId + " could not be found!");
+		return null;
 	}
+	
 }

@@ -19,13 +19,11 @@ package com.catify.processengine.management;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 
 import javax.xml.bind.JAXBException;
 
-import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
+import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
-import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 
 public interface ProcessManagementService {
 
@@ -63,32 +61,44 @@ public interface ProcessManagementService {
 			File processDefinition) throws FileNotFoundException, JAXBException;
 
 	/**
-	 * Create a process instance.
+	 * Creates a process instance.
+	 *
+	 * @param uniqueFlowNodeId the unique flow node id of the start event
+	 * @param triggerMessage the trigger message
+	 */
+	void createProcessInstance(String uniqueFlowNodeId,
+			TriggerMessage triggerMessage);
+
+	/**
+	 * Creates a process instance.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the jaxb process
+	 * @param startEventId the start event id in the bpmn process xml
+	 * @param triggerMessage the trigger message
+	 */
+	void createProcessInstance(String clientId, TProcess processJaxb,
+			String startEventId, TriggerMessage triggerMessage);
+
+	/**
+	 * Send trigger message to a given node. 
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the jaxb process 
+	 * @param nodeId the node id in the bpmn process xml
+	 * @param triggerMessage the trigger message
+	 */
+	void sendTriggerMessage(String clientId, TProcess processJaxb,
+			String nodeId, TriggerMessage triggerMessage);
+
+	/**
+	 * Send trigger message to a given node.
 	 *
 	 * @param uniqueFlowNodeId the unique flow node id
+	 * @param triggerMessage the trigger message
 	 */
-	public abstract void createProcessInstance(String uniqueFlowNodeId);
+	void sendTriggerMessage(String uniqueFlowNodeId,
+			TriggerMessage triggerMessage);
 
-	/**
-	 * Create a process instance.
-	 *
-	 * @param clientId the client id
-	 * @param processJaxb the process jaxb
-	 * @param startEventId the start event id
-	 */
-	public abstract void createProcessInstance(String clientId,
-			TProcess processJaxb, String startEventId);
-
-	/**
-	 * Create a process instance.
-	 *
-	 * @param clientId the client id
-	 * @param processJaxb the process jaxb
-	 * @param subProcessesJaxb the sub processes jaxb
-	 * @param flowNodeJaxb the flow node jaxb
-	 */
-	public abstract void createProcessInstance(String clientId,
-			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb);
 	
 }
