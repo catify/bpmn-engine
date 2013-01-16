@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,14 +91,13 @@ public class ProcessInstanceMediatorService {
 	
 	/**
 	 * Create a new process instance (database level).
-	 * 
-	 * @return the processInstanceId
+	 *
+	 * @param uniqueProcessId the unique process id
+	 * @param processInstanceId the process instance id
 	 */
 	@Transactional
-	public synchronized String createProcessInstance(String uniqueProcessId) {
-		// get a unique id as process instance id
-		String processInstanceId = UUID.randomUUID().toString();
-
+	public synchronized void createProcessInstance(String uniqueProcessId, String processInstanceId) {
+		
 		// get the process
 		ProcessNode process = processRepositoryService
 				.findByUniqueProcessId(uniqueProcessId);
@@ -132,8 +130,6 @@ public class ProcessInstanceMediatorService {
 		LOG.debug(String.format(
 				"Finished instantiating process %s with instanceId %s",
 				process, processInstanceId));
-
-		return processInstanceId;
 	}
 	
 	/**

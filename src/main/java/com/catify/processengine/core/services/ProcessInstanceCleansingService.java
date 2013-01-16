@@ -66,7 +66,7 @@ public class ProcessInstanceCleansingService extends UntypedActor {
 					((ArchiveMessage) message).getUniqueProcessId(),
 					((ArchiveMessage) message).getProcessInstanceId(), 
 					((ArchiveMessage) message).getEndTime());
-			LOG.debug(String.format("Successfully archived process instance with instance id '%s'", ((ArchiveMessage) message).getProcessInstanceId()));
+			LOG.debug(String.format("Archived process instance with instance id '%s'", ((ArchiveMessage) message).getProcessInstanceId()));
 		} else if (message instanceof DeletionMessage) {
 			processInstanceMediatorService.deleteProcessInstance(
 					((DeletionMessage) message).getUniqueProcessId(),
@@ -76,7 +76,7 @@ public class ProcessInstanceCleansingService extends UntypedActor {
 				this.getDataObjectService().deleteObject(((DeletionMessage) message).getUniqueProcessId(), 
 						dataObjectId, ((DeletionMessage) message).getProcessInstanceId());
 			}
-			LOG.debug(String.format("Successfully deleted process instance with instance id '%s'", ((ArchiveMessage) message).getProcessInstanceId()));
+			LOG.debug(String.format("Deleted process instance with instance id '%s'", ((ArchiveMessage) message).getProcessInstanceId()));
 		} else {
 			unhandled(message);
 		}

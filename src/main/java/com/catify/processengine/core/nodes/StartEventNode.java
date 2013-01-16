@@ -19,6 +19,7 @@ package com.catify.processengine.core.nodes;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,18 +125,20 @@ public class StartEventNode extends CatchEvent {
 	protected void trigger(TriggerMessage message) {
 		String processInstanceId;
 
-		// work with the given process instance id, if the process instance has
-		// already been initialized, or create a new process instance
 		if (message.getProcessInstanceId() != null) {
-			LOG.debug("Already instantiated process instance detected with pid: " + message.getProcessInstanceId());
 			processInstanceId = message.getProcessInstanceId();
+			LOG.debug("Process instance starting with given processInstanceId: " + message.getProcessInstanceId());
 		} else {
-			processInstanceId = processInstanceMediatorService.createProcessInstance(this.getUniqueProcessId());
-
-			// the default activation of other top level start nodes has been deactivated (see redmine #109)
-			// other start nodes are activated by default because they are catching events and their included event definitions need to be triggered
-			// this.sendMessageToNodeActors(new ActivationMessage(processInstanceId), this.getOtherStartNodes());
+			// get a unique id as process instance id
+			processInstanceId = UUID.randomUUID().toString();
+			LOG.debug("Process instance starting with new randomUUID processInstanceId: " + processInstanceId);
 		}
+		
+		processInstanceMediatorService.createProcessInstance(this.getUniqueProcessId(), processInstanceId);
+
+		// the default activation of other top level start nodes has been deactivated (see redmine #109)
+		// other start nodes are activated by default because they are catching events and their included event definitions need to be triggered
+		// this.sendMessageToNodeActors(new ActivationMessage(processInstanceId), this.getOtherStartNodes());
 		
 		// set the time only, if it has not been done already (will be null if start event has been triggered with 
 		// an ActivationMessage before, eg. through a timer service, related to remine #109)
