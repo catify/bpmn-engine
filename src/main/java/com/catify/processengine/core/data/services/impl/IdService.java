@@ -46,6 +46,11 @@ public final class IdService {
 	 * @return the unique process id
 	 */
 	public static String getUniqueProcessId(String clientId, TProcess processJaxb) {
+//		String processVersion = "defaultVersion";
+//		if (ExtensionService.getTVersion(processJaxb) != null) {
+//			processVersion = ExtensionService.getTVersion(processJaxb).getVersion();
+//		}
+
 		return new String(clientId + processJaxb.getName() + processJaxb.getId()
 				+ ExtensionService.getTVersion(processJaxb).getVersion());
 	}
