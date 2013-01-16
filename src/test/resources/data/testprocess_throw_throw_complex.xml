@@ -1,55 +1,60 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<!-- ******************************************************* Copyright (C) 
+	2013 catify <info@catify.com> ******************************************************* 
+	Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+	use this file except in compliance with the License. You may obtain a copy 
+	of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+	xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1340971831366"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
-    *******************************************************
-    Copyright (C) 2013 catify <info@catify.com>
-    *******************************************************
+	xmlns:catify="http://www.catify.com/processengine/core/processdefinition"
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+	exporter="Yaoqiang BPMN Editor" exporterVersion="2.0"
+	expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366"
+	name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366"
+	typeLanguage="http://www.w3.org/2001/XMLSchema"
+	xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
 
-            http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
--->
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1340971831366" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-
-xmlns:catify="http://www.catify.com/processengine/core/processdefinition"
-
-exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
-
-  <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
-      <extensionElements>
-	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
-      </extensionElements>
-      <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
-      </startEvent>
-      <intermediateThrowEvent id="throwEvent1" name="Intermediate Event">
-      </intermediateThrowEvent>
-      <intermediateThrowEvent id="throwEvent2" name="Intermediate Event">
-      </intermediateThrowEvent>
-      <complexGateway gatewayDirection="Unspecified" id="complexGateway1" name="Complex Gateway">
-		<incoming>sequenceFlow3</incoming>
-		<incoming>sequenceFlow4</incoming>
-		<outgoing>sequenceFlow5</outgoing>
+	<process id="testProcessId1" isClosed="false" isExecutable="true"
+		processType="Private">
 		<extensionElements>
-		  <catify:nOfM count="1"/>
+			<catify:version id="VERSION_ID" version="testProcessVersion1" />
 		</extensionElements>
-		<activationCondition>1</activationCondition>
-      </complexGateway>
-      <endEvent id="endEvent1" name="End Event">
-      </endEvent>
-      <sequenceFlow id="sequenceFlow1" sourceRef="startEvent1" targetRef="throwEvent1"/>
-      <sequenceFlow id="sequenceFlow2" sourceRef="startEvent1" targetRef="throwEvent2"/>
-      <sequenceFlow id="sequenceFlow3" sourceRef="throwEvent1" targetRef="complexGateway1"/>
-      <sequenceFlow id="sequenceFlow4" sourceRef="throwEvent2" targetRef="complexGateway1"/>
-      <sequenceFlow id="sequenceFlow5" sourceRef="complexGateway1" targetRef="endEvent1"/>
-  </process>
-  
+		<startEvent id="startEvent1" isInterrupting="true" name="Start Event"
+			parallelMultiple="false">
+		</startEvent>
+		<intermediateThrowEvent id="throwEvent1" name="Intermediate Event">
+		</intermediateThrowEvent>
+		<intermediateThrowEvent id="throwEvent2" name="Intermediate Event">
+		</intermediateThrowEvent>
+		<complexGateway gatewayDirection="Unspecified" id="complexGateway1"
+			name="Complex Gateway">
+			<incoming>sequenceFlow3</incoming>
+			<incoming>sequenceFlow4</incoming>
+			<outgoing>sequenceFlow5</outgoing>
+			<extensionElements>
+				<catify:nOfM count="1" />
+			</extensionElements>
+			<activationCondition>1</activationCondition>
+		</complexGateway>
+		<endEvent id="endEvent1" name="End Event">
+		</endEvent>
+		<sequenceFlow id="sequenceFlow1" sourceRef="startEvent1"
+			targetRef="throwEvent1" />
+		<sequenceFlow id="sequenceFlow2" sourceRef="startEvent1"
+			targetRef="throwEvent2" />
+		<sequenceFlow id="sequenceFlow3" sourceRef="throwEvent1"
+			targetRef="complexGateway1" />
+		<sequenceFlow id="sequenceFlow4" sourceRef="throwEvent2"
+			targetRef="complexGateway1" />
+		<sequenceFlow id="sequenceFlow5" sourceRef="complexGateway1"
+			targetRef="endEvent1" />
+	</process>
+
 </definitions>

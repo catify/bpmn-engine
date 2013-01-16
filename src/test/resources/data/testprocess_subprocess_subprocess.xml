@@ -1,92 +1,104 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<!-- ******************************************************* Copyright (C) 
+	2013 catify <info@catify.com> ******************************************************* 
+	Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+	use this file except in compliance with the License. You may obtain a copy 
+	of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+	xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1340971831366"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
-    *******************************************************
-    Copyright (C) 2013 catify <info@catify.com>
-    *******************************************************
+	xmlns:catify="http://www.catify.com/processengine/core/processdefinition"
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+	exporter="Yaoqiang BPMN Editor" exporterVersion="2.0"
+	expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366"
+	name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366"
+	typeLanguage="http://www.w3.org/2001/XMLSchema"
+	xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
 
-            http://www.apache.org/licenses/LICENSE-2.0
+	<import location="catifyExtension.xsd"
+		namespace="http://www.catify.com/processengine/core/processdefinition"
+		importType="http://www.w3.org/2001/XMLSchema" />
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+	<extension mustUnderstand="true" definition="catify:catifyExtensions" />
 
--->
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1340971831366" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	<process id="testProcessId1" isClosed="false" isExecutable="true"
+		processType="Private">
+		<extensionElements>
+			<catify:version id="VERSION_ID" version="testProcessVersion1" />
+		</extensionElements>
+		<startEvent id="startEvent1" isInterrupting="true" name="Start Event"
+			parallelMultiple="false">
+		</startEvent>
 
-xmlns:catify="http://www.catify.com/processengine/core/processdefinition"
+		<subProcess completionQuantity="1" id="subProcess1"
+			isForCompensation="false" name="Sub-Process" startQuantity="1"
+			triggeredByEvent="false">
+			<incoming>sequenceFlow1</incoming>
+			<outgoing>sequenceFlow2</outgoing>
+			<startEvent id="subStartEvent1" isInterrupting="true"
+				name="Start Event" parallelMultiple="false">
+				<outgoing>subSequenceFlow1</outgoing>
+			</startEvent>
+			<intermediateThrowEvent id="subThrowEvent1"
+				name="Intermediate Event">
+				<incoming>subSequenceFlow1</incoming>
+				<outgoing>subSequenceFlow2</outgoing>
+			</intermediateThrowEvent>
 
-exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
+			<subProcess completionQuantity="1" id="subSubProcess1"
+				isForCompensation="false" name="Sub-Process" startQuantity="1"
+				triggeredByEvent="false">
+				<incoming>subSequenceFlow2</incoming>
+				<outgoing>subSequenceFlow3</outgoing>
+				<startEvent id="subSubStartEvent1" isInterrupting="true"
+					name="Start Event" parallelMultiple="false">
+					<outgoing>subSubSequenceFlow1</outgoing>
+				</startEvent>
+				<intermediateThrowEvent id="subSubThrowEvent1"
+					name="Intermediate Event">
+					<incoming>subSubSequenceFlow1</incoming>
+					<outgoing>subSubSequenceFlow2</outgoing>
+				</intermediateThrowEvent>
+				<endEvent id="subSubEndEvent1" name="End Event">
+					<incoming>subSubSequenceFlow2</incoming>
+				</endEvent>
+				<sequenceFlow id="subSubSequenceFlow1" sourceRef="subSubStartEvent1"
+					targetRef="subSubThrowEvent1" />
+				<sequenceFlow id="subSubSequenceFlow2" sourceRef="subSubThrowEvent1"
+					targetRef="subSubEndEvent1" />
+			</subProcess>
 
-<import location="catifyExtension.xsd" namespace="http://www.catify.com/processengine/core/processdefinition"
-  importType="http://www.w3.org/2001/XMLSchema"/>
+			<intermediateThrowEvent id="subThrowEvent2"
+				name="Intermediate Event">
+				<incoming>subSequenceFlow2</incoming>
+				<outgoing>subSequenceFlow3</outgoing>
+			</intermediateThrowEvent>
+			<endEvent id="subEndEvent1" name="End Event">
+				<incoming>subSequenceFlow3</incoming>
+			</endEvent>
 
-<extension mustUnderstand="true" definition="catify:catifyExtensions"/>
+			<sequenceFlow id="subSequenceFlow1" sourceRef="subStartEvent1"
+				targetRef="subThrowEvent1" />
+			<sequenceFlow id="subSequenceFlow2" sourceRef="subThrowEvent1"
+				targetRef="subSubProcess1" />
+			<sequenceFlow id="subSequenceFlow3" sourceRef="subSubProcess1"
+				targetRef="subThrowEvent2" />
+			<sequenceFlow id="subSequenceFlow4" sourceRef="subThrowEvent2"
+				targetRef="subEndEvent1" />
+		</subProcess>
 
-  <process id="_9" isClosed="false" isExecutable="true" processType="None">
-<extensionElements>
-	<catify:version id="VERSION_ID" version="ProcessVersion"/>
-</extensionElements>
+		<endEvent id="endEvent1" name="End Event">
+		</endEvent>
+		<sequenceFlow id="sequenceFlow1" sourceRef="startEvent1"
+			targetRef="subProcess1" />
+		<sequenceFlow id="sequenceFlow2" sourceRef="subProcess1"
+			targetRef="endEvent1" />
+	</process>
 
-    <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
-      <extensionElements>
-	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
-      </extensionElements>
-      <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
-      </startEvent>
-
-      <subProcess completionQuantity="1" id="subProcess1" isForCompensation="false" name="Sub-Process" startQuantity="1" triggeredByEvent="false">
-	<incoming>sequenceFlow1</incoming>
-	<outgoing>sequenceFlow2</outgoing>
-	<startEvent id="subStartEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
-	  <outgoing>subSequenceFlow1</outgoing>
-	</startEvent>
-	<intermediateThrowEvent id="subThrowEvent1" name="Intermediate Event">
-	  <incoming>subSequenceFlow1</incoming>
-	  <outgoing>subSequenceFlow2</outgoing>
-	</intermediateThrowEvent>
-
-	<subProcess completionQuantity="1" id="subSubProcess1" isForCompensation="false" name="Sub-Process" startQuantity="1" triggeredByEvent="false">
-	  <incoming>subSequenceFlow2</incoming>
-	  <outgoing>subSequenceFlow3</outgoing>
-	  <startEvent id="subSubStartEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
-	    <outgoing>subSubSequenceFlow1</outgoing>
-	  </startEvent>
-	  <intermediateThrowEvent id="subSubThrowEvent1" name="Intermediate Event">
-	    <incoming>subSubSequenceFlow1</incoming>
-	    <outgoing>subSubSequenceFlow2</outgoing>
-	  </intermediateThrowEvent>
-	  <endEvent id="subSubEndEvent1" name="End Event">
-	    <incoming>subSubSequenceFlow2</incoming>
-	  </endEvent>
-	  <sequenceFlow id="subSubSequenceFlow1" sourceRef="subSubStartEvent1" targetRef="subSubThrowEvent1"/>
-	  <sequenceFlow id="subSubSequenceFlow2" sourceRef="subSubThrowEvent1" targetRef="subSubEndEvent1"/>
-	</subProcess>
-
-	<intermediateThrowEvent id="subThrowEvent2" name="Intermediate Event">
-	  <incoming>subSequenceFlow2</incoming>
-	  <outgoing>subSequenceFlow3</outgoing>
-	</intermediateThrowEvent>
-	<endEvent id="subEndEvent1" name="End Event">
-	  <incoming>subSequenceFlow3</incoming>
-	</endEvent>
-
-	<sequenceFlow id="subSequenceFlow1" sourceRef="subStartEvent1" targetRef="subThrowEvent1"/>
-	<sequenceFlow id="subSequenceFlow2" sourceRef="subThrowEvent1" targetRef="subSubProcess1"/>
-	<sequenceFlow id="subSequenceFlow3" sourceRef="subSubProcess1" targetRef="subThrowEvent2"/>
-	<sequenceFlow id="subSequenceFlow4" sourceRef="subThrowEvent2" targetRef="subEndEvent1"/>
-      </subProcess>
-
-      <endEvent id="endEvent1" name="End Event">
-      </endEvent>
-      <sequenceFlow id="sequenceFlow1" sourceRef="startEvent1" targetRef="subProcess1"/>
-      <sequenceFlow id="sequenceFlow2" sourceRef="subProcess1" targetRef="endEvent1"/>
-  </process>
-  
 </definitions>

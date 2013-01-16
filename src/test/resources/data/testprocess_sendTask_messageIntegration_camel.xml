@@ -21,12 +21,6 @@
 	typeLanguage="http://www.w3.org/2001/XMLSchema"
 	xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
 
-	<import location="catifyExtension.xsd"
-		namespace="http://www.catify.com/processengine/core/processdefinition"
-		importType="http://www.w3.org/2001/XMLSchema" />
-
-	<extension mustUnderstand="true" definition="catify:catifyExtensions" />
-
 	<process id="testProcessId1" isClosed="false" isExecutable="true"
 		processType="Private">
 		<extensionElements>
@@ -35,42 +29,19 @@
 		<startEvent id="startEvent1" isInterrupting="true" name="Start Event"
 			parallelMultiple="false">
 		</startEvent>
-
-		<subProcess completionQuantity="1" id="subProcess1"
-			isForCompensation="false" name="Sub-Process" startQuantity="1"
-			triggeredByEvent="false">
-			<incoming>sequenceFlow1</incoming>
-			<outgoing>sequenceFlow2</outgoing>
-			<startEvent id="subStartEvent1" isInterrupting="true"
-				name="Start Event" parallelMultiple="false">
-				<outgoing>subSequenceFlow1</outgoing>
-			</startEvent>
-			<intermediateThrowEvent id="subThrowEvent1"
-				name="Intermediate Event">
-				<incoming>subSequenceFlow1</incoming>
-				<outgoing>subSequenceFlow2</outgoing>
-			</intermediateThrowEvent>
-			<intermediateThrowEvent id="subThrowEvent2"
-				name="Intermediate Event">
-				<incoming>subSequenceFlow2</incoming>
-				<outgoing>subSequenceFlow3</outgoing>
-			</intermediateThrowEvent>
-			<endEvent id="subEndEvent1" name="End Event">
-				<incoming>subSequenceFlow3</incoming>
-			</endEvent>
-			<sequenceFlow id="subSequenceFlow1" sourceRef="subStartEvent1"
-				targetRef="subThrowEvent1" />
-			<sequenceFlow id="subSequenceFlow2" sourceRef="subThrowEvent1"
-				targetRef="subThrowEvent2" />
-			<sequenceFlow id="subSequenceFlow3" sourceRef="subThrowEvent2"
-				targetRef="subEndEvent1" />
-		</subProcess>
-
+		<sendTask completionQuantity="1" id="sendTask1"
+			implementation="##WebService" isForCompensation="false" name="Send Task"
+			startQuantity="1">
+			<extensionElements>
+				<catify:messageIntegration prefix="camel"
+					integrationstring="file:data/integrationOutput" />
+			</extensionElements>
+		</sendTask>
 		<endEvent id="endEvent1" name="End Event">
 		</endEvent>
 		<sequenceFlow id="sequenceFlow1" sourceRef="startEvent1"
-			targetRef="subProcess1" />
-		<sequenceFlow id="sequenceFlow2" sourceRef="subProcess1"
+			targetRef="sendTask1" />
+		<sequenceFlow id="sequenceFlow2" sourceRef="sendTask1"
 			targetRef="endEvent1" />
 	</process>
 
