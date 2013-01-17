@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    *******************************************************
+    Copyright (C) 2013 catify <info@catify.com>
+    *******************************************************
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:neo4j="http://www.springframework.org/schema/data/neo4j"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:akka="http://repo.akka.io/schema/akka"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/data/neo4j http://www.springframework.org/schema/data/neo4j/spring-neo4j-2.0.xsd 
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://repo.akka.io/schema/akka http://repo.akka.io/akka.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+	<!-- embedded neo4j db -->
+<!-- 	<bean id="graphDatabaseService" class="org.neo4j.kernel.EmbeddedGraphDatabase"> -->
+<!-- 	 	<constructor-arg index="0" value="data/test/neo4j-db" /> -->
+<!-- 	        <constructor-arg index="1"> -->
+<!--             <map> -->
+<!-- 				<entry key="keep_logical_logs" value="100M size" /> -->
+<!--             </map> -->
+<!--         </constructor-arg> -->
+<!-- 	</bean> -->
+	
+	<!--  use in memory graph database -->
+    <bean id="graphDatabaseService" class="org.neo4j.test.ImpermanentGraphDatabase"/>
+	
+	<!-- enable for embedded web console in neo4j db -->
+<!-- 	<bean id="serverWrapper" class="org.neo4j.server.WrappingNeoServerBootstrapper" init-method="start" destroy-method="stop"> -->
+<!-- 		<constructor-arg index="0" ref="graphDatabaseService" /> -->
+<!-- 		<constructor-arg index="1" ref="configuration" /> -->
+<!-- 	</bean> -->
+<!-- 	<bean id="configuration" class="org.neo4j.server.configuration.PropertyFileConfigurator"> -->
+<!-- 		<constructor-arg value="config/neo4j.properties" /> -->
+<!-- 	</bean> -->
+
+	<!-- external neo4j db -->
+	<!-- <bean id="graphDatabaseService" -->
+	<!-- class="org.springframework.data.neo4j.rest.SpringRestGraphDatabase"> -->
+	<!-- <constructor-arg index="0" value="http://172.17.16.95:7474/db/data" /> -->
+	<!-- </bean> -->
+	
+	<neo4j:config graphDatabaseService="graphDatabaseService" />
+	<neo4j:repositories base-package="com.catify.processengine.core" />
+
+</beans>
