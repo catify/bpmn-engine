@@ -190,7 +190,7 @@ public class IntegrationTests {
 	    pm.createProcessInstance(client, processes.get(0), startEvent, new TriggerMessage());
 	    
 	    // wait for the process instance to start up
-	    Thread.sleep(5000);
+	    Thread.sleep(500000);
 	    
 	    // check results
 	    Assert.assertEquals(14, getFlowNodeCount());
