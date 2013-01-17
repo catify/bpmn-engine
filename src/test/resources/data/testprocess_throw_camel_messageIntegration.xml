@@ -21,7 +21,7 @@
 	typeLanguage="http://www.w3.org/2001/XMLSchema"
 	xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
 
-	<process id="testProcessId1" isClosed="false" isExecutable="true"
+	<process id="testprocess_throw_camel_messageIntegration" isClosed="false" isExecutable="true"
 		processType="Private">
 		<extensionElements>
 			<catify:version id="VERSION_ID" version="testProcessVersion1" />

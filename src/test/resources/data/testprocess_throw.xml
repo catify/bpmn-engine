@@ -27,7 +27,7 @@
 
 	<extension mustUnderstand="true" definition="catify:catifyExtensions" />
 
-	<process id="testProcessId1" isClosed="false" isExecutable="true"
+	<process id="testprocess_throw" isClosed="false" isExecutable="true"
 		processType="Private">
 		<extensionElements>
 			<catify:version id="VERSION_ID" version="testProcessVersion1" />

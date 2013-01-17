@@ -29,7 +29,7 @@ exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http:/
 
 <extension mustUnderstand="true" definition="catify:catifyExtensions"/>
 
-  <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
+  <process id="testprocess_throw_integrationStart" isClosed="false" isExecutable="true" processType="Private">
       <extensionElements>
 	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
       </extensionElements>

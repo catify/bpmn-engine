@@ -30,7 +30,7 @@ expressionLanguage="http://www.w3.org/1999/XPath" id="_1342870412164" name="" ta
 
 <extension mustUnderstand="true" definition="catify:catifyExtensions"/>
 
-  <process id="testProcessId1" isClosed="false" isExecutable="true" processType="Private">
+  <process id="testprocess_catching_dataOutput" isClosed="false" isExecutable="true" processType="Private">
       <extensionElements>
 	<catify:version id="VERSION_ID" version="testProcessVersion1"/>
       </extensionElements>
