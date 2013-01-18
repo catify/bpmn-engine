@@ -17,6 +17,8 @@
  */
 package com.catify.processengine.core.nodes;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +27,8 @@ import java.util.Set;
 
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
 
@@ -45,6 +49,8 @@ import com.catify.processengine.core.util.GatewayUtil;
  */
 public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 
+	public static final Logger LOG = LoggerFactory.getLogger(ExclusiveGatewayNode.class);
+	
 	/**
 	 * We need the data object ids, to feed the JEXL context with object
 	 * instances.
@@ -103,10 +109,18 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 				uniqueProcessId, uniqueFlowNodeId));
 		
 		// create all needed object ids
-		this.usedDataObjectIds = ExpressionService.evaluateAllUsedObjects((Set<String>) conditionalExpressionStrings.values(), allDataObjectIds);
+		Collection<String> values = conditionalExpressionStrings.values();
+		this.usedDataObjectIds = ExpressionService.evaluateAllUsedObjects(createList(conditionalExpressionStrings.values()), allDataObjectIds);
 		// create JEXL expressions from strings
 		this.conditionalExpressionStrings = ExpressionService.createJexlExpressions(conditionalExpressionStrings);
 		this.dataObjectHandler = dataObjectHandler;
+		
+		int defNum = 0;
+		if(defaultNode != null) {
+			defNum = 1;
+		}
+		
+		LOG.info(String.format("Registered Exclusive Gateway (%s) with %s expressions and %s default sequences. ", uniqueFlowNodeId, conditionalExpressionStrings.size(), defNum));
 	}
 
 	@Override
@@ -126,6 +140,7 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 		if(checkNOfMCondition(iid, flowsFired)) {
 			this.getNodeInstanceMediatorService().setNodeInstanceEndTime(iid, new Date());
 			this.getNodeInstanceMediatorService().setPassed(iid);
+			LOG.debug(String.format("Setting exclusive gateway '%s' to passed.", super.getUniqueFlowNodeId()));
 		}
 		
 		// write changes to db
@@ -182,6 +197,14 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 		}
 		
 		return null;	
+	}
+	
+	public List<String> createList(Collection<String> values) {
+		List<String> result = new ArrayList<String>();
+		for (String value: values) {
+			result.add(value);
+		}
+		return result;
 	}
 	
 	

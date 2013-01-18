@@ -401,7 +401,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param processJaxb the jaxb process
 	 * @param subProcessesJaxb the list of parent jaxb sub processes
 	 * @param flowNodeJaxb the jaxb exclusive gateway node
-	 * @param sequenceFlowsJaxb
+	 * @param sequenceFlowsJaxb the list of jaxb sequence flows of that process
 	 * @return
 	 */
 	private FlowElement createExclusiveGatewayNode(String clientId,

@@ -2,6 +2,7 @@ package com.catify.processengine.core.services;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -10,6 +11,8 @@ import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
 
@@ -25,6 +28,7 @@ import com.catify.processengine.core.data.dataobjects.DataObjectService;
 public class ExpressionService {
 
 	public static final JexlEngine JEXL = new JexlEngine();
+	public static final Logger LOG = LoggerFactory.getLogger(ExpressionService.class);
 	
 	/**
 	 * Creates a new JEXL engine instance.
@@ -66,7 +70,7 @@ public class ExpressionService {
 	 * @param dataObjectIds
 	 * @return
 	 */
-	public static Set<String> evaluateAllUsedObjects(Set<String> expressions, Set<String> dataObjectIds) {
+	public static Set<String> evaluateAllUsedObjects(List<String> expressions, Set<String> dataObjectIds) {
 		Set<String> result = new HashSet<String>();
 		
 		for (String expression : expressions) {
@@ -99,7 +103,13 @@ public class ExpressionService {
 	 * @return expression as {@link Expression}
 	 */
 	public static Expression createJexlExpression(String expression) {
-		return JEXL.createExpression(expression);
+		// there can be null values - e.g. within default sequences
+		Expression result = null;
+		if(expression != null) {
+			LOG.debug(String.format("Creating JEXL expression from '%s'.", expression));
+			result = JEXL.createExpression(expression);
+		}
+		return result;
 	}
 	
 	/**
@@ -156,7 +166,11 @@ public class ExpressionService {
 		Iterator<ActorRef> it = expressions.keySet().iterator();
 		while (it.hasNext()) {
 			ActorRef actorRef = it.next();
-			result.put(actorRef, createJexlExpression(expressions.get(actorRef)));
+			if(expressions != null) {
+				result.put(actorRef, createJexlExpression(expressions.get(actorRef)));
+			} else {
+				System.out.println("###################### expressions NULL!!!");
+			}
 		}
 		
 		return result;
@@ -232,13 +246,17 @@ public class ExpressionService {
 	 * @return
 	 */
 	public static boolean evaluateToBoolean(Expression expression, JexlContext context) {
-		Object result = expression.evaluate(context);
-		
-		if(result instanceof Boolean) {
-			return (Boolean) result;
-		} else {
-			throw new IllegalArgumentException(String.format("Your JEXL expression '%s' has not a boolean result.", expression.getExpression()));
+		if(expression != null) {
+			Object result = expression.evaluate(context);
+			LOG.debug(String.format("Evaluated expression '%s' to result '%s'.", expression.getExpression(), result));
+			
+			if(result instanceof Boolean) {
+				return (Boolean) result;
+			} else {
+				throw new IllegalArgumentException(String.format("Your JEXL expression '%s' has not a boolean result.", expression.getExpression()));
+			}
 		}
+		return false;
 	}
 	
 	

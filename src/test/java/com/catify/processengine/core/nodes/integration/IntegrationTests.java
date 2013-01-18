@@ -21,6 +21,7 @@
 package com.catify.processengine.core.nodes.integration;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import javax.xml.bind.JAXBException;
 
 import junit.framework.Assert;
 
+import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -107,72 +109,26 @@ public class IntegrationTests {
     
 	@Test
 	public void testprocess_throw() throws IOException, JAXBException, InterruptedException {
-		
-	    File processDefinition = new File(getClass().getResource("/data/testprocess_throw.xml").getFile());
-	    Assert.assertTrue(processDefinition.exists());
-		
-	    // the '+xy' is needed until there is a way to restart the running actor system (akka 2.1)
-		pm.startProcessFromDefinitionFile(client, processDefinition);
-
-		// wait for the process to start up
-		Thread.sleep(3000);
-
-    	List<TProcess> processes = xmlJaxbTransformer.getTProcessesFromBpmnXml(processDefinition);
-	    pm.createProcessInstance(client, processes.get(0), startEvent, new TriggerMessage());
-	    
-	    // wait for the process instance to start up
-	    Thread.sleep(5000);
-	    
-	    // check results
-	    Assert.assertEquals(6, getFlowNodeCount());
-	    Assert.assertEquals(3, getFlowNodeInstanceCount());
+		simpleProcessTest("testprocess_throw.xml", 3000, 5000, 6, 3);
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
 	}
 	
 	@Test
 	public void testprocess_throw_throw_complex() throws IOException, JAXBException, InterruptedException {
-		
-	    File processDefinition = new File(getClass().getResource("/data/testprocess_throw_throw_complex.xml").getFile());
-	    Assert.assertTrue(processDefinition.exists());
-		
-		pm.startProcessFromDefinitionFile(client, processDefinition);
-
-		// wait for the process to start up
-		Thread.sleep(3000);
-
-    	List<TProcess> processes = xmlJaxbTransformer.getTProcessesFromBpmnXml(processDefinition);
-	    pm.createProcessInstance(client, processes.get(0), startEvent, new TriggerMessage());
-	    
-	    // wait for the process instance to start up
-	    Thread.sleep(5000);
-	    
-	    // check results
-	    Assert.assertEquals(10, getFlowNodeCount());
-	    Assert.assertEquals(5, getFlowNodeInstanceCount());
+		simpleProcessTest("testprocess_throw_throw_complex.xml", 3000, 5000, 10, 5);
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
 	}
 	
 	@Test
-	public void testprocess_throw_throw_and() throws IOException, JAXBException, InterruptedException {
-		
-	    File processDefinition = new File(getClass().getResource("/data/testprocess_throw_throw_and.xml").getFile());
-	    Assert.assertTrue(processDefinition.exists());
-		
-		pm.startProcessFromDefinitionFile(client, processDefinition);
-
-		// wait for the process to start up
-		Thread.sleep(3000);
-
-    	List<TProcess> processes = xmlJaxbTransformer.getTProcessesFromBpmnXml(processDefinition);
-	    pm.createProcessInstance(client, processes.get(0), startEvent, new TriggerMessage());
-	    
-	    // wait for the process instance to start up
-	    Thread.sleep(5000);
-	    
-	    // check results
-	    Assert.assertEquals(10, getFlowNodeCount());
-	    Assert.assertEquals(5, getFlowNodeInstanceCount());
+	public void testprocess_throw_throw_and() throws IOException, JAXBException, InterruptedException {		
+	    simpleProcessTest("testprocess_throw_throw_and.xml", 3000, 5000, 10, 5);
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
+	}
+	
+	@Test
+	public void testprocessExclusiveGateway() throws FileNotFoundException, JAXBException, InterruptedException {
+		simpleProcessTest("testprocess_exclusive_gateway.xml", 3000, 5000, 20, 10);	
+		assertEquals(4, countFlowNodeInstanceWithState(NodeInstaceStates.PASSED_STATE));
 	}
 	
 	@Test
@@ -417,6 +373,40 @@ public class IntegrationTests {
 		}
 		
 		return counter;
+	}
+	
+	/**
+	 * Helper to test standard scenarios
+	 * 
+	 * @param fileName name of the file without path and slash (must be in /src/test/resources/data/)
+	 * @param firstSleep milliseconds of the first sleep
+	 * @param secondSleep milliseconds of the first sleep
+	 * @param awaitedFlowNodeCount awaited number of flow nodes 
+	 * @param awaitedInstanceNodeCount awaited number of flow node instances
+	 * @throws FileNotFoundException
+	 * @throws JAXBException
+	 * @throws InterruptedException
+	 */
+	private void simpleProcessTest(String fileName, int firstSleep, int secondSleep, int awaitedFlowNodeCount, int awaitedInstanceNodeCount) 
+			throws FileNotFoundException, JAXBException, InterruptedException {
+		File processDefinition = new File(getClass().getResource("/data/" + fileName).getFile());
+		Assert.assertTrue(processDefinition.exists());
+
+		pm.startProcessFromDefinitionFile(client, processDefinition);
+
+		// wait for the process to start up
+		Thread.sleep(firstSleep);
+
+		List<TProcess> processes = xmlJaxbTransformer.getTProcessesFromBpmnXml(processDefinition);
+		assertNotNull(processes);
+		pm.createProcessInstance(client, processes.get(0), startEvent, new TriggerMessage());
+
+		// wait for the process instance to start up
+		Thread.sleep(secondSleep);
+
+		// check results
+		Assert.assertEquals(awaitedFlowNodeCount, getFlowNodeCount());
+		Assert.assertEquals(awaitedInstanceNodeCount, getFlowNodeInstanceCount());
 	}
 	
 }

@@ -7,7 +7,9 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.jexl2.Expression;
@@ -47,7 +49,7 @@ public class ExpressionServiceTest {
 	@Test
 	public void testEvaluateAllUsedObjects() {
 		Set<String> ids = createIdSet("foo", "bar", "aar", "dar", "for");
-		Set<String> expressions = new HashSet<String>();
+		List<String> expressions = new ArrayList<String>();
 		expressions.add("foo.a > bar.b");
 		expressions.add("foo.a == dar.x");
 		expressions.add("foo.a > 10000");

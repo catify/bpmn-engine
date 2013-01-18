@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectIdService;
 import com.catify.processengine.core.processdefinition.jaxb.TComplexGateway;
+import com.catify.processengine.core.processdefinition.jaxb.TExclusiveGateway;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TParallelGateway;
 import com.catify.processengine.core.processdefinition.jaxb.services.ExtensionService;
@@ -49,6 +50,10 @@ public class FlowNodeFactory {
 		// the parallel and the complex gateway need to save their
 		// activation condition (firedFlowsNeeded)
 		if (flowNodeJaxb instanceof TParallelGateway) {
+			node = new FlowNode(uniqueFlowNodeId, flowNodeJaxb.getId(),
+					flowNodeJaxb.getClass().toString(), flowNodeJaxb.getName(),
+					flowNodeJaxb.getIncoming().size());
+		} else if (flowNodeJaxb instanceof TExclusiveGateway) {
 			node = new FlowNode(uniqueFlowNodeId, flowNodeJaxb.getId(),
 					flowNodeJaxb.getClass().toString(), flowNodeJaxb.getName(),
 					flowNodeJaxb.getIncoming().size());
