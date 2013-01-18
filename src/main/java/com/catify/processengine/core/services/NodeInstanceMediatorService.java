@@ -189,9 +189,10 @@ public class NodeInstanceMediatorService {
 
 		if (stateTransistionSanityCheck(state)) {
 			LOG.debug(String.format(
-					"Setting state of graphId: %s from %s to %s",
+					"Setting state of graphId: %s from %s to %s (uniqueFlowNodeId:%s)",
 					nodeInstance.getGraphId(),
-					nodeInstance.getNodeInstanceState(), state));
+					nodeInstance.getNodeInstanceState(), state),
+					this.getUniqueFlowNodeId());
 			nodeInstance.setNodeInstanceState(state);
 		}
 	}
