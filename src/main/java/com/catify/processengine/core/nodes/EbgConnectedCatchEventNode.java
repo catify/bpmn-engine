@@ -137,10 +137,6 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
-		this.getNodeInstanceMediatorService().setState(
-				message.getProcessInstanceId(),
-				NodeInstaceStates.PASSED_STATE);
-		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
 		this.sendMessageToNodeActor(message, this.getActivatingGatewayNode());

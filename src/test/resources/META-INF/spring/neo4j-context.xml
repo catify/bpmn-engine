@@ -30,51 +30,35 @@
 		http://repo.akka.io/schema/akka http://repo.akka.io/akka.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
-	<context:component-scan base-package="com.catify.processengine" />
-
-	<context:spring-configured />
-	<context:annotation-config />
-
-	<!-- neo4j db -->
-	<import resource="neo4j-context.xml"/>
-
-	<tx:annotation-driven mode="aspectj" />
-
-	<!-- bean for the (xslt) transformation component -->
-	<bean id="xalanTransformerFactory" class="org.apache.xalan.xsltc.trax.TransformerFactoryImpl" />
-
-	<!-- init the actor system that is responsible for all actors -->
-	<bean id="actorSystem" class="akka.actor.ActorSystem"
-		factory-method="create" scope="singleton">
-		<constructor-arg type="java.lang.String" value="ProcessEngine" />
-	</bean>
-
-	<!-- init core actors -->
-	<bean id="coreActors" class="com.catify.processengine.core.CoreActors" depends-on="actorSystem">
-		<constructor-arg name="actorSystem" ref="actorSystem" />
-		<constructor-arg type="java.lang.String" value="metaDataWriter" />
-		<constructor-arg type="int" value="1" />
-		<constructor-arg type="java.lang.String" value="processInstanceCleansingActor" />
-	</bean>
-
-	<!-- external settings -->
-	<bean
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="ignoreResourceNotFound" value="true" />
-		<property name="locations">
-			<list>
-       			<value>value="file:config/datastore.properties"</value> 
-      		</list>
-      	</property>
-      	<property name="properties">
-			<props>
-				<prop key="datastore.implementation">voldemort</prop>
-			</props>
-		</property>
-	</bean>
-
-<!-- 	<bean id="dataObjectService" -->
-<!-- 		class="com.catify.processengine.core.data.dataobjects.DataObjectService"> -->
-<!-- 		<property name="dataObjectServiceProviderIdSetting" value="${datastore.implementation}" /> -->
+	<!-- embedded neo4j db -->
+<!-- 	<bean id="graphDatabaseService" class="org.neo4j.kernel.EmbeddedGraphDatabase"> -->
+<!-- 	 	<constructor-arg index="0" value="data/test/neo4j-db" /> -->
+<!-- 	        <constructor-arg index="1"> -->
+<!--             <map> -->
+<!-- 				<entry key="keep_logical_logs" value="100M size" /> -->
+<!--             </map> -->
+<!--         </constructor-arg> -->
 <!-- 	</bean> -->
+	
+	<!--  use in memory graph database -->
+    <bean id="graphDatabaseService" class="org.neo4j.test.ImpermanentGraphDatabase"/>
+	
+	<!-- enable for embedded web console in neo4j db -->
+<!-- 	<bean id="serverWrapper" class="org.neo4j.server.WrappingNeoServerBootstrapper" init-method="start" destroy-method="stop"> -->
+<!-- 		<constructor-arg index="0" ref="graphDatabaseService" /> -->
+<!-- 		<constructor-arg index="1" ref="configuration" /> -->
+<!-- 	</bean> -->
+<!-- 	<bean id="configuration" class="org.neo4j.server.configuration.PropertyFileConfigurator"> -->
+<!-- 		<constructor-arg value="config/neo4j.properties" /> -->
+<!-- 	</bean> -->
+
+	<!-- external neo4j db -->
+	<!-- <bean id="graphDatabaseService" -->
+	<!-- class="org.springframework.data.neo4j.rest.SpringRestGraphDatabase"> -->
+	<!-- <constructor-arg index="0" value="http://172.17.16.95:7474/db/data" /> -->
+	<!-- </bean> -->
+	
+	<neo4j:config graphDatabaseService="graphDatabaseService" />
+	<neo4j:repositories base-package="com.catify.processengine.core" />
+
 </beans>

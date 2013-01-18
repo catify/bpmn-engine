@@ -121,6 +121,13 @@
 			<artifactId>asm</artifactId>
 			<version>3.3.1</version>
 		</dependency>
+		<dependency>
+		   <groupId>org.neo4j</groupId>
+		   <artifactId>neo4j-kernel</artifactId>
+		   <version>${neo4j.version}</version>
+		   <type>test-jar</type>
+		   <scope>test</scope>
+  		</dependency>
 		<!-- neo4j web admin for embedded db -->
 <!-- 		<dependency> -->
 <!-- 			<groupId>org.neo4j.app</groupId> -->

@@ -33,7 +33,6 @@ import com.catify.processengine.core.processdefinition.jaxb.TVersion;
 public class ExtensionService {
 	
 	private ExtensionService() {
-	
 	}
 	
 	public static TVersion getTVersion(TProcess processJaxb) {
@@ -48,7 +47,8 @@ public class ExtensionService {
 				}
 			}
 		}
-		return null; 
+		// if user has not defined a process version create empty version
+		return new TVersion(); 
 	}
 	
 	public static TMessageIntegration getTMessageIntegration(TFlowNode flowNodeJaxb) {
