@@ -191,8 +191,8 @@ public class NodeInstanceMediatorService {
 			LOG.debug(String.format(
 					"Setting state of graphId: %s from %s to %s (uniqueFlowNodeId:%s)",
 					nodeInstance.getGraphId(),
-					nodeInstance.getNodeInstanceState(), state),
-					this.getUniqueFlowNodeId());
+					nodeInstance.getNodeInstanceState(), state,
+					this.getUniqueFlowNodeId()));
 			nodeInstance.setNodeInstanceState(state);
 		}
 	}
