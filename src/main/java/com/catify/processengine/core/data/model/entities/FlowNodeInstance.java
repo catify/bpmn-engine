@@ -71,7 +71,7 @@ public class FlowNodeInstance {
 	private String nodeInstanceState = NodeInstaceStates.INACTIVE_STATE;
 
 	/** The incoming fired flows needed until a gateway fires. */
-	private int firedFlowsNeeded = 0;
+	private int incomingFiredFlowsNeeded = 0;
 
 	/** The count of incoming flows that fired. */
 	private int flowsFired = 0;
@@ -202,12 +202,12 @@ public class FlowNodeInstance {
 	 * 
 	 * @param nodeInstanceState
 	 *            the node instance state
-	 * @param firedFlowsNeeded
+	 * @param incomingFiredFlowsNeeded
 	 *            the fired flows needed
 	 */
 	public FlowNodeInstance(String nodeInstanceState, int firedFlowsNeeded) {
 		this.nodeInstanceState = nodeInstanceState;
-		this.firedFlowsNeeded = firedFlowsNeeded;
+		this.incomingFiredFlowsNeeded = firedFlowsNeeded;
 	}
 
 	/**
@@ -271,18 +271,18 @@ public class FlowNodeInstance {
 	 * 
 	 * @return the fired flows needed
 	 */
-	public int getFiredFlowsNeeded() {
-		return firedFlowsNeeded;
+	public int getIncomingFiredFlowsNeeded() {
+		return incomingFiredFlowsNeeded;
 	}
 
 	/**
 	 * Sets the fired flows needed.
 	 * 
-	 * @param firedFlowsNeeded
+	 * @param incomingFiredFlowsNeeded
 	 *            the new fired flows needed
 	 */
-	public void setFiredFlowsNeeded(int firedFlowsNeeded) {
-		this.firedFlowsNeeded = firedFlowsNeeded;
+	public void setIncomingFiredFlowsNeeded(int incomingFiredFlowsNeeded) {
+		this.incomingFiredFlowsNeeded = incomingFiredFlowsNeeded;
 	}
 
 	/**

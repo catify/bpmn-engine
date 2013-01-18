@@ -29,7 +29,7 @@ public interface NOfMService {
 	 * @param message the message
 	 * @return true, if successful
 	 */
-	boolean checkNOfMCondition(Message message, int flowsFired);
+	boolean checkNOfMCondition(String processInstanceId, int flowsFired);
 
 	int incrementSequenceFlowsFired(Message message, int flowsFired);
 

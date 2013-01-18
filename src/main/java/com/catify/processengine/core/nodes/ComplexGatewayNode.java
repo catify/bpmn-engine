@@ -82,30 +82,27 @@ public class ComplexGatewayNode extends FlowElement implements NOfMService {
 	@Override
 	protected void activate(ActivationMessage message) {
 		
+		String iid = message.getProcessInstanceId();
+		
 		// if this is the first call, set state to active and set start time
-		if (this.getNodeInstanceMediatorService().getSequenceFlowsFired(message.getProcessInstanceId()) == 0) {
-			this.getNodeInstanceMediatorService().setState(
-					message.getProcessInstanceId(),
-					NodeInstaceStates.ACTIVE_STATE);
-			this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
+		if (this.getNodeInstanceMediatorService().getSequenceFlowsFired(iid) == 0) {
+			this.getNodeInstanceMediatorService().setActive(iid);
+			this.getNodeInstanceMediatorService().setNodeInstanceStartTime(iid, new Date());
 		}
 		
 		int flowsFired = this.incrementSequenceFlowsFired(message,
-				this.getNodeInstanceMediatorService().getSequenceFlowsFired(message
-						.getProcessInstanceId()));
+				this.getNodeInstanceMediatorService().getSequenceFlowsFired(iid));
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
 		// check the n of m condition (encapsulated as a whole to be able to plug in other trigger conditions in a later step)
 		// and react only if it is fulfilled
-		if (checkNOfMCondition(message, flowsFired)) {
-			this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
+		if (checkNOfMCondition(iid, flowsFired)) {
+			this.getNodeInstanceMediatorService().setNodeInstanceEndTime(iid, new Date());
 
 			this.deactivatePreviousLoosingNodes(message);
 			
-			this.getNodeInstanceMediatorService().setState(
-					message.getProcessInstanceId(),
-					NodeInstaceStates.PASSED_STATE);
+			this.getNodeInstanceMediatorService().setPassed(iid);
 			
 			this.getNodeInstanceMediatorService().persistChanges();
 			
@@ -148,9 +145,8 @@ public class ComplexGatewayNode extends FlowElement implements NOfMService {
 	}
 
 	@Override
-	public boolean checkNOfMCondition(Message message, int flowsFired) {
-			return (this.getNodeInstanceMediatorService().getFiredFlowsNeeded(message
-					.getProcessInstanceId()) == flowsFired);
+	public boolean checkNOfMCondition(String iid, int flowsFired) {
+			return (this.getNodeInstanceMediatorService().getIncomingFiredFlowsNeeded(iid) == flowsFired);
 	}
 
 	@Override

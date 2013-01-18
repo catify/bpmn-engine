@@ -54,27 +54,27 @@ public abstract class FlowElement extends UntypedActor {
 	static final Logger LOG = LoggerFactory.getLogger(FlowElement.class);
 	
 	@Autowired
-	private ActorSystem actorSystem;
+	protected ActorSystem actorSystem;
 
 	/** The unique client id. */
-	private String uniqueClientId;
+	protected String uniqueClientId;
 	
 	/** The unique process id. 
 	 * @see com.catify.processengine.core.data.model.entities.ProcessNode#uniqueProcessId */
-	private String uniqueProcessId;
+	protected String uniqueProcessId;
 	
 	/** The unique flow node id. 
 	 * @see com.catify.processengine.core.data.model.entities.FlowNode#uniqueFlowNodeId */
-	private String uniqueFlowNodeId;
+	protected String uniqueFlowNodeId;
 
 	/** The incoming node references. */
-	private List<ActorRef> incomingNodes;
+	protected List<ActorRef> incomingNodes;
 	
 	/** The outgoing node references. */
-	private List<ActorRef> outgoingNodes;
+	protected List<ActorRef> outgoingNodes;
 
 	/** The node instance mediator service. */
-	private NodeInstanceMediatorService nodeInstanceMediatorService;
+	protected NodeInstanceMediatorService nodeInstanceMediatorService;
 
 	/**
 	 * neo4jTemplate method for reacting to the three possible message types:.

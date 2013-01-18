@@ -105,7 +105,7 @@ public class NodeInstanceMediatorServiceTest {
 		
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstance("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId")).thenReturn(flowNodeInstance);
 		
-		int firedFlowsNeeded = nodeInstanceMediatorServiceMockInjected.getFiredFlowsNeeded("testInstanceId");
+		int firedFlowsNeeded = nodeInstanceMediatorServiceMockInjected.getIncomingFiredFlowsNeeded("testInstanceId");
 		
 		assertEquals(1, firedFlowsNeeded);
 	}
@@ -151,7 +151,7 @@ public class NodeInstanceMediatorServiceTest {
 		
 		nodeInstanceMediatorServiceMockInjected.setFiredFlowsNeeded("testInstanceId", 1);
 		
-		assertEquals(1, flowNodeInstance.getFiredFlowsNeeded());
+		assertEquals(1, flowNodeInstance.getIncomingFiredFlowsNeeded());
 	}
 
 	@Test

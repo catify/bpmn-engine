@@ -20,11 +20,15 @@
  */
 package com.catify.processengine.core.nodes;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.xml.bind.JAXBElement;
 
@@ -44,6 +48,8 @@ import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TComplexGateway;
 import com.catify.processengine.core.processdefinition.jaxb.TEndEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TEventBasedGateway;
+import com.catify.processengine.core.processdefinition.jaxb.TExclusiveGateway;
+import com.catify.processengine.core.processdefinition.jaxb.TExpression;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TIntermediateCatchEvent;
@@ -108,6 +114,10 @@ public class NodeFactoryImpl implements NodeFactory {
 				TParallelGateway.class)) {
 			return this.createParallelGatewayNode(clientId, processJaxb, subProcessesJaxb,
 					flowNodeJaxb, sequenceFlowsJaxb);
+		} else if (flowNodeJaxb.getClass().equals(
+				TExclusiveGateway.class)) {
+			return this.createExclusiveGatewayNode(clientId, processJaxb, subProcessesJaxb,
+					flowNodeJaxb, sequenceFlowsJaxb);
 
 		// activities
 		} else if (flowNodeJaxb.getClass().equals(
@@ -152,7 +162,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	public FlowElement createServiceTaskWorkerNode(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes,
 			SynchronousEventDefinition messageEventDefinitionInOut, DataObjectService dataObjectHandling) {	
-		System.out.println("in node factory impl create service task worker");
+		LOG.debug("In node factory impl create service task worker");
 		return new ServiceTaskInstance(
 				uniqueProcessId, uniqueFlowNodeId, outgoingNodes, messageEventDefinitionInOut, dataObjectHandling);
 	}
@@ -374,17 +384,109 @@ public class NodeFactoryImpl implements NodeFactory {
 			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
-		final TParallelGateway complexGatewayJaxb = (TParallelGateway) flowNodeJaxb;
+		final TParallelGateway parallelGatewayJaxb = (TParallelGateway) flowNodeJaxb;
 
 		return new ParallelGatewayNode(
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-						complexGatewayJaxb), 
+						parallelGatewayJaxb), 
 				this.getOutgoingActorReferences(clientId, 
-						processJaxb, subProcessesJaxb, complexGatewayJaxb, sequenceFlowsJaxb));
+						processJaxb, subProcessesJaxb, parallelGatewayJaxb, sequenceFlowsJaxb));
 	}
 	
-	 /**
+	/**
+	 * Creates the exlusive fateway node.
+	 * 
+	 * @param clientId the client id
+	 * @param processJaxb the jaxb process
+	 * @param subProcessesJaxb the list of parent jaxb sub processes
+	 * @param flowNodeJaxb the jaxb exclusive gateway node
+	 * @param sequenceFlowsJaxb
+	 * @return
+	 */
+	private FlowElement createExclusiveGatewayNode(String clientId,
+			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
+		
+		final TExclusiveGateway exclusiveGatewayJaxb = (TExclusiveGateway) flowNodeJaxb;
+		
+		this.getConditionalExpressionStrings(sequenceFlowsJaxb);
+		
+		return new ExclusiveGatewayNode(
+				IdService.getUniqueProcessId(clientId, processJaxb), //process id
+				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, exclusiveGatewayJaxb), // node id
+				this.getOutgoingActorReferences(clientId, processJaxb, subProcessesJaxb, exclusiveGatewayJaxb, sequenceFlowsJaxb), // outgoing node references
+				this.getAllDataObjectIds(processJaxb, subProcessesJaxb), // the used data object ids
+				this.getOutgoingActorReferencesAndExpressions(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb), // all expressions including actor refs
+				this.getDefaultOutgoingSequence(clientId, processJaxb, subProcessesJaxb, exclusiveGatewayJaxb), // the default actor ref
+				this.getDataObjectService(flowNodeJaxb)); // the data object handler for the service
+	}
+	
+	/**
+	 * Gives back the {@link ActorRef} to the default sequence flow. If no default
+	 * has been set, the the return value is null.
+	 * 
+	 * @param clientId
+	 * @param processJaxb
+	 * @param subProcessesJaxb
+	 * @param exclusiveGatewayJaxb
+	 * @return
+	 */
+	private ActorRef getDefaultOutgoingSequence(String clientId,  TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TExclusiveGateway exclusiveGatewayJaxb) {
+		
+		Object def = exclusiveGatewayJaxb.getDefault();
+		
+		if(def != null) {
+			TSequenceFlow sequenceFlowJaxb = (TSequenceFlow) def;
+			// actor reference
+			return new ActorReferenceService().getActorReference(
+					IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+							(TFlowNode) sequenceFlowJaxb.getTargetRef()));
+		}
+		return null;
+	}
+
+	/**
+	 * get conditional expressions
+	 * 
+	 * @param sequenceFlowsJaxb
+	 * @return
+	 */
+	private Set<String> getConditionalExpressionStrings(
+			List<TSequenceFlow> sequenceFlowsJaxb) {
+
+		Set<String> expressions = new TreeSet<String>();
+		Iterator<TSequenceFlow> it = sequenceFlowsJaxb.iterator();
+
+		while (it.hasNext()) {
+			TSequenceFlow tSequenceFlow = (TSequenceFlow) it.next();
+			String expression = this.getConditionalExpressionString(tSequenceFlow);
+			if (expression != null) {
+				expressions.add(expression);
+			}
+		}
+
+		return expressions;
+	}
+	
+	/**
+	 * get conditional expression
+	 * 
+	 * @param sequenceFlow
+	 * @return
+	 */
+	private String getConditionalExpressionString(TSequenceFlow sequenceFlow) {
+		TExpression expression = sequenceFlow.getConditionExpression();
+		if (expression != null) {
+			// we assume, that there's only one expression per node
+			return (String) expression.getContent().get(0);
+		}
+
+		return null;
+	}
+
+	/**
 	 * Creates a new sub process node.
 	 *
 	 * @param clientId the client id
@@ -551,7 +653,27 @@ public class NodeFactoryImpl implements NodeFactory {
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		List<ActorRef> outgoingNodes = new ArrayList<ActorRef>();
-
+		// build the actorRef and expression pairs
+		Map<ActorRef, String> outgoingActorReferencesAndExpressions = this.getOutgoingActorReferencesAndExpressions(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb);
+		// we'll only need the keys (actor refs)
+		outgoingNodes.addAll(outgoingActorReferencesAndExpressions.keySet());
+		return outgoingNodes;
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param clientId
+	 * @param processJaxb
+	 * @param subProcessesJaxb
+	 * @param flowNodeJaxb
+	 * @param sequenceFlowsJaxb
+	 * @return
+	 */
+	private Map<ActorRef, String> getOutgoingActorReferencesAndExpressions(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+			List<TSequenceFlow> sequenceFlowsJaxb) {
+		Map<ActorRef, String> outRefs = new TreeMap<ActorRef, String>();
+		
 		// check the sequence flows if they connect the given flow node to any
 		// other flow node
 		for (TSequenceFlow sequenceFlowJaxb : sequenceFlowsJaxb) {
@@ -568,14 +690,21 @@ public class NodeFactoryImpl implements NodeFactory {
 				 * handeled by other components of the engine
 				 */
 				if (sequenceFlowJaxb.getTargetRef() instanceof TFlowNode) {
-					outgoingNodes.add(new ActorReferenceService().getActorReference(
+					
+					// actor reference
+					ActorRef actorRef = new ActorReferenceService().getActorReference(
 							IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-									(TFlowNode) sequenceFlowJaxb.getTargetRef())));
+									(TFlowNode) sequenceFlowJaxb.getTargetRef()));
+					
+					// conditional expression
+					String expressionString = this.getConditionalExpressionString(sequenceFlowJaxb);
+					
+					outRefs.put(actorRef, expressionString);
 				}
 
 			}
 		}
-		return outgoingNodes;
+		return outRefs;
 	}
 	
 	/**
