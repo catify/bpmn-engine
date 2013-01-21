@@ -20,7 +20,6 @@
  */
 package com.catify.processengine.core.nodes;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -162,7 +161,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	public FlowElement createServiceTaskWorkerNode(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes,
 			SynchronousEventDefinition messageEventDefinitionInOut, DataObjectService dataObjectHandling) {	
-		LOG.debug("In node factory impl create service task worker");
+		LOG.debug("Creating service task worker");
 		return new ServiceTaskInstance(
 				uniqueProcessId, uniqueFlowNodeId, outgoingNodes, messageEventDefinitionInOut, dataObjectHandling);
 	}
@@ -192,6 +191,7 @@ public class NodeFactoryImpl implements NodeFactory {
 						processJaxb, subProcessesJaxb, startEventJaxb, sequenceFlowsJaxb),
 				this.getOtherStartNodeActorReferences(clientId, processJaxb, subProcessesJaxb, startEventJaxb,
 						sequenceFlowsJaxb),
+				this.getSubProcessUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb),
 				this.getDataObjectService(flowNodeJaxb));
 	}
 
@@ -293,7 +293,7 @@ public class NodeFactoryImpl implements NodeFactory {
 						endEventJaxb),
 				EventDefinitionFactory.getEventDefinition(clientId, processJaxb, subProcessesJaxb,
 						endEventJaxb), 
-				this.getOutgoingSubProcessActorReferences(clientId, 
+				this.getParentSubProcessActorReference(clientId, 
 						processJaxb, subProcessesJaxb, endEventJaxb, sequenceFlowsJaxb),
 				this.getDataObjectService(flowNodeJaxb),
 				this.getAllDataObjectIds(processJaxb, subProcessesJaxb));
@@ -708,39 +708,61 @@ public class NodeFactoryImpl implements NodeFactory {
 	}
 	
 	/**
-	 * Extracts the information of the embedding sub process node that logically follows to a given end event node and returns
-	 * the actor reference to that node.
+	 * Extracts the information of the embedding/parent sub process node's ActorRef. Used for Start and End Events which are logically connected to their
+	 * embedding sub process nodes.
 	 *
 	 * @param clientId the client id
 	 * @param processJaxb the processJaxb
+	 * @param subProcessesJaxb the sub processes jaxb
 	 * @param flowNodeJaxb the flow nodeJaxb
 	 * @param sequenceFlowsJaxb the sequence flowsJaxb
-	 * @return a list of strings of the outgoing actor references
+	 * @return the ActorRef of the parent Sub Process or null if there is none
 	 */
-	private ActorRef getOutgoingSubProcessActorReferences( 
+	private ActorRef getParentSubProcessActorReference( 
 			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
-		ActorRef subProcessActorReference = null;
+		String subProcessUinqueFlowNodeId = getSubProcessUniqueFlowNodeId(
+				clientId, processJaxb, subProcessesJaxb, flowNodeJaxb);
 
-		if (flowNodeJaxb instanceof TEndEvent) {
-			// check if the current end event node is a embedded in a sub process
-			if (subProcessesJaxb.size() > 0) {
-				// we only check the last sub process, because this can only be the sub process we are looking for
-				TSubProcess subProcessJaxb = subProcessesJaxb.get(subProcessesJaxb.size()-1);
-				for (JAXBElement<? extends TFlowElement> flowElementJaxb : subProcessJaxb.getFlowElement()) {
-					// if the given end event node has been found in this sub process this is an embedded end event 
-					if (flowElementJaxb.getValue().getId().equals(flowNodeJaxb.getId())) {
-						// remove the current sub process from the list of sub processes to be able to get its actor reference
-						subProcessesJaxb.remove(subProcessJaxb);
-						subProcessActorReference = new ActorReferenceService().getActorReference(
-								IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, subProcessJaxb));
-					}
+		if (subProcessUinqueFlowNodeId != null) {
+			return new ActorReferenceService().getActorReference(subProcessUinqueFlowNodeId);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Extracts the information of the embedding/parent sub process node's uniqueFlowNodeId. Used for Start and End Events which are logically connected to their
+	 * embedding sub process nodes.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @param flowNodeJaxb the flow node jaxb
+	 * @return the unique flow node id of the parent sub process or null if there is none
+	 */
+	private String getSubProcessUniqueFlowNodeId(String clientId,
+			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TFlowNode flowNodeJaxb) {
+		ArrayList<TSubProcess> localSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
+
+		// check if the current end event node is a embedded in a sub process
+		if (localSubProcessesJaxb.size() > 0) {
+			// we only check the last sub process, because this can only be the sub process we are looking for
+			TSubProcess subProcessJaxb = localSubProcessesJaxb.get(localSubProcessesJaxb.size()-1);
+			for (JAXBElement<? extends TFlowElement> flowElementJaxb : subProcessJaxb.getFlowElement()) {
+				// if the given end event node has been found in this sub process this is an embedded end event 
+				if (flowElementJaxb.getValue().getId().equals(flowNodeJaxb.getId())) {
+					// remove the current sub process from the list of sub processes to be able to get its actor reference
+					localSubProcessesJaxb.remove(subProcessJaxb);
+					return IdService.getUniqueFlowNodeId(clientId, processJaxb, localSubProcessesJaxb, subProcessJaxb);
 				}
 			}
 		}
 		
-		return subProcessActorReference;
+		// return null if there is no embedding/parent sub process
+		return null;
 	}
 
 	/**

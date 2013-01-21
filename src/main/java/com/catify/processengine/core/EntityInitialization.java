@@ -36,8 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.actor.UntypedActor;
-import akka.actor.UntypedActorFactory;
 
 import com.catify.processengine.core.data.model.entities.ArchiveNode;
 import com.catify.processengine.core.data.model.entities.ClientNode;
@@ -55,6 +53,7 @@ import com.catify.processengine.core.data.services.RootNodeRepositoryService;
 import com.catify.processengine.core.data.services.RunningNodeRepositoryService;
 import com.catify.processengine.core.data.services.impl.IdService;
 import com.catify.processengine.core.nodes.NodeFactory;
+import com.catify.processengine.core.nodes.ServiceNodeBridge;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
@@ -83,8 +82,8 @@ public class EntityInitialization {
 	private ActorSystem actorSystem;
 	
 	/** The node factory. */
-	@Autowired
-	private NodeFactory nodeFactory;
+//	@Autowired
+//	private NodeFactory nodeFactory;
 	
 	/** The neo4j template. */
 	@Autowired
@@ -216,8 +215,11 @@ public class EntityInitialization {
 			
 			// create the sub process flow nodes and connect them to their parent nodes
 			if (flowNodeJaxb instanceof TSubProcess) {
-				// (we need an ordered list of sub processes, because there can be nested sub 
-				// processes in sub processes. we therefore need to recursively resolve them.)
+				
+				// We need an ordered list of sub processes, because there again could be nested sub 
+				// processes in sub processes. We therefore need to recursively resolve them. 
+				// For this a new variable needs to be created for every recursive call which is 
+				// then filled with the list of previous sub processes.
 				ArrayList<TSubProcess> recursiveSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
 				recursiveSubProcessesJaxb.add((TSubProcess) flowNodeJaxb);
 				
@@ -503,25 +505,13 @@ public class EntityInitialization {
 	private ActorRef createNodeServiceActor(String clientId,
 			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb, 
 			 List<TSequenceFlow> sequenceFlowsJaxb) {
-
-		// having local final objects fixes a bug that occurred when marking the method parameters final instead
-		final String finalClientId = new String(clientId);
-		final TProcess finalProcessJaxb = processJaxb;
-		final ArrayList<TSubProcess> finalSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
-		final TFlowNode finalFlowNodeJaxb = flowNodeJaxb;
-		final ArrayList<TSequenceFlow> finalSequenceFlowsJaxb = new ArrayList<TSequenceFlow>(sequenceFlowsJaxb);
 		
-		// create flow node actors
+		// create flow node actors (a bridge factory is used to be able to pass parameters to the UntypedActorFactory)
 		ActorRef nodeServiceActor = this.actorSystem.actorOf(new Props(
-				new UntypedActorFactory() {
-					private static final long serialVersionUID = 1L;
-
-					public UntypedActor create() {
-							return nodeFactory.createServiceNode(finalClientId, finalProcessJaxb, finalSubProcessesJaxb,
-									finalFlowNodeJaxb, finalSequenceFlowsJaxb);
-					}
-				}).withDispatcher("file-mailbox-dispatcher"), ActorReferenceService.getActorReferenceString(
+				new ServiceNodeBridge(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb)
+					).withDispatcher("file-mailbox-dispatcher"), ActorReferenceService.getActorReferenceString(
 						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb)));
+		
 		LOG.debug(String.format("%s --> resulting akka object: %s", flowNodeJaxb,
 				nodeServiceActor.toString()));
 		return nodeServiceActor;

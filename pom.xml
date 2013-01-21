@@ -92,9 +92,9 @@
 		</dependency>
 		<!-- neo4j -->
 		<dependency>
-    		<groupId>org.neo4j</groupId>
-    		<artifactId>neo4j</artifactId>
-    		<version>${neo4j.version}</version>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j</artifactId>
+			<version>${neo4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.neo4j</groupId>
@@ -122,57 +122,57 @@
 			<version>3.3.1</version>
 		</dependency>
 		<dependency>
-		   <groupId>org.neo4j</groupId>
-		   <artifactId>neo4j-kernel</artifactId>
-		   <version>${neo4j.version}</version>
-		   <type>test-jar</type>
-		   <scope>test</scope>
-  		</dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j-kernel</artifactId>
+			<version>${neo4j.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
 		<!-- neo4j web admin for embedded db -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.neo4j.app</groupId> -->
-<!-- 			<artifactId>neo4j-server</artifactId> -->
-<!-- 			<version>${neo4j.version}</version> -->
-<!-- 			<exclusions> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>ch.qos.logback</groupId> -->
-<!-- 					<artifactId>logback-classic</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>ch.qos.logback</groupId> -->
-<!-- 					<artifactId>logback-access</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 	            <exclusion> -->
-<!-- 	                <artifactId>slf4j-log4j12</artifactId> -->
-<!-- 	                <groupId>org.slf4j</groupId> -->
-<!-- 	            </exclusion> -->
-<!-- 			</exclusions> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.neo4j.app</groupId> -->
-<!-- 			<artifactId>neo4j-server</artifactId> -->
-<!-- 			<version>${neo4j.version}</version> -->
-<!-- 			<classifier>static-web</classifier> -->
-<!-- 			<exclusions> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>ch.qos.logback</groupId> -->
-<!-- 					<artifactId>logback-classic</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>ch.qos.logback</groupId> -->
-<!-- 					<artifactId>logback-access</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!--                 	<artifactId>slf4j-log4j12</artifactId> -->
-<!--                 	<groupId>org.slf4j</groupId> -->
-<!--             	</exclusion> -->
-<!-- 			</exclusions> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.mortbay.jetty</groupId> -->
-<!-- 			<artifactId>jsp-2.1-jetty</artifactId> -->
-<!-- 			<version>6.1.25</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.neo4j.app</groupId> -->
+		<!-- <artifactId>neo4j-server</artifactId> -->
+		<!-- <version>${neo4j.version}</version> -->
+		<!-- <exclusions> -->
+		<!-- <exclusion> -->
+		<!-- <groupId>ch.qos.logback</groupId> -->
+		<!-- <artifactId>logback-classic</artifactId> -->
+		<!-- </exclusion> -->
+		<!-- <exclusion> -->
+		<!-- <groupId>ch.qos.logback</groupId> -->
+		<!-- <artifactId>logback-access</artifactId> -->
+		<!-- </exclusion> -->
+		<!-- <exclusion> -->
+		<!-- <artifactId>slf4j-log4j12</artifactId> -->
+		<!-- <groupId>org.slf4j</groupId> -->
+		<!-- </exclusion> -->
+		<!-- </exclusions> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.neo4j.app</groupId> -->
+		<!-- <artifactId>neo4j-server</artifactId> -->
+		<!-- <version>${neo4j.version}</version> -->
+		<!-- <classifier>static-web</classifier> -->
+		<!-- <exclusions> -->
+		<!-- <exclusion> -->
+		<!-- <groupId>ch.qos.logback</groupId> -->
+		<!-- <artifactId>logback-classic</artifactId> -->
+		<!-- </exclusion> -->
+		<!-- <exclusion> -->
+		<!-- <groupId>ch.qos.logback</groupId> -->
+		<!-- <artifactId>logback-access</artifactId> -->
+		<!-- </exclusion> -->
+		<!-- <exclusion> -->
+		<!-- <artifactId>slf4j-log4j12</artifactId> -->
+		<!-- <groupId>org.slf4j</groupId> -->
+		<!-- </exclusion> -->
+		<!-- </exclusions> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.mortbay.jetty</groupId> -->
+		<!-- <artifactId>jsp-2.1-jetty</artifactId> -->
+		<!-- <version>6.1.25</version> -->
+		<!-- </dependency> -->
 		<!-- for testing -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -224,7 +224,7 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
-			
+
 			<!-- license -->
 			<plugin>
 				<groupId>com.mycila.maven-license-plugin</groupId>
@@ -248,12 +248,13 @@
 						</manifest>
 						<!-- if used without maven the service providers can be manually bound -->
 						<manifestEntries>
-							<Class-Path>services/integration-spi-camel-1.0.jar services/data-spi-voldemort-1.0.jar</Class-Path>
+							<Class-Path>services/integration-spi-camel-1.0.jar
+								services/data-spi-voldemort-1.0.jar</Class-Path>
 						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
-			
+
 			<!-- copies the dependencies -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -277,52 +278,53 @@
 			</plugin>
 
 			<!-- creates jar with dependencies -->
-<!-- 			<plugin> -->
-<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
-<!-- 				<artifactId>maven-shade-plugin</artifactId> -->
-<!-- 				<executions> -->
-<!-- 					<execution> -->
-<!-- 						<phase>package</phase> -->
-<!-- 						<goals> -->
-<!-- 							<goal>shade</goal> -->
-<!-- 						</goals> -->
-<!-- 						<configuration> -->
-<!-- 							<transformers> -->
-<!-- 								<transformer -->
-<!-- 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> -->
-<!-- 									<manifestEntries> -->
-<!-- 										<Main-Class>com.catify.processengine.core.AppStarter</Main-Class> -->
-<!-- 									</manifestEntries> -->
-<!-- 								</transformer> -->
-<!-- 								<transformer -->
-<!-- 									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" /> -->
-<!-- 								<transformer -->
-<!-- 									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> -->
-<!-- 									<resource>META-INF/spring.handlers</resource> -->
-<!-- 								</transformer> -->
-<!-- 								<transformer -->
-<!-- 									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> -->
-<!-- 									<resource>META-INF/spring.schemas</resource> -->
-<!-- 								</transformer> -->
-<!-- 								<transformer -->
-<!-- 									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> -->
-<!-- 									<resource>reference.conf</resource> -->
-<!-- 								</transformer> -->
-<!-- 							</transformers> -->
-<!-- 							<filters> -->
-<!-- 								<filter> -->
-<!-- 									<artifact>*:*</artifact> -->
-<!-- 									<excludes> -->
-<!-- 										<exclude>META-INF/*.SF</exclude> -->
-<!-- 										<exclude>META-INF/*.DSA</exclude> -->
-<!-- 										<exclude>META-INF/*.RSA</exclude> -->
-<!-- 									</excludes> -->
-<!-- 								</filter> -->
-<!-- 							</filters> -->
-<!-- 						</configuration> -->
-<!-- 					</execution> -->
-<!-- 				</executions> -->
-<!-- 			</plugin> -->
+			<!-- <plugin> -->
+			<!-- <groupId>org.apache.maven.plugins</groupId> -->
+			<!-- <artifactId>maven-shade-plugin</artifactId> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <phase>package</phase> -->
+			<!-- <goals> -->
+			<!-- <goal>shade</goal> -->
+			<!-- </goals> -->
+			<!-- <configuration> -->
+			<!-- <transformers> -->
+			<!-- <transformer -->
+			<!-- implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> -->
+			<!-- <manifestEntries> -->
+			<!-- <Main-Class>com.catify.processengine.core.AppStarter</Main-Class> -->
+			<!-- </manifestEntries> -->
+			<!-- </transformer> -->
+			<!-- <transformer -->
+			<!-- implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" 
+				/> -->
+			<!-- <transformer -->
+			<!-- implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> -->
+			<!-- <resource>META-INF/spring.handlers</resource> -->
+			<!-- </transformer> -->
+			<!-- <transformer -->
+			<!-- implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> -->
+			<!-- <resource>META-INF/spring.schemas</resource> -->
+			<!-- </transformer> -->
+			<!-- <transformer -->
+			<!-- implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> -->
+			<!-- <resource>reference.conf</resource> -->
+			<!-- </transformer> -->
+			<!-- </transformers> -->
+			<!-- <filters> -->
+			<!-- <filter> -->
+			<!-- <artifact>*:*</artifact> -->
+			<!-- <excludes> -->
+			<!-- <exclude>META-INF/*.SF</exclude> -->
+			<!-- <exclude>META-INF/*.DSA</exclude> -->
+			<!-- <exclude>META-INF/*.RSA</exclude> -->
+			<!-- </excludes> -->
+			<!-- </filter> -->
+			<!-- </filters> -->
+			<!-- </configuration> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
 
 			<!-- Execute the main class -->
 			<plugin>
@@ -351,52 +353,53 @@
 					<nohelp>true</nohelp>
 				</configuration>
 			</plugin>
-			
+
 			<!-- place config folder -->
 			<plugin>
-		        <artifactId>maven-resources-plugin</artifactId>
-		        <version>2.6</version>
-		        <executions>
-		          <execution>
-		            <id>copy-resources</id>
-		            <phase>validate</phase>
-		            <goals>
-		              <goal>copy-resources</goal>
-		            </goals>
-		            <configuration>
-		              <outputDirectory>${basedir}/target/config</outputDirectory>
-		              <resources>          
-		                <resource>
-		                  <directory>${basedir}/src/main/resources/META-INF/config</directory>
-		                  <filtering>false</filtering>
-		                </resource>
-		              </resources>              
-		            </configuration>            
-		          </execution>
-		        </executions>
-		      </plugin>
-		      
-			<!-- create dirs -->
-			<plugin> <groupId>org.apache.maven.plugins</groupId> 
-				<artifactId>maven-antrun-plugin</artifactId> 
-				<executions> 
-					<execution> 
-						<id>create-service-directory</id> 
-						<phase>process-classes</phase> 
-						<goals> 
-							<goal>run</goal> 
-						</goals> 
-						<configuration> 
-							<tasks> 
-								<mkdir dir="${basedir}/target/services" /> 
-								<mkdir dir="${basedir}/target/processes/deployed" /> 
-							</tasks> 
-						</configuration> 
-					</execution> 
-				</executions> 
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/config</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/main/resources/META-INF/config</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
-			<!-- spring data neo4j-->
+			<!-- create dirs -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>create-service-directory</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<mkdir dir="${basedir}/target/services" />
+								<mkdir dir="${basedir}/target/processes/deployed" />
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- spring data neo4j -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>aspectj-maven-plugin</artifactId>
@@ -434,9 +437,11 @@
 				</configuration>
 			</plugin>
 		</plugins>
+
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!-- This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -460,7 +465,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<execute />
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -480,7 +485,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<execute />
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -501,7 +506,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<execute />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>

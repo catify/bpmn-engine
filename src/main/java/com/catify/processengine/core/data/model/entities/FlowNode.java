@@ -87,7 +87,7 @@ public class FlowNode {
 	@RelatedTo(type = "CONNECTED_TO", direction = Direction.OUTGOING)
 	private Set<FlowNode> followingFlowNodes = new HashSet<FlowNode>();
 	
-	/** The flow nodes of this process (not eagerly fetched - be careful when 
+	/** The flow nodes of this sub process flow node (if this is a sub process) (not eagerly fetched - be careful when 
 	 * fetching this, because of the recursion of nested sub processes). */
 	@RelatedTo(type = "HAS", direction = Direction.OUTGOING)
 	private Set<FlowNode> subProcessNodes = new HashSet<FlowNode>();

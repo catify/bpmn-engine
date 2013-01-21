@@ -40,7 +40,6 @@ import com.catify.processengine.core.data.services.FlowNodeRepositoryService;
 import com.catify.processengine.core.data.services.ProcessInstanceNodeRepositoryService;
 import com.catify.processengine.core.data.services.ProcessRepositoryService;
 import com.catify.processengine.core.processdefinition.jaxb.TStartEvent;
-import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 
 /**
  * The ProcessInstanceMediatorService handles the data access between node
@@ -90,31 +89,73 @@ public class ProcessInstanceMediatorService {
 	}
 	
 	/**
-	 * Create a new process instance (database level).
+	 * Create a new top level process instance (database level).
 	 *
 	 * @param uniqueProcessId the unique process id
 	 * @param processInstanceId the process instance id
 	 */
 	@Transactional
 	public synchronized void createProcessInstance(String uniqueProcessId, String processInstanceId) {
-		
-		// get the process
+
 		ProcessNode process = processRepositoryService
 				.findByUniqueProcessId(uniqueProcessId);
 		
 		LOG.debug(String.format(
 				"Starting to instantiate process %s with instanceId %s",
-				process, processInstanceId));
-		
-		// create a process instance node
-		ProcessInstanceNode processInstanceNode = new ProcessInstanceNode(process,
-				processInstanceId, new Date());
+				process.getProcessName(), processInstanceId));
 
 		Set<FlowNode> flowNodes = neo4jTemplate.fetch(process.getFlowNodes());
 		
-		// create an instance of each FlowNode
 		createFlowNodeInstances(processInstanceId, flowNodes);
+		
+		createProcessInstanceNode(uniqueProcessId, processInstanceId, process, flowNodes);
+		
+		LOG.debug(String.format(
+				"Finished instantiating process %s with instanceId %s",
+				processInstanceId, processInstanceId));
+	}
+	
+	/**
+	 * Create a new sub process process instance (database level).
+	 *
+	 * @param uniqueProcessId the unique process id
+	 * @param processInstanceId the process instance id
+	 */
+	@Transactional
+	public synchronized void createSubProcessInstance(String parentUniqueFlowNodeId, String processInstanceId) {
+		
+		FlowNode subProcessFlowNode = flowNodeRepositoryService.findByUniqueFlowNodeId(parentUniqueFlowNodeId);
+		
+		LOG.debug(String.format(
+				"Starting to instantiate sub-process %s with instanceId %s",
+				subProcessFlowNode.getName(), processInstanceId));
 
+		Set<FlowNode> flowNodes = neo4jTemplate.fetch(subProcessFlowNode.getSubProcessNodes());
+		
+		createFlowNodeInstances(processInstanceId, flowNodes);
+		
+		LOG.debug(String.format(
+				"Finished instantiating process %s with instanceId %s",
+				processInstanceId, processInstanceId));
+	}
+
+	/**
+	 * Creates the process instance node. There is only one process instance node
+	 * in a process instance (even if there are sub processes).
+	 *
+	 * @param uniqueProcessId the unique process id
+	 * @param processInstanceId the process instance id
+	 * @param process the process
+	 * @param flowNodes the flow nodes
+	 * @return the process instance node
+	 */
+	private ProcessInstanceNode createProcessInstanceNode(
+			String uniqueProcessId, String processInstanceId,
+			ProcessNode process, Set<FlowNode> flowNodes) {
+		// create a process instance node
+		ProcessInstanceNode processInstanceNode =  new ProcessInstanceNode(process,
+				processInstanceId, new Date());
+		
 		// create relationships between process instance node and start node instances
 		// FIXME: this is a pretty costly operation and should be evaluated
 		for (FlowNode flowNode : flowNodes) {
@@ -126,11 +167,9 @@ public class ProcessInstanceMediatorService {
 		}
 		
 		processInstanceNodeRepositoryService.save(processInstanceNode);
-
-		LOG.debug(String.format(
-				"Finished instantiating process %s with instanceId %s",
-				process, processInstanceId));
+		return processInstanceNode;
 	}
+
 	
 	/**
 	 * Creates the flow node instances.
@@ -142,10 +181,10 @@ public class ProcessInstanceMediatorService {
 	private Collection<FlowNodeInstance> createFlowNodeInstances(String processInstanceId, Set<FlowNode> flowNodes) {
 		
 		Map<FlowNode, FlowNodeInstance> flowNodeInstances = new HashMap<FlowNode, FlowNodeInstance>();
-
+		
 		for (FlowNode flowNode : flowNodes) {
 			LOG.debug(String
-					.format("FlowNode to be instantiated: %s", flowNode));
+					.format("FlowNode to be instantiated: %s:%s", flowNode.getFlowNodeId(), flowNode.getNodeType()));
 			
 			FlowNodeInstance flowNodeInstance = new FlowNodeInstance(
 					NodeInstaceStates.INACTIVE_STATE,
@@ -158,9 +197,9 @@ public class ProcessInstanceMediatorService {
 			flowNodeInstances.put(flowNode, flowNodeInstance);
 			
 			// create nested sub process flow node instances 
-			if (flowNode.getNodeType().equals(TSubProcess.class.toString())) {
-				this.createFlowNodeInstances(processInstanceId, neo4jTemplate.fetch(flowNode.getSubProcessNodes()));
-			}
+//			if (flowNode.getNodeType().equals(TSubProcess.class.toString())) {
+//				this.createFlowNodeInstances(processInstanceId, neo4jTemplate.fetch(flowNode.getSubProcessNodes()));
+//			}
 		}   
 		
 		// create relationships between the node instances
