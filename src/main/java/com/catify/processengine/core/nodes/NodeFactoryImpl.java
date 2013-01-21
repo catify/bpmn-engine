@@ -22,9 +22,12 @@ package com.catify.processengine.core.nodes;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.xml.bind.JAXBElement;
 
@@ -44,6 +47,8 @@ import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TComplexGateway;
 import com.catify.processengine.core.processdefinition.jaxb.TEndEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TEventBasedGateway;
+import com.catify.processengine.core.processdefinition.jaxb.TExclusiveGateway;
+import com.catify.processengine.core.processdefinition.jaxb.TExpression;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TIntermediateCatchEvent;
