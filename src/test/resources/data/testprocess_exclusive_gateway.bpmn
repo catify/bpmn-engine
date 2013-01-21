@@ -15,7 +15,6 @@
 	typeLanguage="http://www.w3.org/2001/XMLSchema" 
 	xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
   <process id="testprocess_exclusive_gateway" isClosed="false" isExecutable="true" processType="Private">
-  <process id="_1" isClosed="false" isExecutable="true" processType="None">
     <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
       <outgoing>_12</outgoing>
     </startEvent>
@@ -66,11 +65,6 @@
     <sequenceFlow id="_20" sourceRef="_4" targetRef="_17">
       <conditionExpression><![CDATA[1 == 1]]></conditionExpression>
     </sequenceFlow>
-    <textAnnotation id="_21" textFormat="text/plain">
-      <text>one incoming, 
-one outgoing 
-(sequence c)</text>
-    </textAnnotation>
     <association associationDirection="None" id="_22" sourceRef="_4" targetRef="_21"/>
   </process>
   <bpmndi:BPMNDiagram documentation="background=#FFFFFF;count=1;horizontalcount=1;orientation=0;width=597.6;height=842.4;imageableWidth=587.6;imageableHeight=832.4;imageableX=5.0;imageableY=5.0" id="Yaoqiang_Diagram-_1" name="New Diagram">

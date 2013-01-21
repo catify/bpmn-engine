@@ -49,6 +49,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.data.model.entities.FlowNode;
 import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
+import com.catify.processengine.core.data.services.FlowNodeInstanceRepositoryService;
+import com.catify.processengine.core.data.services.impl.IdService;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.management.ProcessManagementService;
@@ -72,9 +74,13 @@ public class IntegrationTests {
 	
 	@Autowired 
 	private Neo4jTemplate neo4jTemplate;
+	
+	@Autowired
+	private FlowNodeInstanceRepositoryService flowNodeRepo;
 
     private final String client = "Client";
     private final String startEvent = "startEvent1";
+    private final String defaultInstanceId = "4711";
     
     private ProcessManagementService pm = new ProcessManagementServiceImpl();
     private XmlJaxbTransformer xmlJaxbTransformer = new XmlJaxbTransformer();
@@ -116,8 +122,29 @@ public class IntegrationTests {
 	
 	@Test
 	public void testprocessExclusiveGateway() throws FileNotFoundException, JAXBException, InterruptedException {
-		simpleProcessTest("testprocess_exclusive_gateway.bpmn", 3000, 5000, 20, 10);	
+		TProcess process = simpleProcessTest("testprocess_exclusive_gateway.bpmn", 3000, 5000, 20, 10);		
 		assertEquals(4, countFlowNodeInstanceWithState(NodeInstaceStates.PASSED_STATE));
+		// check nodes
+		checkNodeInstance(process, "_17", NodeInstaceStates.PASSED_STATE);
+		checkNodeInstance(process, "_18", NodeInstaceStates.PASSED_STATE);
+	}
+	
+	@Test
+	public void testprocessExclusiveGatewayDefault() throws FileNotFoundException, JAXBException, InterruptedException {
+		TProcess process = simpleProcessTest("testprocess_exclusive_gateway_default.bpmn", 3000, 5000, 20, 10);		
+		assertEquals(4, countFlowNodeInstanceWithState(NodeInstaceStates.PASSED_STATE));
+		// check nodes
+		checkNodeInstance(process, "_13", NodeInstaceStates.PASSED_STATE);
+		checkNodeInstance(process, "_15", NodeInstaceStates.PASSED_STATE);
+	}
+
+
+	private void checkNodeInstance(TProcess process, String id, String state) {
+		String flowNodeId = IdService.getUniqueFlowNodeId(client, process, null, id); // default throw
+		String processId = IdService.getUniqueProcessId(client, process);
+		FlowNodeInstance nodeInstance = flowNodeRepo.findFlowNodeInstance(processId, flowNodeId, defaultInstanceId);
+		assertNotNull(nodeInstance);
+		assertEquals(state, nodeInstance.getNodeInstanceState());
 	}
 	
 	@Test
@@ -372,11 +399,12 @@ public class IntegrationTests {
 	 * @param secondSleep milliseconds of the first sleep
 	 * @param awaitedFlowNodeCount awaited number of flow nodes 
 	 * @param awaitedInstanceNodeCount awaited number of flow node instances
+	 * @return 
 	 * @throws FileNotFoundException
 	 * @throws JAXBException
 	 * @throws InterruptedException
 	 */
-	private void simpleProcessTest(String fileName, int firstSleep, int secondSleep, int awaitedFlowNodeCount, int awaitedInstanceNodeCount) 
+	private TProcess simpleProcessTest(String fileName, int firstSleep, int secondSleep, int awaitedFlowNodeCount, int awaitedInstanceNodeCount) 
 			throws FileNotFoundException, JAXBException, InterruptedException {
 		File processDefinition = new File(getClass().getResource("/data/" + fileName).getFile());
 		Assert.assertTrue(processDefinition.exists());
@@ -388,7 +416,7 @@ public class IntegrationTests {
 
 		List<TProcess> processes = xmlJaxbTransformer.getTProcessesFromBpmnXml(processDefinition);
 		assertNotNull(processes);
-		pm.createProcessInstance(client, processes.get(0), startEvent, new TriggerMessage());
+		pm.createProcessInstance(client, processes.get(0), startEvent, new TriggerMessage(defaultInstanceId, null));
 
 		// wait for the process instance to start up
 		Thread.sleep(secondSleep);
@@ -396,6 +424,8 @@ public class IntegrationTests {
 		// check results
 		Assert.assertEquals(awaitedFlowNodeCount, getFlowNodeCount());
 		Assert.assertEquals(awaitedInstanceNodeCount, getFlowNodeInstanceCount());
+		
+		return processes.get(0);
 	}
 	
 }

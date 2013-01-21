@@ -109,7 +109,6 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 				uniqueProcessId, uniqueFlowNodeId));
 		
 		// create all needed object ids
-		Collection<String> values = conditionalExpressionStrings.values();
 		this.usedDataObjectIds = ExpressionService.evaluateAllUsedObjects(createList(conditionalExpressionStrings.values()), allDataObjectIds);
 		// create JEXL expressions from strings
 		this.conditionalExpressionStrings = ExpressionService.createJexlExpressions(conditionalExpressionStrings);
