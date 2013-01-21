@@ -159,10 +159,10 @@ public class NodeInstanceMediatorService {
 	 *            the instance id
 	 * @return the fired flows needed
 	 */
-	public int getFiredFlowsNeeded(String processInstanceId) {
+	public int getIncomingFiredFlowsNeeded(String processInstanceId) {
 		this.nodeInstance = getNodeInstance(processInstanceId);
 
-		return this.nodeInstance.getFiredFlowsNeeded();
+		return this.nodeInstance.getIncomingFiredFlowsNeeded();
 	}
 
 	/**
@@ -196,6 +196,43 @@ public class NodeInstanceMediatorService {
 			nodeInstance.setNodeInstanceState(state);
 		}
 	}
+	
+	/**
+	 * Shortcut to set "active state" for node.
+	 * 
+	 * @param processInstanceId
+	 */
+	public void setActive(String processInstanceId) {
+		this.setState(processInstanceId, NodeInstaceStates.ACTIVE_STATE);
+	}
+	
+	/**
+	 * Shortcut to set "passed state" for node.
+	 * 
+	 * @param processInstanceId
+	 */
+	public void setPassed(String processInstanceId) {
+		this.setState(processInstanceId, NodeInstaceStates.PASSED_STATE);
+	}
+	
+	/**
+	 * Shortcut to set "deactivated state" for node.
+	 * 
+	 * @param processInstanceId
+	 */
+	public void setDeactivated(String processInstanceId) {
+		this.setState(processInstanceId, NodeInstaceStates.DEACTIVATED_STATE);
+	}
+	
+	/**
+	 * Shortcut to set "inactive state" for node.
+	 * 
+	 * @param processInstanceId
+	 */
+	public void setInactive(String processInstanceId) {
+		this.setState(processInstanceId, NodeInstaceStates.INACTIVE_STATE);
+	}
+	
 
 	/**
 	 * Sets the fired flows needed.
@@ -208,9 +245,9 @@ public class NodeInstanceMediatorService {
 		this.nodeInstance = getNodeInstance(processInstanceId);
 
 		LOG.debug(String.format("Setting firedFlowsNeeded of %s from %s to %s",
-				nodeInstance, nodeInstance.getFiredFlowsNeeded(),
+				nodeInstance, nodeInstance.getIncomingFiredFlowsNeeded(),
 				firedFlowsNeeded));
-		this.nodeInstance.setFiredFlowsNeeded(firedFlowsNeeded);
+		this.nodeInstance.setIncomingFiredFlowsNeeded(firedFlowsNeeded);
 	}
 
 	/**

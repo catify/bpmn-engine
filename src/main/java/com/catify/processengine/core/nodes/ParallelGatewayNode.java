@@ -25,12 +25,12 @@ import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
+import com.catify.processengine.core.util.GatewayUtil;
 
 public class ParallelGatewayNode extends FlowElement implements NOfMService {
 
@@ -65,31 +65,27 @@ public class ParallelGatewayNode extends FlowElement implements NOfMService {
 	@Override
 	protected void activate(ActivationMessage message) {
 		
+		String iid = message.getProcessInstanceId();
+		
 		// if this is the first call, set state to active and set start time
 		if (this.getNodeInstanceMediatorService().getSequenceFlowsFired(message.getProcessInstanceId()) == 0) {
-			this.getNodeInstanceMediatorService().setState(
-					message.getProcessInstanceId(),
-					NodeInstaceStates.ACTIVE_STATE);
+			this.getNodeInstanceMediatorService().setActive(iid);
 			this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		}
 		
-		int flowsFired = this.incrementSequenceFlowsFired(message,
-				this.getNodeInstanceMediatorService().getSequenceFlowsFired(message
-						.getProcessInstanceId()));
+		int flowsFired = GatewayUtil.setFiredPlusOne(getNodeInstanceMediatorService(), iid);
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
 		// check the n of m condition and react only if it is fulfilled
-		if (checkNOfMCondition(message, flowsFired)) {
-			this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
-			this.getNodeInstanceMediatorService().setState(
-					message.getProcessInstanceId(),
-					NodeInstaceStates.PASSED_STATE);
+		if (checkNOfMCondition(iid, flowsFired)) {
+			this.getNodeInstanceMediatorService().setNodeInstanceEndTime(iid, new Date());
+			this.getNodeInstanceMediatorService().setPassed(iid);
 			
 			this.getNodeInstanceMediatorService().persistChanges();
 			
 			this.sendMessageToNodeActors(
-					new ActivationMessage(message.getProcessInstanceId()),
+					new ActivationMessage(iid),
 					this.getOutgoingNodes());
 		}
 
@@ -97,10 +93,11 @@ public class ParallelGatewayNode extends FlowElement implements NOfMService {
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
-		this.getNodeInstanceMediatorService().setState(
-				message.getProcessInstanceId(),
-				NodeInstaceStates.DEACTIVATED_STATE);
+		
+		String iid = message.getProcessInstanceId();
+		
+		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(iid, new Date());
+		this.getNodeInstanceMediatorService().setDeactivated(iid);
 		this.getNodeInstanceMediatorService().persistChanges();
 	}
 
@@ -110,17 +107,17 @@ public class ParallelGatewayNode extends FlowElement implements NOfMService {
 	}
 
 	@Override
-	public boolean checkNOfMCondition(Message message, int flowsFired) {
-		return (this.getNodeInstanceMediatorService().getFiredFlowsNeeded(message
-				.getProcessInstanceId()) == flowsFired);
+	public boolean checkNOfMCondition(String iid, int flowsFired) {
+		return (this.getNodeInstanceMediatorService().getIncomingFiredFlowsNeeded(iid) == flowsFired);
 	}
 
+	/**
+	 * TODO --> refactor this
+	 */
 	@Override
 	public int incrementSequenceFlowsFired(Message message, int flowsFired) {
-		int flowsFiredIncreased = ++flowsFired;
-		this.getNodeInstanceMediatorService().setSequenceFlowsFired(
-				message.getProcessInstanceId(), flowsFiredIncreased);
-		return flowsFiredIncreased;
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

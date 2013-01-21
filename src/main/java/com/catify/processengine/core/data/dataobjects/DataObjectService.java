@@ -105,6 +105,18 @@ public class DataObjectService {
 	}
 	
 	/**
+	 * Load the data object of the service node.
+	 *
+	 * @param uniqueProcessId the unique process id
+	 * @param instanceId the instance id
+	 * @param dataObjectId the data object id
+	 * @return the data object loaded
+	 */
+	public Object loadObject(String uniqueProcessId, String instanceId,String dataObjectId) {
+		return this.dataObjectServiceProvider.loadObject(uniqueProcessId, dataObjectId, instanceId);
+	}
+	
+	/**
 	 * Delete the data object(s) of the service node.
 	 *
 	 * @param uniqueProcessId the unique process id
