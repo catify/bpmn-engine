@@ -61,7 +61,11 @@ public class StartEventNode extends CatchEvent {
 	@Autowired
 	private ProcessInstanceMediatorService processInstanceMediatorService;
 
+	/** The other start nodes in the same process. */
 	private List<ActorRef> otherStartNodes;
+	
+	/** The uniqueFlowNodeId of the parent sub process node of this start event (if any). */
+	private String parentsUniqueFlowNodeId;
 
 	public StartEventNode() {
 	}
@@ -84,7 +88,7 @@ public class StartEventNode extends CatchEvent {
 	 */
 	public StartEventNode(String uniqueProcessId, String uniqueFlowNodeId,
 			EventDefinition eventDefinition, List<ActorRef> outgoingNodes,
-			List<ActorRef> otherStartNodes,
+			List<ActorRef> otherStartNodes, String parentsUniqueFlowNodeId,
 			DataObjectService dataObjectHandling) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
@@ -93,6 +97,7 @@ public class StartEventNode extends CatchEvent {
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setOtherStartNodes(otherStartNodes);
+		this.setParentsUniqueFlowNodeId(parentsUniqueFlowNodeId);
 		this.setDataObjectHandling(dataObjectHandling);
 	}
 
@@ -134,7 +139,14 @@ public class StartEventNode extends CatchEvent {
 			LOG.debug("Process instance starting with new randomUUID processInstanceId: " + processInstanceId);
 		}
 		
-		processInstanceMediatorService.createProcessInstance(this.getUniqueProcessId(), processInstanceId);
+		// create a top level process instance
+		if (parentsUniqueFlowNodeId == null) {
+			processInstanceMediatorService.createProcessInstance(this.getUniqueProcessId(), processInstanceId);
+		} 
+		// or create a sub process instance on the current level
+		else {
+			processInstanceMediatorService.createSubProcessInstance(this.getParentsUniqueFlowNodeId(), processInstanceId);
+		}
 
 		// the default activation of other top level start nodes has been deactivated (see redmine #109)
 		// other start nodes are activated by default because they are catching events and their included event definitions need to be triggered
@@ -170,4 +182,11 @@ public class StartEventNode extends CatchEvent {
 		this.otherStartNodes = otherStartNodes;
 	}
 
+	public String getParentsUniqueFlowNodeId() {
+		return parentsUniqueFlowNodeId;
+	}
+
+	public void setParentsUniqueFlowNodeId(String parentUniqueFlowNodeId) {
+		this.parentsUniqueFlowNodeId = parentUniqueFlowNodeId;
+	}
 }

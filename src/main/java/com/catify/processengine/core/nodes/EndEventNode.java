@@ -55,7 +55,7 @@ public class EndEventNode extends ThrowEvent {
 	private boolean processInstanceArchiving = true;
 	
 	/** The sub process node that is parent of this end node (if any). */
-	private ActorRef subProcessNode;
+	private ActorRef parentSubProcessNode;
 	
 	/** The data object ids of the whole process. Will be null if this is not a top level end event. */
 	private Set<String> dataObjectIds;
@@ -67,27 +67,21 @@ public class EndEventNode extends ThrowEvent {
 	}
 
 	/**
-	 * Instantiates a new start event node.
-	 * 
-	 * @param uniqueProcessId
-	 *            the process id
-	 * @param uniqueFlowNodeId
-	 *            the unique flow node id
-	 * @param eventDefinition
-	 *            the event definition
-	 * @param outgoingNodes
-	 *            the outgoing nodes
-	 * @param processInstanceMediatorService
-	 *            the process instance service
-	 * @param nodeInstanceMediatorService
-	 *            the node instance service
+	 * Instantiates a new end event node.
+	 *
+	 * @param uniqueProcessId the process id
+	 * @param uniqueFlowNodeId the unique flow node id
+	 * @param eventDefinition the event definition
+	 * @param parentSubProcessNode the sub process that is parent of this node (if any)
+	 * @param dataObjectHandling the data object handling
+	 * @param dataObjectIds the data object ids
 	 */
 	public EndEventNode(String uniqueProcessId, String uniqueFlowNodeId,
-			EventDefinition eventDefinition, ActorRef subProcessNode, DataObjectService dataObjectHandling, Set<String> dataObjectIds) {
+			EventDefinition eventDefinition, ActorRef parentSubProcessNode, DataObjectService dataObjectHandling, Set<String> dataObjectIds) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setEventDefinition(eventDefinition);
-		this.subProcessNode = subProcessNode;
+		this.parentSubProcessNode = parentSubProcessNode;
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
@@ -152,8 +146,8 @@ public class EndEventNode extends ThrowEvent {
 		if (activeFlowNodeInstances.size() == 0) {
 			
 			// embedded end events call their embedding sub processes to move on in the process
-			if (this.subProcessNode != null) {
-				this.sendMessageToNodeActor(new TriggerMessage(processInstanceId, null), this.subProcessNode);
+			if (this.parentSubProcessNode != null) {
+				this.sendMessageToNodeActor(new TriggerMessage(processInstanceId, null), this.parentSubProcessNode);
 			
 			// top level end events will work with the whole process instance to either save or delete it
 			} else {
@@ -183,11 +177,11 @@ public class EndEventNode extends ThrowEvent {
 	}
 
 	public ActorRef getSubProcessNode() {
-		return subProcessNode;
+		return parentSubProcessNode;
 	}
 
 	public void setSubProcessNode(ActorRef subProcessNode) {
-		this.subProcessNode = subProcessNode;
+		this.parentSubProcessNode = subProcessNode;
 	}
 	
 	protected Set<String> getDataObjectIds() {
