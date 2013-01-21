@@ -32,7 +32,6 @@ import javax.xml.bind.JAXBException;
 import junit.framework.Assert;
 
 import static org.junit.Assert.*;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,15 +78,11 @@ public class IntegrationTests {
     
     private ProcessManagementService pm = new ProcessManagementServiceImpl();
     private XmlJaxbTransformer xmlJaxbTransformer = new XmlJaxbTransformer();
-    
-//    @Autowired
-//    GraphDatabaseService graphDb;
-//    
+
     @SuppressWarnings("rawtypes") // we just need to clear all values
     @Before
     public void prepareTestDatabase()
     {
-//        graphDb = new TestGraphDatabaseFactory().newImpermanentDatabaseBuilder().newGraphDatabase();
     	Map<String, GraphRepository> graphRepositories = ctx.getBeansOfType(GraphRepository.class);
       LOG.debug("Clearing database!");
       for (GraphRepository graphRepository : graphRepositories.values()) {
@@ -96,16 +91,10 @@ public class IntegrationTests {
       try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
-//
-    @After
-    public void destroyTestDatabase()
-    {
-//        graphDb.shutdown();
-    }
+
     
 	@Test
 	public void testprocess_throw() throws IOException, JAXBException, InterruptedException {
