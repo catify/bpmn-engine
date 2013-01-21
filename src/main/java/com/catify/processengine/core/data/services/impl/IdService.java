@@ -19,6 +19,12 @@ package com.catify.processengine.core.data.services.impl;
 
 import java.util.ArrayList;
 
+import javax.xml.bind.JAXBElement;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
@@ -30,6 +36,8 @@ import com.catify.processengine.core.processdefinition.jaxb.services.ExtensionSe
  * understanding of these ids, this is managed in a central service.
  */
 public final class IdService {
+	
+	static final Logger LOG = LoggerFactory.getLogger(IdService.class);
 	
 	private IdService() {
 		
@@ -103,6 +111,45 @@ public final class IdService {
 				+ processJaxb.getId() + processJaxb.getName() + ExtensionService.getTVersion(processJaxb).getVersion() 
 				+ parentSubProcesses
 				+ flowNodeJaxb.getId() + flowNodeJaxb.getName());
+	}
+	
+	
+	/**
+	 * Gets the unique flow node id.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param nodeId the node id
+	 * @return the unique flow node id
+	 */
+	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			String nodeId) {
+		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
+
+		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
+		return uniqueFlowNodeId;
+	}
+	
+	/**
+	 * Gets the flow node by id.
+	 *
+	 * @param processJaxb the process jaxb
+	 * @param nodeId the node id
+	 * @return the flow node by id
+	 */
+	private static TFlowNode getTFlowNodeById(TProcess processJaxb, String nodeId) {
+		
+		for (JAXBElement<? extends TFlowElement> flowElementJaxb : processJaxb
+				.getFlowElement()) {
+			if (flowElementJaxb.getValue() instanceof TFlowNode
+					&& flowElementJaxb.getValue().getId().equals(nodeId)) {
+				LOG.debug(String.format("Found Flow Node with id ",
+						flowElementJaxb.getValue().getId()));
+				return (TFlowNode) flowElementJaxb.getValue();
+			}
+		}
+		LOG.error("The node id " + nodeId + " could not be found!");
+		return null;
 	}
 
 }
