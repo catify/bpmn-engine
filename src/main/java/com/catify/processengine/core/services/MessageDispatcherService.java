@@ -20,10 +20,13 @@ package com.catify.processengine.core.services;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -53,6 +56,9 @@ public class MessageDispatcherService {
 	@Autowired
 	private ActorSystem actorSystem;
 	
+	/** The meta data actor that asynchronously writes meta data to a process instance. */
+	@Value("${core.metaDataActor}")
+	private String metaDataActorName;
 	private ActorRef metaDataActor;
 
 	/** The unique flow node id to actor ref map. */
@@ -60,6 +66,14 @@ public class MessageDispatcherService {
 
 	public MessageDispatcherService(MessageIntegrationSPI integrationSPI) {
 		this.integrationSPI = integrationSPI;
+	}
+	
+	/**
+	 * Inits the annotated processInstanceCleansingActor after construction, because the @Value annotated fields get filled by spring <b>after</b> construction.
+	 */
+	@PostConstruct
+	void initAnnotations() {
+		this.metaDataActor = this.actorSystem.actorFor("user/" + metaDataActorName);
 	}
 	
 	/**
@@ -92,8 +106,6 @@ public class MessageDispatcherService {
 		// send the meta data to the meta data actor (if it is not a start event, which can not collect meta data)
 		if (integrationMessage.getProcessInstanceId() != null) {
 			MetaDataMessage metaDataMessage = new MetaDataMessage(integrationMessage.getProcessId(), integrationMessage.getProcessInstanceId(), metaData);
-			
-			this.metaDataActor = this.actorSystem.actorFor("akka://ProcessEngine/user/metaDataWriter");
 			
 			LOG.debug("Message Dispatcher sending meta data message to " + this.metaDataActor);
 			

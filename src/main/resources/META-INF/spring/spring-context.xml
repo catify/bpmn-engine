@@ -54,7 +54,7 @@
 		<constructor-arg name="actorSystem" ref="actorSystem" />
 		<constructor-arg type="java.lang.String" value="metaDataWriter" />
 		<constructor-arg type="int" value="1" />
-		<constructor-arg type="java.lang.String" value="processInstanceCleansingActor" />
+		<constructor-arg type="java.lang.String" value="${core.processInstanceCleansingActor}" />
 	</bean>
 
 	<!-- external settings -->
@@ -64,17 +64,15 @@
 		<property name="locations">
 			<list>
        			<value>value="file:config/datastore.properties"</value> 
+       			<value>value="file:config/core.properties"</value> 
       		</list>
       	</property>
       	<property name="properties">
 			<props>
 				<prop key="datastore.implementation">voldemort</prop>
+				<prop key="core.processInstanceCleansingActor">processInstanceCleansingActor</prop>
+				<prop key="core.metaDataActor">metaDataWriter</prop>
 			</props>
 		</property>
 	</bean>
-
-<!-- 	<bean id="dataObjectService" -->
-<!-- 		class="com.catify.processengine.core.data.dataobjects.DataObjectService"> -->
-<!-- 		<property name="dataObjectServiceProviderIdSetting" value="${datastore.implementation}" /> -->
-<!-- 	</bean> -->
 </beans>

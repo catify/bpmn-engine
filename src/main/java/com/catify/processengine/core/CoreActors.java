@@ -46,9 +46,9 @@ public class CoreActors {
 	
 	/** The process instance cleansing actor will either delete the process instance or archive it. */
 	private ActorRef processInstanceCleansingActor;
-
+	
 	/**
-	 * Instantiates the core actors.
+	 * Instantiates the core actors. (mostly wired by spring)
 	 *
 	 * @param actorSystem the actor system
 	 * @param metaDataActorName the meta data actor name
@@ -123,5 +123,4 @@ public class CoreActors {
 			ActorRef processInstanceCleansingActor) {
 		this.processInstanceCleansingActor = processInstanceCleansingActor;
 	}
-
 }

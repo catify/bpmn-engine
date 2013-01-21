@@ -20,8 +20,11 @@ package com.catify.processengine.core.nodes;
 import java.util.Date;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
 
 import akka.actor.ActorRef;
 
@@ -60,8 +63,10 @@ public class EndEventNode extends ThrowEvent {
 	/** The data object ids of the whole process. Will be null if this is not a top level end event. */
 	private Set<String> dataObjectIds;
 	
-//	/** The process instance cleansing actor to either delete the process instance or archive it. */
-//	private ActorRef processInstanceCleansingActor;
+	/** The process instance cleansing actor to either delete the process instance or archive it. */
+	@Value("${core.processInstanceCleansingActor}")
+	private String processInstanceCleansingActorName;
+	private ActorRef processInstanceCleansingActor;
 
 	public EndEventNode() {
 	}
@@ -86,8 +91,14 @@ public class EndEventNode extends ThrowEvent {
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		this.dataObjectIds = dataObjectIds;
-		// FIXME: should be Spring injected (not working, actor system is null at instantiation
-//		this.processInstanceCleansingActor = this.getActorSystem().actorFor("akka://ProcessEngine/user/processInstanceCleansingActor");
+	}
+	
+	/**
+	 * Inits the annotated processInstanceCleansingActor after construction, because the @Value annotated fields get filled by spring <b>after</b> construction.
+	 */
+	@PostConstruct
+	void initAnnotations() {
+		this.processInstanceCleansingActor = this.getActorSystem().actorFor("user/" + processInstanceCleansingActorName);
 	}
 
 	@Override
@@ -153,10 +164,10 @@ public class EndEventNode extends ThrowEvent {
 			} else {
 				if (isProcessInstanceArchiving()) {
 					this.sendMessageToNodeActor(new ArchiveMessage(this.getUniqueProcessId(), processInstanceId, new Date()),
-							this.getActorSystem().actorFor("akka://ProcessEngine/user/processInstanceCleansingActor"));
+							this.processInstanceCleansingActor);
 				} else {
 					this.sendMessageToNodeActor(new DeletionMessage(this.getUniqueProcessId(), processInstanceId, this.dataObjectIds),
-							this.getActorSystem().actorFor("akka://ProcessEngine/user/processInstanceCleansingActor"));
+							this.processInstanceCleansingActor);
 				} 
 				LOG.debug(String.format("Process instance with instance id '%s' ended sucessfully", processInstanceId));
 			}

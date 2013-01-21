@@ -17,7 +17,11 @@
  */
 package com.catify.processengine.core.data.dataobjects;
 
-import org.springframework.stereotype.Component;
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
+//import org.springframework.stereotype.Component;
 
 /**
  * Wrapper class for saving/loading a data object within a process. Any class
@@ -27,11 +31,12 @@ import org.springframework.stereotype.Component;
  * @author chris
  * 
  */
-@Component
+@Configurable
 public class DataObjectService {
 
 	/** The data object implementation id set in the spring context. */
-	private String dataObjectServiceProviderIdSetting = "voldemort"; // FIXME: setting this in Spring does not work, see issue #1 in github
+	@Value("${datastore.implementation}")
+	private String dataObjectServiceProviderIdSetting;
 
 	/** The data input object id. */
 	private String dataInputObjectId;
@@ -48,11 +53,14 @@ public class DataObjectService {
 	public DataObjectService() {
 	}
 
-//	@PostConstruct
-//	void initAnnotations() {
-//		this.dataObjectHandlingSPI = DataObjectSPI
-//				.getDataObjectHandlingImpl(this.dataObjectServiceProviderIdSetting);
-//	}
+	/**
+	 * Inits the dataObjectServiceProvider after construction, because the @Value annotated fields get filled by spring <b>after</b> construction.
+	 */
+	@PostConstruct
+	void initAnnotations() {
+		this.dataObjectServiceProvider = DataObjectSPI
+		.getDataObjectServiceProvider(this.dataObjectServiceProviderIdSetting);
+	}
 	
 	/**
 	 * Instantiates a new data object service that saves data via the user configured
@@ -65,8 +73,6 @@ public class DataObjectService {
 	public DataObjectService(String dataInputObjectId, String dataOutputObjectId) {
 		this.dataInputObjectId = dataInputObjectId;
 		this.dataOutputObjectId = dataOutputObjectId;
-		this.dataObjectServiceProvider = DataObjectSPI
-				.getDataObjectServiceProvider(this.dataObjectServiceProviderIdSetting);
 	}
 	
 	/**
