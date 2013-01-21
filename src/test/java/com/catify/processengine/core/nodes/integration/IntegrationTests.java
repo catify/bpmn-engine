@@ -116,7 +116,7 @@ public class IntegrationTests {
 	
 	@Test
 	public void testprocessExclusiveGateway() throws FileNotFoundException, JAXBException, InterruptedException {
-		simpleProcessTest("testprocess_exclusive_gateway.xml", 3000, 5000, 20, 10);	
+		simpleProcessTest("testprocess_exclusive_gateway.bpmn", 3000, 5000, 20, 10);	
 		assertEquals(4, countFlowNodeInstanceWithState(NodeInstaceStates.PASSED_STATE));
 	}
 	
