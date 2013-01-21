@@ -115,10 +115,11 @@ public final class IdService {
 	
 	
 	/**
-	 * Gets the unique flow node id.
+	 * Gets the unique flow node id of a top level flow node.
 	 *
 	 * @param clientId the client id
 	 * @param processJaxb the process jaxb
+	 * @param subProcessesJaxb the sub processes jaxb
 	 * @param nodeId the node id
 	 * @return the unique flow node id
 	 */
@@ -127,6 +128,23 @@ public final class IdService {
 		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
 
 		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
+		return uniqueFlowNodeId;
+	}
+	
+	/**
+	 * Gets the unique flow node id of a top level flow node.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @param nodeId the node id
+	 * @return the unique flow node id
+	 */
+	public static String getArchivedUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			String nodeId) {
+		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
+
+		String uniqueFlowNodeId = IdService.getArchivedUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
 		return uniqueFlowNodeId;
 	}
 	
