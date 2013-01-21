@@ -64,29 +64,21 @@ public final class IdService {
 	}
 	
 	/**
-	 * Gets the unique flow node id, which is built via concatenation of the client id, the
-	 * process id, name and version, the parent sub process ids and names and the flow node id and name.
-	 *
-	 * @param clientId the client id
-	 * @param processJaxb the jaxb process
-	 * @param subProcessesJaxb the jaxb sub processes
-	 * @param flowNodeJaxb the jaxb flow node that the unique id is searched for
-	 * @return the unique flow node id
+	 * Gets the unique process id from a jaxb process, which is built via
+	 * concatenation of the process id, name and version.
+	 * 
+	 * @param processJaxb
+	 *            the jaxb process
+	 * @return the unique process id
 	 */
-	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb) {
-		StringBuilder parentSubProcesses = new StringBuilder();
-		
-		if (subProcessesJaxb != null) {
-			for (TSubProcess tSubProcess : subProcessesJaxb) {
-				parentSubProcesses.append(tSubProcess.getId() + tSubProcess.getName());
-			}
-		}
+	public static String getArchivedUniqueProcessId(String clientId, TProcess processJaxb) {
+//		String processVersion = "defaultVersion";
+//		if (ExtensionService.getTVersion(processJaxb) != null) {
+//			processVersion = ExtensionService.getTVersion(processJaxb).getVersion();
+//		}
 
-		return new String(clientId 
-				+ processJaxb.getId() + processJaxb.getName() + ExtensionService.getTVersion(processJaxb).getVersion() 
-				+ parentSubProcesses
-				+ flowNodeJaxb.getId() + flowNodeJaxb.getName());
+		return new String(ARCHIVEPREFIX + clientId + processJaxb.getName() + processJaxb.getId()
+				+ ExtensionService.getTVersion(processJaxb).getVersion());
 	}
 	
 	/**
@@ -99,13 +91,29 @@ public final class IdService {
 	 * @param flowNodeJaxb the jaxb flow node that the unique id is searched for
 	 * @return the unique flow node id
 	 */
+	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TFlowNode flowNodeJaxb) {
+		StringBuilder parentSubProcesses = getSubProcessesString(subProcessesJaxb);
+
+		return new String(clientId 
+				+ processJaxb.getId() + processJaxb.getName() + ExtensionService.getTVersion(processJaxb).getVersion() 
+				+ parentSubProcesses
+				+ flowNodeJaxb.getId() + flowNodeJaxb.getName());
+	}
+	
+	/**
+	 * Gets the unique flow node id of archive nodes, which is built via concatenation of the archive prefix, the client id, the
+	 * process id, name and version, the parent sub process ids and names and the flow node id and name.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the jaxb process
+	 * @param subProcessesJaxb the jaxb sub processes
+	 * @param flowNodeJaxb the jaxb flow node that the unique id is searched for
+	 * @return the unique flow node id
+	 */
 	public static String getArchivedUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb) {
-		StringBuilder parentSubProcesses = new StringBuilder();
-		
-		for (TSubProcess tSubProcess : subProcessesJaxb) {
-			parentSubProcesses.append(tSubProcess.getId() + tSubProcess.getName());
-		}
+		StringBuilder parentSubProcesses = getSubProcessesString(subProcessesJaxb);
 		
 		return new String(ARCHIVEPREFIX + clientId 
 				+ processJaxb.getId() + processJaxb.getName() + ExtensionService.getTVersion(processJaxb).getVersion() 
@@ -146,6 +154,24 @@ public final class IdService {
 
 		String uniqueFlowNodeId = IdService.getArchivedUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
 		return uniqueFlowNodeId;
+	}
+	
+	/**
+	 * Gets the sub processes string (if any).
+	 *
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @return the sub processes string
+	 */
+	private static StringBuilder getSubProcessesString(
+			ArrayList<TSubProcess> subProcessesJaxb) {
+		StringBuilder parentSubProcesses = new StringBuilder();
+		
+		if (subProcessesJaxb != null) {
+			for (TSubProcess tSubProcess : subProcessesJaxb) {
+				parentSubProcesses.append(tSubProcess.getId() + tSubProcess.getName());
+			}
+		}
+		return parentSubProcesses;
 	}
 	
 	/**

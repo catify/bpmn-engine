@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import org.slf4j.Logger;
@@ -33,8 +32,6 @@ import akka.actor.ActorRef;
 import com.catify.processengine.core.ProcessInitializer;
 import com.catify.processengine.core.data.services.impl.IdService;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
-import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.services.ActorReferenceService;
 
@@ -56,7 +53,7 @@ public class ProcessManagementServiceImpl implements ProcessManagementService {
 		} else {
 			String[] fileList = deployDir.list(new FilenameFilter() {
 			    public boolean accept(File d, String name) {
-			       return name.toLowerCase().endsWith(".xml");
+			       return name.toLowerCase().endsWith(".bpmn");
 			    }
 			});
 			
@@ -145,8 +142,7 @@ public class ProcessManagementServiceImpl implements ProcessManagementService {
 	public void sendTriggerMessage(String clientId, TProcess processJaxb,
 			String nodeId, TriggerMessage triggerMessage) {
 		
-		String uniqueFlowNodeId = getUniqueFlowNodeId(clientId, processJaxb,
-				nodeId);
+		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, null, nodeId);
 		
 		sendTriggerMessage(uniqueFlowNodeId, triggerMessage);
 	}
@@ -162,44 +158,5 @@ public class ProcessManagementServiceImpl implements ProcessManagementService {
 		LOG.debug("Sending TriggerMessage to " + actorRef);
 		
 		actorRef.tell(triggerMessage, null);
-	}
-
-	/**
-	 * Gets the unique flow node id.
-	 *
-	 * @param clientId the client id
-	 * @param processJaxb the process jaxb
-	 * @param nodeId the node id
-	 * @return the unique flow node id
-	 */
-	private String getUniqueFlowNodeId(String clientId, TProcess processJaxb,
-			String nodeId) {
-		TFlowNode flowNode = getFlowNodeById(processJaxb, nodeId);
-
-		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, null, flowNode);
-		return uniqueFlowNodeId;
-	}
-
-	/**
-	 * Gets the flow node by id.
-	 *
-	 * @param processJaxb the process jaxb
-	 * @param nodeId the node id
-	 * @return the flow node by id
-	 */
-	private TFlowNode getFlowNodeById(TProcess processJaxb, String nodeId) {
-		
-		for (JAXBElement<? extends TFlowElement> flowElementJaxb : processJaxb
-				.getFlowElement()) {
-			if (flowElementJaxb.getValue() instanceof TFlowNode
-					&& flowElementJaxb.getValue().getId().equals(nodeId)) {
-				LOG.debug(String.format("Found Flow Node with id ",
-						flowElementJaxb.getValue().getId()));
-				return (TFlowNode) flowElementJaxb.getValue();
-			}
-		}
-		LOG.error("The node id " + nodeId + " could not be found!");
-		return null;
-	}
-	
+	}	
 }

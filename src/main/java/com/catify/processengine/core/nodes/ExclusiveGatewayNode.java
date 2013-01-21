@@ -108,18 +108,15 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 		super.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
 		
+		this.defaultOutgoingSequence = defaultNode;
+		
 		// create all needed object ids
 		this.usedDataObjectIds = ExpressionService.evaluateAllUsedObjects(createList(conditionalExpressionStrings.values()), allDataObjectIds);
 		// create JEXL expressions from strings
 		this.conditionalExpressionStrings = ExpressionService.createJexlExpressions(conditionalExpressionStrings);
 		this.dataObjectHandler = dataObjectHandler;
 		
-		int defNum = 0;
-		if(defaultNode != null) {
-			defNum = 1;
-		}
-		
-		LOG.info(String.format("Registered Exclusive Gateway (%s) with %s expressions and %s default sequences. ", uniqueFlowNodeId, conditionalExpressionStrings.size(), defNum));
+		LOG.info(String.format("Registered Exclusive Gateway (%s) with %s expressions and %s default sequences. ", uniqueFlowNodeId, conditionalExpressionStrings.size(), defaultNode));
 	}
 
 	@Override
@@ -134,7 +131,7 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 					message.getProcessInstanceId(), new Date());
 		}
 		
-		// check, if we have change the state
+		// check, if we have to change the state
 		int flowsFired = GatewayUtil.setFiredPlusOne(getNodeInstanceMediatorService(), iid);
 		if(checkNOfMCondition(iid, flowsFired)) {
 			this.getNodeInstanceMediatorService().setNodeInstanceEndTime(iid, new Date());
