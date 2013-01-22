@@ -52,15 +52,6 @@ public class DataObjectService {
 	 */
 	public DataObjectService() {
 	}
-
-	/**
-	 * Inits the dataObjectServiceProvider after construction, because the @Value annotated fields get filled by spring <b>after</b> construction.
-	 */
-	@PostConstruct
-	void initAnnotations() {
-		this.dataObjectServiceProvider = DataObjectSPI
-		.getDataObjectServiceProvider(this.dataObjectServiceProviderIdSetting);
-	}
 	
 	/**
 	 * Instantiates a new data object service that saves data via the user configured
@@ -73,6 +64,18 @@ public class DataObjectService {
 	public DataObjectService(String dataInputObjectId, String dataOutputObjectId) {
 		this.dataInputObjectId = dataInputObjectId;
 		this.dataOutputObjectId = dataOutputObjectId;
+	}
+	
+	/**
+	 * Inits the dataObjectServiceProvider after construction, because the @Value 
+	 * annotated fields get filled by spring <b>after</b> construction.
+	 */
+	@PostConstruct
+	void initAnnotations() {
+		if (this.dataObjectServiceProvider == null) {
+			this.dataObjectServiceProvider = DataObjectSPI
+					.getDataObjectServiceProvider(this.dataObjectServiceProviderIdSetting);
+		}
 	}
 	
 	/**
