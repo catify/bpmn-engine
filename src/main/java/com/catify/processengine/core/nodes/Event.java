@@ -20,6 +20,8 @@ package com.catify.processengine.core.nodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import akka.actor.ActorRef;
+
 import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinition;
 
@@ -38,23 +40,24 @@ public abstract class Event extends FlowElement {
 	 * 
 	 * @see EventDefinition
 	 */
-	protected EventDefinition eventDefinition;
-	
+	protected ActorRef eventDefinition;
+
 	protected DataObjectService dataObjectHandling;
-
-	public EventDefinition getEventDefinition() {
-		return this.eventDefinition;
-	}
-
-	public void setEventDefinition(EventDefinition eventDefinition) {
-		this.eventDefinition = eventDefinition;
-	}
 	
 	public DataObjectService getDataObjectService() {
 		return dataObjectHandling;
+	}
+	
+	public ActorRef getEventDefinition() {
+		return eventDefinition;
+	}
+
+	public void setEventDefinition(ActorRef eventDefinition) {
+		this.eventDefinition = eventDefinition;
 	}
 
 	public void setDataObjectHandling(DataObjectService dataObjectHandling) {
 		this.dataObjectHandling = dataObjectHandling;
 	}
+	
 }

@@ -17,6 +17,11 @@
  */
 package com.catify.processengine.core.nodes.eventdefinition;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import akka.actor.UntypedActor;
+
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
@@ -33,8 +38,27 @@ import com.catify.processengine.core.messages.TriggerMessage;
  * @author chris
  * 
  */
-public interface EventDefinition {
+public abstract class EventDefinition extends UntypedActor {
 
+	static final Logger LOG = LoggerFactory.getLogger(EventDefinition.class);
+	
+	@Override
+	public void onReceive(Object message) throws Exception {
+		LOG.debug(String.format("%s received %s", this.getSelf(), message
+				.getClass().getSimpleName()));
+		
+			if (message instanceof ActivationMessage) {
+				activate((ActivationMessage) message);
+			} else if (message instanceof DeactivationMessage) {
+				deactivate((DeactivationMessage) message);
+			} else if (message instanceof TriggerMessage) {
+				trigger((TriggerMessage) message);
+			} else {
+				unhandled(message);
+			}
+
+	}
+	
 	/**
 	 * Encapsulating event received an activation message, take steps needed in
 	 * the implemented event definition.
@@ -42,7 +66,7 @@ public interface EventDefinition {
 	 * @param message
 	 *            the triggering message ({@link ActivationMessage})
 	 */
-	void acitivate(ActivationMessage message);
+	protected abstract void activate(ActivationMessage message);
 
 	/**
 	 * Encapsulating event received a deactivation message, take steps needed in
@@ -51,7 +75,7 @@ public interface EventDefinition {
 	 * @param message
 	 *            the triggering message ({@link DeactivationMessage})
 	 */
-	void deactivate(DeactivationMessage message);
+	protected abstract void deactivate(DeactivationMessage message);
 
 	/**
 	 * Encapsulating event received a fire message, take steps needed in the
@@ -60,6 +84,6 @@ public interface EventDefinition {
 	 * @param message
 	 *            the triggering message ({@link TriggerMessage})
 	 */
-	void trigger(TriggerMessage message);
+	protected abstract void trigger(TriggerMessage message);
 
 }

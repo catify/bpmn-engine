@@ -32,7 +32,7 @@ import com.catify.processengine.core.messages.TriggerMessage;
  *
  * @author chris
  */
-public class EmptyEventDefinition implements EventDefinition {
+public class EmptyEventDefinition extends EventDefinition {
 
 	static final Logger LOG = LoggerFactory.getLogger(EmptyEventDefinition.class);
 	
@@ -40,7 +40,7 @@ public class EmptyEventDefinition implements EventDefinition {
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#acitivate(com.catify.processengine.core.messages.ActivationMessage)
 	 */
 	@Override
-	public void acitivate(ActivationMessage message) {
+	protected void activate(ActivationMessage message) {
 		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
 				.getClass().getSimpleName()));
 	}
@@ -49,7 +49,7 @@ public class EmptyEventDefinition implements EventDefinition {
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#deactivate(com.catify.processengine.core.messages.DeactivationMessage)
 	 */
 	@Override
-	public void deactivate(DeactivationMessage message) {
+	protected void deactivate(DeactivationMessage message) {
 		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
 				.getClass().getSimpleName()));
 	}
@@ -58,7 +58,7 @@ public class EmptyEventDefinition implements EventDefinition {
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#trigger(com.catify.processengine.core.messages.TriggerMessage)
 	 */
 	@Override
-	public void trigger(TriggerMessage message) {
+	protected void trigger(TriggerMessage message) {
 		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
 				.getClass().getSimpleName()));
 	}

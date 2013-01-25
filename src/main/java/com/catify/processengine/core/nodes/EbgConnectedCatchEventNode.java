@@ -29,7 +29,6 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.messages.WinningMessage;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinition;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
@@ -64,7 +63,7 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 	 *            the node instance service
 	 */
 	public EbgConnectedCatchEventNode(String uniqueProcessId,
-			String uniqueFlowNodeId, EventDefinition eventDefinition,
+			String uniqueFlowNodeId, ActorRef eventDefinition,
 			List<ActorRef> outgoingNodes, DataObjectService dataObjectHandling) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
@@ -108,12 +107,12 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		eventDefinition.acitivate(message);
+		eventDefinition.tell(message, getSelf());
 	}
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		eventDefinition.deactivate(message);
+		eventDefinition.tell(message, getSelf());
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -133,7 +132,7 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 	protected void trigger(TriggerMessage message) {
 		this.getDataObjectService().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
 		
-		eventDefinition.trigger(message);
+		eventDefinition.tell(message, getSelf());
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		

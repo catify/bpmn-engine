@@ -6,13 +6,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
+import akka.actor.Actor;
+import akka.actor.UntypedActorFactory;
+
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TSequenceFlow;
 import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
-
-import akka.actor.Actor;
-import akka.actor.UntypedActorFactory;
 
 /**
  * A bridge to the NodeFactory. The bridge implements the UntypedActorFactory to be able to pass (non-final) parameters to it.
@@ -57,7 +57,7 @@ public class ServiceNodeBridge implements UntypedActorFactory {
 	}
 
 	@Override
-	public synchronized Actor create() {
+	public Actor create() throws Exception {
 		return nodeFactory.createServiceNode(clientId, processJaxb,
 				subProcessesJaxb, flowNodeJaxb,
 				sequenceFlowsJaxb);

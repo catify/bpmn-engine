@@ -33,7 +33,6 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinition;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.services.ProcessInstanceMediatorService;
 
@@ -87,7 +86,7 @@ public class StartEventNode extends CatchEvent {
 	 *            the node instance service
 	 */
 	public StartEventNode(String uniqueProcessId, String uniqueFlowNodeId,
-			EventDefinition eventDefinition, List<ActorRef> outgoingNodes,
+			ActorRef eventDefinition, List<ActorRef> outgoingNodes,
 			List<ActorRef> otherStartNodes, String parentsUniqueFlowNodeId,
 			DataObjectService dataObjectHandling) {
 		this.setUniqueProcessId(uniqueProcessId);
@@ -110,12 +109,12 @@ public class StartEventNode extends CatchEvent {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		eventDefinition.acitivate(message);
+		eventDefinition.tell(message, getSelf());
 	}
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		eventDefinition.deactivate(message);
+		eventDefinition.tell(message, getSelf());
 
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -161,7 +160,7 @@ public class StartEventNode extends CatchEvent {
 		this.getDataObjectService().saveObject(this.getUniqueProcessId(),
 				processInstanceId, message.getPayload());
 
-		eventDefinition.trigger(message);
+		eventDefinition.tell(message, getSelf());
 
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(processInstanceId, new Date());
 		

@@ -33,9 +33,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
+import akka.actor.Actor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import akka.actor.UntypedActorFactory;
 
 import com.catify.processengine.core.data.model.entities.ArchiveNode;
 import com.catify.processengine.core.data.model.entities.ClientNode;
@@ -53,6 +55,7 @@ import com.catify.processengine.core.data.services.RootNodeRepositoryService;
 import com.catify.processengine.core.data.services.RunningNodeRepositoryService;
 import com.catify.processengine.core.data.services.impl.IdService;
 import com.catify.processengine.core.nodes.NodeFactory;
+import com.catify.processengine.core.nodes.NodeFactoryImpl;
 import com.catify.processengine.core.nodes.ServiceNodeBridge;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
@@ -80,10 +83,6 @@ public class EntityInitialization {
 	/** The actor system. */
 	@Autowired
 	private ActorSystem actorSystem;
-	
-	/** The node factory. */
-//	@Autowired
-//	private NodeFactory nodeFactory;
 	
 	/** The neo4j template. */
 	@Autowired
