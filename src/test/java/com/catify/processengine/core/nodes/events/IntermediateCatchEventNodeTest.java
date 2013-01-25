@@ -43,6 +43,7 @@ import akka.actor.UntypedActorFactory;
 import com.catify.processengine.core.data.services.impl.IdService;
 import com.catify.processengine.core.nodes.Base_nodes;
 import com.catify.processengine.core.nodes.NodeFactory;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionBridge;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.services.ActorReferenceService;
@@ -84,6 +85,13 @@ public class IntermediateCatchEventNodeTest extends Base_nodes {
 
 		assertNotNull(flowNode_jaxb);
 
+		// create the event definition actor of this flow node
+		final ActorRef eventDefinitionActor = this.actorSystem.actorOf(new Props(
+				new EventDefinitionBridge("clientId", process_jaxb, null, flowNode_jaxb, extractSequenceFlows(process_jaxb))
+				).withDispatcher("file-mailbox-dispatcher"), ActorReferenceService.getActorReferenceString(
+				IdService.getUniqueFlowNodeId("clientId", process_jaxb, null, flowNode_jaxb)+"-eventDefinition") 
+				);
+		
 		ActorRef nodeServiceActor = actorSystem.actorOf(new Props(
 				new UntypedActorFactory() {
 					private static final long serialVersionUID = 1L;
@@ -91,7 +99,7 @@ public class IntermediateCatchEventNodeTest extends Base_nodes {
 					public UntypedActor create() {
 							return nodeFactory.createServiceNode("clientId", 
 									process_jaxb, null, flowNode_jaxb,
-									extractSequenceFlows(process_jaxb));
+									extractSequenceFlows(process_jaxb), eventDefinitionActor);
 					}
 				}).withDispatcher("file-mailbox-dispatcher"), 
 				ActorReferenceService.getActorReferenceString(IdService.getUniqueFlowNodeId("clientId", process_jaxb, null, flowNode_jaxb) + this.getClass().getSimpleName()));

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.Actor;
+import akka.actor.ActorRef;
 import akka.actor.UntypedActorFactory;
 
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
@@ -33,6 +34,7 @@ public class ServiceNodeBridge implements UntypedActorFactory {
 	ArrayList<TSubProcess> subProcessesJaxb;
 	TFlowNode flowNodeJaxb;
 	List<TSequenceFlow> sequenceFlowsJaxb;
+	ActorRef eventDefinitionActor;
 
 	/**
 	 * Instantiates a new service node bridge. See class java doc for details.
@@ -47,19 +49,21 @@ public class ServiceNodeBridge implements UntypedActorFactory {
 			TProcess finalProcessJaxb,
 			ArrayList<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb,
-			List<TSequenceFlow> sequenceFlowsJaxb) {
+			List<TSequenceFlow> sequenceFlowsJaxb,
+			ActorRef eventDefinitionActor) {
 		super();
 		this.clientId = clientId;
 		this.processJaxb = finalProcessJaxb;
 		this.subProcessesJaxb = subProcessesJaxb;
 		this.flowNodeJaxb = flowNodeJaxb;
 		this.sequenceFlowsJaxb = sequenceFlowsJaxb;
+		this.eventDefinitionActor = eventDefinitionActor;
 	}
 
 	@Override
 	public Actor create() throws Exception {
 		return nodeFactory.createServiceNode(clientId, processJaxb,
 				subProcessesJaxb, flowNodeJaxb,
-				sequenceFlowsJaxb);
+				sequenceFlowsJaxb, eventDefinitionActor);
 	}
 }

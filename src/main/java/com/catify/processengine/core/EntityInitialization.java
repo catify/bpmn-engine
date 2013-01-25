@@ -54,6 +54,7 @@ import com.catify.processengine.core.data.services.RunningNodeRepositoryService;
 import com.catify.processengine.core.data.services.impl.IdService;
 import com.catify.processengine.core.nodes.NodeFactory;
 import com.catify.processengine.core.nodes.ServiceNodeBridge;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionBridge;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
@@ -502,9 +503,16 @@ public class EntityInitialization {
 			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb, 
 			 List<TSequenceFlow> sequenceFlowsJaxb) {
 		
+		// create the event definition actor of this flow node
+		ActorRef eventDefinitionActor = this.actorSystem.actorOf(new Props(
+				new EventDefinitionBridge(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb)
+				).withDispatcher("file-mailbox-dispatcher"), ActorReferenceService.getActorReferenceString(
+				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb)+"-eventDefinition") 
+				);
+		
 		// create flow node actors (a bridge factory is used to be able to pass parameters to the UntypedActorFactory)
 		ActorRef nodeServiceActor = this.actorSystem.actorOf(new Props(
-				new ServiceNodeBridge(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb)
+				new ServiceNodeBridge(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb, eventDefinitionActor)
 					).withDispatcher("file-mailbox-dispatcher"), ActorReferenceService.getActorReferenceString(
 						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb)));
 		
