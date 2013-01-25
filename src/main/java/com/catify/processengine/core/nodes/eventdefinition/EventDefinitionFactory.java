@@ -32,7 +32,6 @@ import akka.actor.Actor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 
 import com.catify.processengine.core.data.services.impl.IdService;
@@ -212,23 +211,8 @@ public class EventDefinitionFactory {
 			TFlowNode flowNodeJaxb, EventDefinition eventDefinition,
 			String eventDefinitionId) {
 		
-		final String finalClientId = new String(clientId);
-		final TProcess finalProcessJaxb = processJaxb;
-		final ArrayList<TSubProcess> finalSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
-		final TFlowNode finalFlowNodeJaxb = flowNodeJaxb;
-		final EventDefinition finalEventDefinition = eventDefinition;
-		
 		return actorSystem.actorOf(new Props(
-				
-//				this.new EventDefinitionBridge(eventDefinition)
-				new UntypedActorFactory() {
-					private static final long serialVersionUID = 1L;
-
-					public UntypedActor create() {
-					return finalEventDefinition;
-					}
-					}
-				
+					this.new EventDefinitionBridge(eventDefinition)
 				).withDispatcher("file-mailbox-dispatcher"), ActorReferenceService.getActorReferenceString(
 						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb)) 
 						+ eventDefinitionId);
