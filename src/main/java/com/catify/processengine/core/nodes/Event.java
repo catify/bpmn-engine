@@ -62,10 +62,13 @@ public abstract class Event extends FlowElement {
 	protected void createAndCallEventDefinitionActor(Message message) {
 		
 		ActorRef eventDefinitionActor = createEventDefinitionActor(message);
-		
+		 
 		try {
 			// make a synchronous ('Await.result') request ('Patterns.ask') to the event definition actor 
 			Await.result(Patterns.ask(eventDefinitionActor, message, this.eventDefinitionTimeout), this.eventDefinitionTimeout.duration());
+		} catch (java.util.concurrent.TimeoutException timeout) {
+			LOG.error(String.format("Timeout while processing %s at EventDefintition:%s. Timeout was set to %s", 
+					message.getClass().getSimpleName(), eventDefinitionActor, this.getEventDefinitionTimeout().duration()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
