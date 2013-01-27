@@ -104,7 +104,7 @@ public class IntegrationTests {
     
 	@Test
 	public void testprocessThrow() throws IOException, JAXBException, InterruptedException {
-		simpleProcessTest("testprocess_throw.bpmn", 3000, 5000, 6, 3);
+		simpleProcessTest("testprocess_throw.bpmn", 3000, 500000, 6, 3);
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
 	}
 	

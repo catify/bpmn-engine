@@ -31,8 +31,6 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 public class SendTaskNode extends Task {
 
-	private ActorRef messageEventDefinitionThrow;
-
 	public SendTaskNode() {
 
 	}
@@ -55,7 +53,7 @@ public class SendTaskNode extends Task {
 		this.setOutgoingNodes(outgoingNodes);
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
-		this.messageEventDefinitionThrow = messageIntegration;
+		this.eventDefinition = messageIntegration;
 		this.setDataObjectHandling(dataObjectHandling);
 	}
 
@@ -63,9 +61,9 @@ public class SendTaskNode extends Task {
 	protected void activate(ActivationMessage message) {
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		
-		message.setPayload(this.getDataObjectHandling().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
+		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
-		messageEventDefinitionThrow.tell(message, getSelf());
+		this.createAndCallEventDefinition(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -81,7 +79,7 @@ public class SendTaskNode extends Task {
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		messageEventDefinitionThrow.tell(message, getSelf());
+		this.createAndCallEventDefinition(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		

@@ -27,11 +27,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.ActorRef;
+import akka.dispatch.Await;
+import akka.dispatch.Future;
+import akka.pattern.Patterns;
+import akka.util.Duration;
+import akka.util.Timeout;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.services.ProcessInstanceMediatorService;
@@ -99,6 +105,8 @@ public class StartEventNode extends CatchEvent {
 		this.setParentsUniqueFlowNodeId(parentsUniqueFlowNodeId);
 		this.setDataObjectHandling(dataObjectHandling);
 	}
+	
+	
 
 	@Override
 	protected void activate(ActivationMessage message) {
@@ -109,12 +117,12 @@ public class StartEventNode extends CatchEvent {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		eventDefinition.tell(message, getSelf());
+		this.createAndCallEventDefinition(message);
 	}
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		eventDefinition.tell(message, getSelf());
+		this.createAndCallEventDefinition(message);
 
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -160,7 +168,7 @@ public class StartEventNode extends CatchEvent {
 		this.getDataObjectService().saveObject(this.getUniqueProcessId(),
 				processInstanceId, message.getPayload());
 
-		eventDefinition.tell(message, getSelf());
+		this.createAndCallEventDefinition(message);
 
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(processInstanceId, new Date());
 		

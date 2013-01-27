@@ -30,8 +30,6 @@ import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 public class ReceiveTaskNode extends Task {
-
-	private ActorRef messageEventDefinitionCatch;
 	
 	public ReceiveTaskNode() {
 
@@ -55,7 +53,7 @@ public class ReceiveTaskNode extends Task {
 		this.setOutgoingNodes(outgoingNodes);
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
-		this.messageEventDefinitionCatch = messageIntegration;
+		this.eventDefinition = messageIntegration;
 		this.setDataObjectHandling(dataObjectHandling);
 	}
 	
@@ -64,7 +62,7 @@ public class ReceiveTaskNode extends Task {
 		this.getNodeInstanceMediatorService().setState(
 				message.getProcessInstanceId(), NodeInstaceStates.ACTIVE_STATE);
 
-		messageEventDefinitionCatch.tell(message, getSelf());
+		this.createAndCallEventDefinition(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		
@@ -73,7 +71,7 @@ public class ReceiveTaskNode extends Task {
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		messageEventDefinitionCatch.tell(message, getSelf());
+		this.createAndCallEventDefinition(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -86,9 +84,9 @@ public class ReceiveTaskNode extends Task {
 
 	@Override
 	protected void trigger(TriggerMessage message) {
-		this.getDataObjectHandling().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
+		this.getDataObjectService().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
 		
-		messageEventDefinitionCatch.tell(message, getSelf());
+		this.createAndCallEventDefinition(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		

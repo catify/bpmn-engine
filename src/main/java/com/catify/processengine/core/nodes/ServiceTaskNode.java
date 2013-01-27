@@ -84,7 +84,7 @@ public class ServiceTaskNode extends Task {
 
 	@Override
 	protected void activate(ActivationMessage message) {
-		
+
 		ActorRef serviceTaskInstance = this.getContext().actorOf(new Props(
 				new UntypedActorFactory() {
 					private static final long serialVersionUID = 1L;
@@ -96,7 +96,7 @@ public class ServiceTaskNode extends Task {
 									new MessageEventDefinition_InOut(getUniqueProcessId(), 
 											getUniqueFlowNodeId(),
 											messageIntegrationInOut), 
-									getDataObjectHandling());
+										getDataObjectService());
 					}
 				}), ActorReferenceService.getAkkaComplientString(message.getProcessInstanceId()));
 		LOG.debug(String.format("Service task craeted %s --> resulting akka object: %s", this.getClass(),

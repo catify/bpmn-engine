@@ -75,7 +75,7 @@ public abstract class FlowElement extends UntypedActor {
 
 	/** The node instance mediator service. */
 	protected NodeInstanceMediatorService nodeInstanceMediatorService;
-
+	
 	/**
 	 * neo4jTemplate method for reacting to the three possible message types:.
 	 *
@@ -308,10 +308,20 @@ public abstract class FlowElement extends UntypedActor {
 	}
 	
 
+	/**
+	 * Gets the actor system.
+	 *
+	 * @return the actor system
+	 */
 	protected ActorSystem getActorSystem() {
 		return actorSystem;
 	}
 
+	/**
+	 * Sets the actor system.
+	 *
+	 * @param actorSystem the new actor system
+	 */
 	protected void setActorSystem(ActorSystem actorSystem) {
 		this.actorSystem = actorSystem;
 	}

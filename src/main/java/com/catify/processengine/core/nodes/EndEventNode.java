@@ -107,7 +107,7 @@ public class EndEventNode extends ThrowEvent {
 		
 		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
-		eventDefinition.tell(message, getSelf());
+		this.createAndCallEventDefinition(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -121,7 +121,7 @@ public class EndEventNode extends ThrowEvent {
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		eventDefinition.tell(message, getSelf());
+		this.createAndCallEventDefinition(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		

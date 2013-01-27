@@ -75,11 +75,11 @@ public class ServiceTaskInstance extends Task {
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		
-		message.setPayload(this.getDataObjectHandling().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
+		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
 		Object repliedDataObject = this.messageEventDefinitionInOut.acitivate(message);
 		
-		this.getDataObjectHandling().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), repliedDataObject);
+		this.getDataObjectService().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), repliedDataObject);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		

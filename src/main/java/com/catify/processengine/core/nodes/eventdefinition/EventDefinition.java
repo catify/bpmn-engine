@@ -24,6 +24,7 @@ import akka.actor.UntypedActor;
 
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 
 /**
@@ -33,7 +34,8 @@ import com.catify.processengine.core.messages.TriggerMessage;
  * methods activate(), deactivate() and fire() in order to be valid. The calling
  * event does not (need to) know the actually used event definition so new ones
  * can be plugged without altering any code in the encapsulating events. See GoF
- * 'strategy pattern'.
+ * 'strategy pattern'. <br>
+ * Note: EventDefinition actors terminate themselves after processing a single message.
  * 
  * @author chris
  * 
@@ -56,7 +58,9 @@ public abstract class EventDefinition extends UntypedActor {
 			} else {
 				unhandled(message);
 			}
-
+			
+			// terminate after processing message
+			this.getContext().stop(self());
 	}
 	
 	/**
@@ -85,5 +89,16 @@ public abstract class EventDefinition extends UntypedActor {
 	 *            the triggering message ({@link TriggerMessage})
 	 */
 	protected abstract void trigger(TriggerMessage message);
+	
+	/**
+	 * Reply a commit to the calling service node. This method must be called 
+	 * when the EventDefinition actor completes, because EventDefinitions calls
+	 * are blocking. 
+	 *
+	 * @param message the message
+	 */
+	protected void replyCommit(Message message) {
+		this.getSender().tell(message, this.getSelf());
+	}
 
 }

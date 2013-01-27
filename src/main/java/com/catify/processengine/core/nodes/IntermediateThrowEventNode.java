@@ -71,7 +71,7 @@ public class IntermediateThrowEventNode extends ThrowEvent {
 	protected void activate(ActivationMessage message) {
 		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
-		eventDefinition.tell(message, getSelf());
+		this.createAndCallEventDefinition(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
