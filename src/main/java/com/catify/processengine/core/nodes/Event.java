@@ -21,6 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
+import akka.actor.UntypedActorFactory;
 import akka.dispatch.Await;
 import akka.pattern.Patterns;
 import akka.util.Duration;
@@ -28,7 +31,9 @@ import akka.util.Timeout;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.messages.Message;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinition;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionFactory;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
+import com.catify.processengine.core.services.ActorReferenceService;
 
 /**
  * Abstract class for all events.
@@ -39,32 +44,53 @@ import com.catify.processengine.core.nodes.eventdefinition.EventDefinition;
 public abstract class Event extends FlowElement {
 
 	static final Logger LOG = LoggerFactory.getLogger(Event.class);
-
-	/**
-	 * Holds the event definition implementation.
-	 * 
-	 * @see EventDefinition
-	 */
-	protected ActorRef eventDefinition;
+	
+	/** The EventDefinition parameter object of which an EventDefinition actor can be instantiated. */
+	protected EventDefinitionParameter eventDefinitionParameter;
+	
+	/** The default timeout for a synchronous call to an EventDefinition. */
+	protected Timeout eventDefinitionTimeout = new Timeout(Duration.create(60, "seconds"));
 
 	protected DataObjectService dataObjectHandling;
 	
 	/**
 	 * Creates an EventDefinition actor and <b>synchronously</b> calls its method associated to the given message type.
+	 * After processing the message the created EventDefinition actor is stopped.
 	 *
 	 * @param message the message
 	 */
-	protected void createAndCallEventDefinition(Message message) {
+	protected void createAndCallEventDefinitionActor(Message message) {
+		
+		ActorRef eventDefinitionActor = createEventDefinitionActor(message);
+		
 		try {
 			// make a synchronous ('Await.result') request ('Patterns.ask') to the event definition actor 
-			Await.result(Patterns.ask(this.eventDefinition, message, this.eventDefinitionTimeout), this.eventDefinitionTimeout.duration());
+			Await.result(Patterns.ask(eventDefinitionActor, message, this.eventDefinitionTimeout), this.eventDefinitionTimeout.duration());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		// stop the event definition actor after processing message
+		this.getContext().stop(eventDefinitionActor);
 	}
 	
-	/** The default timeout for a synchronous call to an EventDefinition. */
-	protected Timeout eventDefinitionTimeout = new Timeout(Duration.create(60, "seconds"));
+	/**
+	 * Creates the event definition actor from the eventDefinitionParameter field 
+	 * and the process instance id of the message received.
+	 *
+	 * @param message the message
+	 * @return the actor ref
+	 */
+	protected ActorRef createEventDefinitionActor(Message message) {
+		ActorRef eventDefinitionActor = this.getContext().actorOf(new Props(new UntypedActorFactory() {
+			private static final long serialVersionUID = 1L;
+
+			public UntypedActor create() {
+					return new EventDefinitionFactory().getEventDefinition(eventDefinitionParameter);
+				}
+		}), ActorReferenceService.getActorReferenceString(uniqueFlowNodeId+"-eventDefinition-"+message.getProcessInstanceId()));
+		return eventDefinitionActor;
+	}
 	
 	/**
 	 * Gets the event definition timeout used for synchronous calls.
@@ -87,17 +113,18 @@ public abstract class Event extends FlowElement {
 	public DataObjectService getDataObjectService() {
 		return dataObjectHandling;
 	}
-	
-	public ActorRef getEventDefinition() {
-		return eventDefinition;
-	}
-
-	public void setEventDefinition(ActorRef eventDefinition) {
-		this.eventDefinition = eventDefinition;
-	}
 
 	public void setDataObjectHandling(DataObjectService dataObjectHandling) {
 		this.dataObjectHandling = dataObjectHandling;
 	}
 	
+	public EventDefinitionParameter getEventDefinitionParameter() {
+		return eventDefinitionParameter;
+	}
+
+	public void setEventDefinitionParameter(
+			EventDefinitionParameter eventDefinitionParameter) {
+		this.eventDefinitionParameter = eventDefinitionParameter;
+	}
+
 }

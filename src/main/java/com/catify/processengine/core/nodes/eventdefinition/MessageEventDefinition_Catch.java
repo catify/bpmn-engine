@@ -77,16 +77,19 @@ public class MessageEventDefinition_Catch extends EventDefinition {
 	protected void activate(ActivationMessage message) {
 		// activation has already been done at process level (in the
 		// constructor)
+		this.replyCommit(message);
 	}
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
 		// deactivation is done on process level
+		this.replyCommit(message);
 	}
 
 	@Override
 	protected void trigger(TriggerMessage message) {
 		// messages are dispatched by MessageDispatcherService (so there is nothing to do)
+		this.replyCommit(message);
 	}
 
 	/**

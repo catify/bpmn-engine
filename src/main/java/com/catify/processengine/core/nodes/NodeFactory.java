@@ -50,7 +50,7 @@ public interface NodeFactory {
 	 * @return the start event node
 	 */
 	FlowElement createServiceNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb, ActorRef eventDefinitionActor);
+			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb);
 	
 	/**
 	 * Creates the service task worker node.

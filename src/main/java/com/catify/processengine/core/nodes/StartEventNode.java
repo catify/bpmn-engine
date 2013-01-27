@@ -27,18 +27,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.ActorRef;
-import akka.dispatch.Await;
-import akka.dispatch.Future;
-import akka.pattern.Patterns;
-import akka.util.Duration;
-import akka.util.Timeout;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
-import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.services.ProcessInstanceMediatorService;
 
@@ -82,7 +77,7 @@ public class StartEventNode extends CatchEvent {
 	 *            the process id
 	 * @param uniqueFlowNodeId
 	 *            the unique flow node id
-	 * @param eventDefinition
+	 * @param eventDefinitionParameter
 	 *            the event definition
 	 * @param outgoingNodes
 	 *            the outgoing nodes
@@ -92,12 +87,12 @@ public class StartEventNode extends CatchEvent {
 	 *            the node instance service
 	 */
 	public StartEventNode(String uniqueProcessId, String uniqueFlowNodeId,
-			ActorRef eventDefinition, List<ActorRef> outgoingNodes,
+			EventDefinitionParameter eventDefinitionParameter, List<ActorRef> outgoingNodes,
 			List<ActorRef> otherStartNodes, String parentsUniqueFlowNodeId,
 			DataObjectService dataObjectHandling) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinition(eventDefinition);
+		this.setEventDefinitionParameter(eventDefinitionParameter);
 		this.setOutgoingNodes(outgoingNodes);
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
@@ -117,12 +112,12 @@ public class StartEventNode extends CatchEvent {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.createAndCallEventDefinition(message);
+		this.createAndCallEventDefinitionActor(message);
 	}
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		this.createAndCallEventDefinition(message);
+		this.createAndCallEventDefinitionActor(message);
 
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -168,7 +163,7 @@ public class StartEventNode extends CatchEvent {
 		this.getDataObjectService().saveObject(this.getUniqueProcessId(),
 				processInstanceId, message.getPayload());
 
-		this.createAndCallEventDefinition(message);
+		this.createAndCallEventDefinitionActor(message);
 
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(processInstanceId, new Date());
 		

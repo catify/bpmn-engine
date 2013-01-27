@@ -101,11 +101,14 @@ public class MessageEventDefinition_Throw extends EventDefinition {
 		// dispatch that message via the integration spi
 		messageDispatcherService.dispatchViaIntegrationSPI(
 				this.uniqueFlowNodeId, integrationMessage);
+		
+		this.replyCommit(message);
 	}
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
 		// deactivation is done on process level
+		this.replyCommit(message);
 	}
 
 	@Override
@@ -113,6 +116,7 @@ public class MessageEventDefinition_Throw extends EventDefinition {
 		LOG.warn(
 				"WARNING %s sent to throwing node. By definition this is not allowed to happen and is most likely an error",
 				message);
+		this.replyCommit(message);
 	}
 
 	/**

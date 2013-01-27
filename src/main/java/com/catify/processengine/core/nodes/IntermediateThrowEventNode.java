@@ -27,6 +27,7 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
@@ -48,7 +49,7 @@ public class IntermediateThrowEventNode extends ThrowEvent {
 	 *            the process id
 	 * @param uniqueFlowNodeId
 	 *            the unique flow node id
-	 * @param eventDefinition
+	 * @param eventDefinitionActor
 	 *            the event definition
 	 * @param outgoingNodes
 	 *            the outgoing nodes
@@ -56,11 +57,11 @@ public class IntermediateThrowEventNode extends ThrowEvent {
 	 *            the node instance service
 	 */
 	public IntermediateThrowEventNode(String uniqueProcessId,
-			String uniqueFlowNodeId, ActorRef eventDefinition,
+			String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter,
 			List<ActorRef> outgoingNodes, DataObjectService dataObjectHandling) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinition(eventDefinition);
+		this.setEventDefinitionParameter(eventDefinitionParameter);
 		this.setOutgoingNodes(outgoingNodes);
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
@@ -71,7 +72,7 @@ public class IntermediateThrowEventNode extends ThrowEvent {
 	protected void activate(ActivationMessage message) {
 		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
-		this.createAndCallEventDefinition(message);
+		this.createAndCallEventDefinitionActor(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
@@ -88,7 +89,7 @@ public class IntermediateThrowEventNode extends ThrowEvent {
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		eventDefinition.tell(message, getSelf());
+		this.createAndCallEventDefinitionActor(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		

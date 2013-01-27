@@ -35,7 +35,6 @@ import com.catify.processengine.core.messages.TriggerMessage;
  * event does not (need to) know the actually used event definition so new ones
  * can be plugged without altering any code in the encapsulating events. See GoF
  * 'strategy pattern'. <br>
- * Note: EventDefinition actors terminate themselves after processing a single message.
  * 
  * @author chris
  * 
@@ -58,11 +57,10 @@ public abstract class EventDefinition extends UntypedActor {
 			} else {
 				unhandled(message);
 			}
-			
-			// terminate after processing message
-			this.getContext().stop(self());
 	}
 	
+
+
 	/**
 	 * Encapsulating event received an activation message, take steps needed in
 	 * the implemented event definition.

@@ -41,6 +41,7 @@ import com.catify.processengine.core.data.dataobjects.DataObjectIdService;
 import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.data.dataobjects.NoDataObjectSP;
 import com.catify.processengine.core.data.services.impl.IdService;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.nodes.eventdefinition.SynchronousEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TComplexGateway;
@@ -77,26 +78,26 @@ public class NodeFactoryImpl implements NodeFactory {
 	
 	@Override
 	public synchronized FlowElement createServiceNode(String clientId, TProcess processJaxb,  ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb, ActorRef eventDefinitionActor) {
+			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 		// event nodes
 		if (flowNodeJaxb.getClass().equals(
 				TStartEvent.class)) {
 			return this.createStartEventNode(clientId, processJaxb, subProcessesJaxb,
-					flowNodeJaxb, sequenceFlowsJaxb, eventDefinitionActor);
+					flowNodeJaxb, sequenceFlowsJaxb);
 		} else if (flowNodeJaxb.getClass().equals(
 				TIntermediateCatchEvent.class)) {
 			return this.createIntermediateCatchEventNode(clientId, 
 					processJaxb, subProcessesJaxb, flowNodeJaxb,
-					sequenceFlowsJaxb, eventDefinitionActor);
+					sequenceFlowsJaxb);
 		} else if (flowNodeJaxb.getClass().equals(
 				TIntermediateThrowEvent.class)) {
 			return this.createIntermediateThrowEventNode(clientId, 
 					processJaxb, subProcessesJaxb, flowNodeJaxb,
-					sequenceFlowsJaxb, eventDefinitionActor);
+					sequenceFlowsJaxb);
 		} else if (flowNodeJaxb.getClass().equals(
 				TEndEvent.class)) {
 			return this.createEndEventNode(clientId, processJaxb, subProcessesJaxb,
-					flowNodeJaxb, sequenceFlowsJaxb, eventDefinitionActor);
+					flowNodeJaxb, sequenceFlowsJaxb);
 
 		// gateways
 		} else if (flowNodeJaxb.getClass().equals(
@@ -121,15 +122,15 @@ public class NodeFactoryImpl implements NodeFactory {
 		} else if (flowNodeJaxb.getClass().equals(
 				TReceiveTask.class)) {
 			return this.createReceiveTaskNode(clientId, processJaxb, subProcessesJaxb,
-					flowNodeJaxb, sequenceFlowsJaxb, eventDefinitionActor);
+					flowNodeJaxb, sequenceFlowsJaxb);
 		} else if (flowNodeJaxb.getClass().equals(
 				TSendTask.class)) {
 			return this.createSendTaskNode(clientId, processJaxb, subProcessesJaxb,
-					flowNodeJaxb, sequenceFlowsJaxb, eventDefinitionActor);
+					flowNodeJaxb, sequenceFlowsJaxb);
 		} else if (flowNodeJaxb.getClass().equals(
 				TServiceTask.class)) {
 			return this.createServiceTaskNode(clientId, processJaxb, subProcessesJaxb,
-					flowNodeJaxb, sequenceFlowsJaxb, eventDefinitionActor);
+					flowNodeJaxb, sequenceFlowsJaxb);
 			
 		// sub process nodes (without the included flow nodes)
 		} else if (flowNodeJaxb.getClass().equals(
@@ -176,7 +177,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the start event node
 	 */
 	private FlowElement createStartEventNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb, ActorRef eventDefinitionActor) {
+			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TStartEvent startEventJaxb = (TStartEvent) flowNodeJaxb;
 
@@ -184,7 +185,7 @@ public class NodeFactoryImpl implements NodeFactory {
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 						startEventJaxb),
-						eventDefinitionActor, 
+				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb), 
 				this.getOutgoingActorReferences(clientId, 
 						processJaxb, subProcessesJaxb, startEventJaxb, sequenceFlowsJaxb),
 				this.getOtherStartNodeActorReferences(clientId, processJaxb, subProcessesJaxb, startEventJaxb,
@@ -205,7 +206,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 */
 	private FlowElement createIntermediateCatchEventNode(
 			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
-			List<TSequenceFlow> sequenceFlowsJaxb, ActorRef eventDefinitionActor) {
+			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TCatchEvent intermediateCatchEventJaxb = (TCatchEvent) flowNodeJaxb;
 
@@ -225,7 +226,7 @@ public class NodeFactoryImpl implements NodeFactory {
 					IdService.getUniqueProcessId(clientId, processJaxb),
 					IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 							intermediateCatchEventJaxb),
-					eventDefinitionActor,
+					new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb), 
 					this.getOutgoingActorReferences(clientId, processJaxb, subProcessesJaxb,
 							intermediateCatchEventJaxb, sequenceFlowsJaxb),
 					this.getDataObjectService(flowNodeJaxb));
@@ -235,7 +236,7 @@ public class NodeFactoryImpl implements NodeFactory {
 					IdService.getUniqueProcessId(clientId, processJaxb),
 					IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 							intermediateCatchEventJaxb),
-					eventDefinitionActor,
+					new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
 					this.getOutgoingActorReferences(clientId, processJaxb, subProcessesJaxb,
 							intermediateCatchEventJaxb, sequenceFlowsJaxb),
 					this.getDataObjectService(flowNodeJaxb));
@@ -254,7 +255,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 */
 	private FlowElement createIntermediateThrowEventNode(
 			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
-			List<TSequenceFlow> sequenceFlowsJaxb, ActorRef eventDefinitionActor) {
+			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TIntermediateThrowEvent intermediateThrowEventJaxb = (TIntermediateThrowEvent) flowNodeJaxb;
 
@@ -262,7 +263,7 @@ public class NodeFactoryImpl implements NodeFactory {
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 						intermediateThrowEventJaxb),
-				eventDefinitionActor,
+				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
 				this.getOutgoingActorReferences(clientId, processJaxb, subProcessesJaxb,
 						intermediateThrowEventJaxb, sequenceFlowsJaxb),
 				this.getDataObjectService(flowNodeJaxb));
@@ -278,7 +279,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the end event node
 	 */
 	private FlowElement createEndEventNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb, ActorRef eventDefinitionActor) {
+			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		TEndEvent endEventJaxb = (TEndEvent) flowNodeJaxb;
 		
@@ -286,7 +287,7 @@ public class NodeFactoryImpl implements NodeFactory {
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 						endEventJaxb),
-				eventDefinitionActor, 
+				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
 				this.getParentSubProcessActorReference(clientId, 
 						processJaxb, subProcessesJaxb, endEventJaxb, sequenceFlowsJaxb),
 				this.getDataObjectService(flowNodeJaxb),
@@ -515,13 +516,13 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the send task node
 	 */
 	private FlowElement createSendTaskNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb, ActorRef eventDefinitionActor) {
+			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TSendTask sendTaskJaxb = (TSendTask) flowNodeJaxb;
 
 //		TMessageIntegration messageIntegration = ExtensionService.getTMessageIntegration(flowNodeJaxb);
-//		EventDefinition eventDefinition = new EventDefinitionFactory().getMessageEventDefinitionThrow(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, messageIntegration);
-//		ActorRef eventDefinitionActor = new EventDefinitionFactory().createEventDefinitionActor(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, eventDefinition, messageIntegration.getId());
+//		EventDefinition eventDefinitionActor = new EventDefinitionFactory().getMessageEventDefinitionThrow(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, messageIntegration);
+//		ActorRef eventDefinitionActor = new EventDefinitionFactory().createEventDefinitionActor(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, eventDefinitionActor, messageIntegration.getId());
 		
 		return new SendTaskNode(
 				IdService.getUniqueProcessId(clientId, processJaxb),
@@ -532,7 +533,7 @@ public class NodeFactoryImpl implements NodeFactory {
 				ActorReferenceService.getActorReferenceString(
 								IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 										flowNodeJaxb)),  
-				eventDefinitionActor,
+				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb), 
 				this.getDataObjectService(flowNodeJaxb));
 	}
 
@@ -546,13 +547,13 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the send task node
 	 */
 	private FlowElement createReceiveTaskNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb, ActorRef eventDefinitionActor) {
+			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TReceiveTask receiveTaskJaxb = (TReceiveTask) flowNodeJaxb;
 		
 //		TMessageIntegration messageIntegration = ExtensionService.getTMessageIntegration(flowNodeJaxb);
-//		EventDefinition eventDefinition = new EventDefinitionFactory().getMessageEventDefinitionCatch(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, messageIntegration);
-//		ActorRef eventDefinitionActor = new EventDefinitionFactory().createEventDefinitionActor(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, eventDefinition, messageIntegration.getId());
+//		EventDefinition eventDefinitionActor = new EventDefinitionFactory().getMessageEventDefinitionCatch(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, messageIntegration);
+//		ActorRef eventDefinitionActor = new EventDefinitionFactory().createEventDefinitionActor(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, eventDefinitionActor, messageIntegration.getId());
 		
 		return new ReceiveTaskNode(
 				IdService.getUniqueProcessId(clientId, processJaxb),
@@ -563,7 +564,7 @@ public class NodeFactoryImpl implements NodeFactory {
 				ActorReferenceService.getActorReferenceString(
 								IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 										flowNodeJaxb)), 
-				eventDefinitionActor,
+				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
 				this.getDataObjectService(flowNodeJaxb));
 	}
 
@@ -577,7 +578,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the service task node
 	 */
 	private FlowElement createServiceTaskNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb, ActorRef eventDefinitionActor) {
+			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TServiceTask serviceTaskJaxb = (TServiceTask) flowNodeJaxb;
 

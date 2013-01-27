@@ -54,11 +54,10 @@ public class EventDefinitionFactory {
 		
 	}
 	
-	public EventDefinition getEventDefinition(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb) {
+	public EventDefinition getEventDefinition(EventDefinitionParameter eventDefinitionParameter) {
 //		// get the event definition (if any)
-		TEventDefinition eventDefinitionJaxb = getTEventDefinition(clientId, processJaxb,
-				subProcessesJaxb, flowNodeJaxb);
+		TEventDefinition eventDefinitionJaxb = getTEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb,
+				eventDefinitionParameter.subProcessesJaxb, eventDefinitionParameter.flowNodeJaxb);
 	
 		// if there is no event definition, create an EmptyEventDefinition actor
 		if (eventDefinitionJaxb == null) {
@@ -68,18 +67,18 @@ public class EventDefinitionFactory {
 			// *** create a message event actor ***
 			if (eventDefinitionJaxb.getClass().equals(
 					TMessageEventDefinition.class)) {
-				return createMessageEventDefinition(clientId, processJaxb, subProcessesJaxb, 
-						flowNodeJaxb, (TMessageEventDefinition) eventDefinitionJaxb);
+				return createMessageEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb, eventDefinitionParameter.subProcessesJaxb, 
+						eventDefinitionParameter.flowNodeJaxb, (TMessageEventDefinition) eventDefinitionJaxb);
 		
 			// *** create a terminate event actor ***
 			} else if (eventDefinitionJaxb.getClass().equals(
 					TTerminateEventDefinition.class)) {
-				return createTerminateEventDefinition(clientId, processJaxb, subProcessesJaxb, 
-						flowNodeJaxb, eventDefinitionJaxb);
+				return createTerminateEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb, eventDefinitionParameter.subProcessesJaxb, 
+						eventDefinitionParameter.flowNodeJaxb, eventDefinitionJaxb);
 			}
 			// return empty event definition for unimplemented event definitions
-			LOG.error(String.format("Unimplemented event definition %s found. Associated events will fail!", getTEventDefinition(clientId, processJaxb,
-					subProcessesJaxb, flowNodeJaxb)));
+			LOG.error(String.format("Unimplemented event definition %s found. Associated events will fail!", getTEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb,
+					eventDefinitionParameter.subProcessesJaxb, eventDefinitionParameter.flowNodeJaxb)));
 			return null;
 		}
 	}
