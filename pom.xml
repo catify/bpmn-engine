@@ -26,11 +26,13 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<aspectj.version>1.6.12</aspectj.version>
 		<logback.version>1.0.6</logback.version>
-		<akka.version>2.0.3</akka.version>
 		<spring.version>3.1.2.RELEASE</spring.version>
 		<spring-data-neo4j.version>2.1.0.RELEASE</spring-data-neo4j.version>
-		<neo4j.version>1.8.1</neo4j.version>
 		<jexl.version>2.1.1</jexl.version>
+		<!-- <neo4j.version>1.8.1</neo4j.version> -->
+		<!-- <akka.version>2.0.3</akka.version> -->
+		<neo4j.version>1.9.M04</neo4j.version>
+		<akka.version>2.1.0</akka.version>
 	</properties>
 
 	<repositories>
@@ -59,21 +61,42 @@
 			<version>${jexl.version}</version>
 		</dependency>
 		<!-- akka -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.typesafe.akka</groupId> -->
+		<!-- <artifactId>akka-actor</artifactId> -->
+		<!-- <version>${akka.version}</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.typesafe.akka</groupId> -->
+		<!-- <artifactId>akka-file-mailbox</artifactId> -->
+		<!-- <version>${akka.version}</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.typesafe.akka</groupId> -->
+		<!-- <artifactId>akka-testkit</artifactId> -->
+		<!-- <version>${akka.version}</version> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-actor</artifactId>
+			<artifactId>akka-actor_2.10</artifactId>
 			<version>${akka.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-file-mailbox</artifactId>
+			<artifactId>akka-file-mailbox_2.10</artifactId>
 			<version>${akka.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-testkit</artifactId>
+			<artifactId>akka-testkit_2.10</artifactId>
 			<version>${akka.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+
 		<!-- spring data neo4j -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
