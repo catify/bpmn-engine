@@ -21,14 +21,22 @@
 package com.catify.processengine.core.nodes.eventdefinition;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.xml.bind.JAXBElement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
+import akka.actor.ActorRef;
+
 import com.catify.processengine.core.data.services.impl.IdService;
 import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TEventDefinition;
+import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
@@ -126,10 +134,10 @@ public class EventDefinitionFactory {
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 						flowNodeJaxb), 
-						ActorReferenceService.getActorReferenceString(
-								IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-										flowNodeJaxb)),  
-						messageIntegration);
+				ActorReferenceService.getActorReferenceString(
+						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+								flowNodeJaxb)),  
+				messageIntegration);
 		return eventDefinition;
 	}
 
@@ -142,10 +150,10 @@ public class EventDefinitionFactory {
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 						flowNodeJaxb), 
-						ActorReferenceService.getActorReferenceString(
-								IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-										flowNodeJaxb)),  
-						messageIntegration);
+				ActorReferenceService.getActorReferenceString(
+						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+								flowNodeJaxb)),  
+				messageIntegration);
 		return eventDefinition;
 	}
 
@@ -162,13 +170,75 @@ public class EventDefinitionFactory {
 
 		EventDefinition eventDefinition = new TerminateEventDefinition(
 				IdService.getUniqueProcessId(clientId, processJaxb),
-				IdService
-						.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb),
+				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb),
 				new ActorReferenceService().getActorReference(
 						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-								flowNodeJaxb)));
+								flowNodeJaxb)),
+				getOtherActorReferences(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb)				
+				);
 		
 		return eventDefinition;
+	}
+	
+	/**
+	 * Gets all actor references of the process (including sub processes) 
+	 * but excluding the actor reference of a given flow node.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @param flowNodeJaxb the jaxb flow node to be excluded
+	 * @return the other actor references
+	 */
+	private Set<ActorRef> getOtherActorReferences(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TFlowNode flowNodeJaxb) {
+		Set<ActorRef> actorReferences = getAllActorReferences(clientId, processJaxb, subProcessesJaxb, null);
+		
+		// remove actor reference of given flow node
+		actorReferences.remove(new ActorReferenceService().getActorReference(
+						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+								flowNodeJaxb)));
+
+		return actorReferences;
+	}
+	
+	/**
+	 * Gets all actor references of the process (including sub processes).
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @param flowNodeJaxb the flow node jaxb
+	 * @return the all actor references
+	 */
+	private Set<ActorRef> getAllActorReferences(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TSubProcess subProcessJaxb) {
+		Set<ActorRef> actorReferences = new HashSet<ActorRef>();
+		
+		List<JAXBElement<? extends TFlowElement>> flowElements = new ArrayList<JAXBElement<? extends TFlowElement>>();
+		if (subProcessJaxb == null) {
+			flowElements = processJaxb.getFlowElement();
+		} else {
+			flowElements = subProcessJaxb.getFlowElement();
+		}
+		
+		for (JAXBElement<? extends TFlowElement> flowElement : flowElements) {
+			if (flowElement.getValue() instanceof TFlowNode) {
+				actorReferences.add(new ActorReferenceService().getActorReference(
+						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+								(TFlowNode) flowElement.getValue())));
+			}
+			if (flowElement.getValue() instanceof TSubProcess) {
+				// create local copies for recursion
+				ArrayList<TSubProcess> recursiveSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
+				recursiveSubProcessesJaxb.add((TSubProcess) flowElement.getValue());
+				TSubProcess newSubProcessJaxb = (TSubProcess) flowElement.getValue();
+				
+				actorReferences.addAll(getAllActorReferences(clientId, processJaxb, recursiveSubProcessesJaxb, newSubProcessJaxb));
+			}
+		}
+		
+		return actorReferences;
 	}
 	
 	/**

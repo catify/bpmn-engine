@@ -89,12 +89,14 @@ public class IntermediateThrowEventNode extends ThrowEvent {
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		this.createAndCallEventDefinitionActor(message);
+		String processInstanceId = message.getProcessInstanceId();
 		
-		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
+		this.createAndCallEventDefinitionActor(message);
+
+		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(processInstanceId, new Date());
 		
 		this.getNodeInstanceMediatorService().setState(
-				message.getProcessInstanceId(),
+				processInstanceId,
 				NodeInstaceStates.DEACTIVATED_STATE);
 		
 		this.getNodeInstanceMediatorService().persistChanges();

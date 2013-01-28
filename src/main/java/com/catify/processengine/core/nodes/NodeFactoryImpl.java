@@ -190,7 +190,7 @@ public class NodeFactoryImpl implements NodeFactory {
 						processJaxb, subProcessesJaxb, startEventJaxb, sequenceFlowsJaxb),
 				this.getOtherStartNodeActorReferences(clientId, processJaxb, subProcessesJaxb, startEventJaxb,
 						sequenceFlowsJaxb),
-				this.getSubProcessUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb),
+				this.getParentSubProcessUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb),
 				this.getDataObjectService(flowNodeJaxb));
 	}
 
@@ -520,10 +520,6 @@ public class NodeFactoryImpl implements NodeFactory {
 
 		final TSendTask sendTaskJaxb = (TSendTask) flowNodeJaxb;
 
-//		TMessageIntegration messageIntegration = ExtensionService.getTMessageIntegration(flowNodeJaxb);
-//		EventDefinition eventDefinitionActor = new EventDefinitionFactory().getMessageEventDefinitionThrow(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, messageIntegration);
-//		ActorRef eventDefinitionActor = new EventDefinitionFactory().createEventDefinitionActor(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, eventDefinitionActor, messageIntegration.getId());
-		
 		return new SendTaskNode(
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
@@ -550,11 +546,7 @@ public class NodeFactoryImpl implements NodeFactory {
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TReceiveTask receiveTaskJaxb = (TReceiveTask) flowNodeJaxb;
-		
-//		TMessageIntegration messageIntegration = ExtensionService.getTMessageIntegration(flowNodeJaxb);
-//		EventDefinition eventDefinitionActor = new EventDefinitionFactory().getMessageEventDefinitionCatch(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, messageIntegration);
-//		ActorRef eventDefinitionActor = new EventDefinitionFactory().createEventDefinitionActor(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, eventDefinitionActor, messageIntegration.getId());
-		
+
 		return new ReceiveTaskNode(
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
@@ -721,7 +713,7 @@ public class NodeFactoryImpl implements NodeFactory {
 			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
-		String subProcessUinqueFlowNodeId = getSubProcessUniqueFlowNodeId(
+		String subProcessUinqueFlowNodeId = getParentSubProcessUniqueFlowNodeId(
 				clientId, processJaxb, subProcessesJaxb, flowNodeJaxb);
 
 		if (subProcessUinqueFlowNodeId != null) {
@@ -741,7 +733,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param flowNodeJaxb the flow node jaxb
 	 * @return the unique flow node id of the parent sub process or null if there is none
 	 */
-	private String getSubProcessUniqueFlowNodeId(String clientId,
+	private String getParentSubProcessUniqueFlowNodeId(String clientId,
 			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb) {
 		ArrayList<TSubProcess> localSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);

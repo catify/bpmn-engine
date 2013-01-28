@@ -29,7 +29,6 @@ public class TimerEventDefinition extends EventDefinition {
 	@Override
 	protected void activate(ActivationMessage message) {
 		// TODO Auto-generated method stub
-		this.replyCommit(message);
 	}
 	/* (non-Javadoc)
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#deactivate(com.catify.processengine.core.messages.DeactivationMessage)
@@ -37,7 +36,6 @@ public class TimerEventDefinition extends EventDefinition {
 	@Override
 	protected void deactivate(DeactivationMessage message) {
 		// TODO Auto-generated method stub
-		this.replyCommit(message);
 	}
 	/* (non-Javadoc)
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#trigger(com.catify.processengine.core.messages.TriggerMessage)
@@ -45,7 +43,6 @@ public class TimerEventDefinition extends EventDefinition {
 	@Override
 	protected void trigger(TriggerMessage message) {
 		// TODO Auto-generated method stub
-		this.replyCommit(message);
 	}
 
 

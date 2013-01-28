@@ -17,10 +17,18 @@
  */
 package com.catify.processengine.core.nodes.eventdefinition;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
 
+import akka.actor.ActorSystem;
 import akka.actor.UntypedActor;
+import akka.util.Duration;
+import akka.util.Timeout;
 
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
@@ -39,9 +47,20 @@ import com.catify.processengine.core.messages.TriggerMessage;
  * @author chris
  * 
  */
+@Configurable
 public abstract class EventDefinition extends UntypedActor {
 
 	static final Logger LOG = LoggerFactory.getLogger(EventDefinition.class);
+	
+	@Autowired
+	protected ActorSystem actorSystem;
+	
+	/** The timeout in seconds. Note: This value is only available after construction is completed. */
+	@Value("${core.eventDefinitionTimeout}")
+	protected long timeoutInSeconds;
+	
+	/** The default timeout for a synchronous call to an EventDefinition. Note: This value is only available after construction is completed. */
+	protected Timeout eventDefinitionTimeout;
 	
 	@Override
 	public void onReceive(Object message) throws Exception {
@@ -57,9 +76,15 @@ public abstract class EventDefinition extends UntypedActor {
 			} else {
 				unhandled(message);
 			}
+			
+		// reply commit message to calling node after method execution
+		this.replyCommit((Message) message);
 	}
 	
-
+	@PostConstruct
+	void initSpringDependentProperties() {
+		eventDefinitionTimeout = new Timeout(Duration.create(timeoutInSeconds, "seconds"));
+	}
 
 	/**
 	 * Encapsulating event received an activation message, take steps needed in

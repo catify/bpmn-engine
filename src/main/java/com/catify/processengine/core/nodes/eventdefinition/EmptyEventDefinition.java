@@ -43,7 +43,6 @@ public class EmptyEventDefinition extends EventDefinition {
 	protected void activate(ActivationMessage message) {
 		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
 				.getClass().getSimpleName()));
-		this.replyCommit(message);
 	}
 
 
@@ -55,7 +54,6 @@ public class EmptyEventDefinition extends EventDefinition {
 	protected void deactivate(DeactivationMessage message) {
 		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
 				.getClass().getSimpleName()));
-		this.replyCommit(message);
 	}
 
 	/* (non-Javadoc)
@@ -65,7 +63,6 @@ public class EmptyEventDefinition extends EventDefinition {
 	protected void trigger(TriggerMessage message) {
 		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
 				.getClass().getSimpleName()));
-		this.replyCommit(message);
 	}
 
 }

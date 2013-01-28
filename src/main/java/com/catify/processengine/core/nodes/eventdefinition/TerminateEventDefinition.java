@@ -17,21 +17,32 @@
  */
 package com.catify.processengine.core.nodes.eventdefinition;
 
+import static akka.dispatch.Futures.sequence;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import akka.actor.ActorRef;
+import akka.dispatch.Await;
+import akka.dispatch.ExecutionContext;
+import akka.dispatch.Future;
+import akka.pattern.Patterns;
+import akka.util.Duration;
+import akka.util.Timeout;
 
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.services.ProcessInstanceMediatorService;
 
 public class TerminateEventDefinition extends EventDefinition {
-
-
-	private ProcessInstanceMediatorService processInstanceMediatorService;
 
 	private String uniqueProcessId;
 	private String uniqueFlowNodeId;
 	private ActorRef actorRef;
+	
+	/** The actor references of all other node services (including sub process nodes). */
+	private Set<ActorRef> otherActorReferences;
 	
 	/**
 	 * Instantiates a new terminate event definition.
@@ -41,22 +52,49 @@ public class TerminateEventDefinition extends EventDefinition {
 	 * @param actorRef the actor ref
 	 */
 	public TerminateEventDefinition(
-			String uniqueProcessId, String uniqueFlowNodeId, ActorRef actorRef) {
+			String uniqueProcessId, String uniqueFlowNodeId, ActorRef actorRef, Set<ActorRef> otherActorReferences) {
 		super();
 		this.uniqueProcessId = uniqueProcessId;
 		this.uniqueFlowNodeId = uniqueFlowNodeId;
 		this.actorRef = actorRef;
-		
-//		this.processInstanceMediatorService = new ProcessInstanceMediatorService();
+		this.otherActorReferences = otherActorReferences;
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#acitivate(com.catify.processengine.core.messages.ActivationMessage)
 	 */
 	@Override
 	protected void activate(ActivationMessage message) {
-		// TODO Auto-generated method stub
-		this.replyCommit(message);
+		final ExecutionContext ec = actorSystem.dispatcher();
+
+		List<Future<Object>> listOfFutureActorRefs = new ArrayList<Future<Object>>();
+		
+		/** The timeout for collecting the deactivation commits (which is slightly shorter than the timeout 
+		 * for this event definition, to be able to collect better timeout data) */
+		Timeout deactivationTimeout = new Timeout(Duration.create((long) (timeoutInSeconds * 0.9), "seconds"));
+		
+		for (ActorRef actor : otherActorReferences) {
+			try {
+				// make an asynchronous request ('Patterns.ask') to the event definition actor 
+				listOfFutureActorRefs.add(Patterns.ask(actor, new DeactivationMessage(message.getProcessInstanceId()), deactivationTimeout));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// compose the sequence of the received commit futures
+        Future<Iterable<Object>> futuresSequence = sequence(listOfFutureActorRefs, ec);
+ 
+        // block until all futures came back
+		try {
+			Await.result(futuresSequence, deactivationTimeout.duration());
+		} catch (java.util.concurrent.TimeoutException timeout) {
+			LOG.error(String.format("Timeout while processing %s at EventDefintition:%s. Timeout was set to %s", 
+			message.getClass().getSimpleName(), this.getClass().getSimpleName(), deactivationTimeout.duration()));
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -64,8 +102,7 @@ public class TerminateEventDefinition extends EventDefinition {
 	 */
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		// TODO Auto-generated method stub
-		this.replyCommit(message);
+		// nothing to do
 	}
 
 	/* (non-Javadoc)
@@ -73,18 +110,7 @@ public class TerminateEventDefinition extends EventDefinition {
 	 */
 	@Override
 	protected void trigger(TriggerMessage message) {
-		// TODO Auto-generated method stub
-		this.replyCommit(message);
-	}
-
-
-	public ProcessInstanceMediatorService getProcessInstanceMediatorService() {
-		return processInstanceMediatorService;
-	}
-
-	public void setProcessInstanceMediatorService(
-			ProcessInstanceMediatorService processInstanceMediatorService) {
-		this.processInstanceMediatorService = processInstanceMediatorService;
+		// nothing to do
 	}
 
 	public String getUniqueProcessId() {

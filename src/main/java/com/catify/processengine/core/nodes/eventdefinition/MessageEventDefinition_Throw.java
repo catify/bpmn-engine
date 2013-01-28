@@ -101,8 +101,6 @@ public class MessageEventDefinition_Throw extends EventDefinition {
 		// dispatch that message via the integration spi
 		messageDispatcherService.dispatchViaIntegrationSPI(
 				this.uniqueFlowNodeId, integrationMessage);
-		
-		this.replyCommit(message);
 	}
 
 	@Override

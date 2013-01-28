@@ -153,6 +153,12 @@ public class IntegrationTests {
 	}
 	
 	@Test
+	public void testprocessSubprocessSubprocessTerminate() throws IOException, JAXBException, InterruptedException {
+		simpleProcessTest("testprocess_subprocess_subprocess_terminate.bpmn", 3000, 5000, 22, 11);
+	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
+	}
+	
+	@Test
 	public void testprocessCatch() throws IOException, JAXBException, InterruptedException {
 		simpleProcessTestWithTrigger("testprocess_catch.bpmn", catchEvent, 3000, 5000, 5000, 6, 3);		
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));

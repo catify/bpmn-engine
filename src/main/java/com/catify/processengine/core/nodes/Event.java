@@ -19,6 +19,7 @@ package com.catify.processengine.core.nodes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -47,11 +48,12 @@ public abstract class Event extends FlowElement {
 	
 	/** The EventDefinition parameter object of which an EventDefinition actor can be instantiated. */
 	protected EventDefinitionParameter eventDefinitionParameter;
-	
-	/** The default timeout for a synchronous call to an EventDefinition. */
-	protected Timeout eventDefinitionTimeout = new Timeout(Duration.create(60, "seconds"));
 
 	protected DataObjectService dataObjectHandling;
+	
+	/** The timeout in seconds. Note: This value is only available after construction is completed. */
+	@Value("${core.eventDefinitionTimeout}")
+	protected long timeoutInSeconds;
 	
 	/**
 	 * Creates an EventDefinition actor and <b>synchronously</b> calls its method associated to the given message type.
@@ -62,13 +64,15 @@ public abstract class Event extends FlowElement {
 	protected void createAndCallEventDefinitionActor(Message message) {
 		
 		ActorRef eventDefinitionActor = createEventDefinitionActor(message);
-		 
+		
+		Timeout eventDefinitionTimeout = new Timeout(Duration.create(timeoutInSeconds, "seconds"));
+		
 		try {
 			// make a synchronous ('Await.result') request ('Patterns.ask') to the event definition actor 
-			Await.result(Patterns.ask(eventDefinitionActor, message, this.eventDefinitionTimeout), this.eventDefinitionTimeout.duration());
+			Await.result(Patterns.ask(eventDefinitionActor, message, eventDefinitionTimeout), eventDefinitionTimeout.duration());
 		} catch (java.util.concurrent.TimeoutException timeout) {
 			LOG.error(String.format("Timeout while processing %s at EventDefintition:%s. Timeout was set to %s", 
-					message.getClass().getSimpleName(), eventDefinitionActor, this.getEventDefinitionTimeout().duration()));
+					message.getClass().getSimpleName(), eventDefinitionActor, eventDefinitionTimeout.duration()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -93,24 +97,6 @@ public abstract class Event extends FlowElement {
 				}
 		}), ActorReferenceService.getActorReferenceString(uniqueFlowNodeId+"-eventDefinition-"+message.getProcessInstanceId()));
 		return eventDefinitionActor;
-	}
-	
-	/**
-	 * Gets the event definition timeout used for synchronous calls.
-	 *
-	 * @return the event definition timeout
-	 */
-	public Timeout getEventDefinitionTimeout() {
-		return eventDefinitionTimeout;
-	}
-
-	/**
-	 * Sets the event definition timeout used for synchronous calls.
-	 *
-	 * @param eventDefinitionTimeout the new event definition timeout
-	 */
-	public void setEventDefinitionTimeout(Timeout eventDefinitionTimeout) {
-		this.eventDefinitionTimeout = eventDefinitionTimeout;
 	}
 	
 	public DataObjectService getDataObjectService() {
