@@ -20,6 +20,9 @@
  */
 package com.catify.processengine.core.nodes.integration;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,7 +33,6 @@ import javax.xml.bind.JAXBException;
 
 import junit.framework.Assert;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -147,6 +149,12 @@ public class IntegrationTests {
 	@Test
 	public void testprocessSubprocessSubprocess() throws IOException, JAXBException, InterruptedException {
 		simpleProcessTest("testprocess_subprocess_subprocess.bpmn", 3000, 5000, 22, 11);
+	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
+	}
+	
+	@Test
+	public void testprocessSubprocessSubprocessTerminate() throws IOException, JAXBException, InterruptedException {
+		simpleProcessTest("testprocess_subprocess_subprocess_terminate.bpmn", 3000, 5000, 22, 11);
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
 	}
 	

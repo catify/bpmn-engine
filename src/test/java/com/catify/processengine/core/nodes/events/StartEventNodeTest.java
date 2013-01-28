@@ -83,7 +83,7 @@ public class StartEventNodeTest extends Base_nodes {
 		final TFlowNode flowNode_jaxb = extractFlowNodes(process_jaxb).get("_11");
 
 		assertNotNull(flowNode_jaxb);
-
+		
 		ActorRef nodeServiceActor = actorSystem.actorOf(new Props(
 				new UntypedActorFactory() {
 					private static final long serialVersionUID = 1L;

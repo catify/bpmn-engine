@@ -21,31 +21,28 @@ import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 
-public class SignalEventDefinition_Throw implements EventDefinition {
+public class SignalEventDefinition_Throw extends EventDefinition {
 
 	/* (non-Javadoc)
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#acitivate(com.catify.processengine.core.messages.ActivationMessage)
 	 */
 	@Override
-	public void acitivate(ActivationMessage message) {
+	protected void activate(ActivationMessage message) {
 		// TODO Auto-generated method stub
-		
 	}
 	/* (non-Javadoc)
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#deactivate(com.catify.processengine.core.messages.DeactivationMessage)
 	 */
 	@Override
-	public void deactivate(DeactivationMessage message) {
+	protected void deactivate(DeactivationMessage message) {
 		// TODO Auto-generated method stub
-		
 	}
 	/* (non-Javadoc)
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#trigger(com.catify.processengine.core.messages.TriggerMessage)
 	 */
 	@Override
-	public void trigger(TriggerMessage message) {
+	protected void trigger(TriggerMessage message) {
 		// TODO Auto-generated method stub
-		
 	}
 	
 

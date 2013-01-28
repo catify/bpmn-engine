@@ -146,7 +146,7 @@ public class NodeInstanceMediatorService {
 	 *            the instance id
 	 * @return the state
 	 */
-	public String getState(String processInstanceId) {
+	public String getNodeInstanceState(String processInstanceId) {
 		this.nodeInstance = getNodeInstance(processInstanceId);
 
 		return this.nodeInstance.getNodeInstanceState();
@@ -195,6 +195,16 @@ public class NodeInstanceMediatorService {
 					this.getUniqueFlowNodeId()));
 			nodeInstance.setNodeInstanceState(state);
 		}
+	}
+	
+	/**
+	 * Checks if node instance is in "active state".
+	 *
+	 * @param processInstanceId the process instance id
+	 * @return true, if is active
+	 */
+	public boolean isActive(String processInstanceId) {
+		return this.getNodeInstanceState(processInstanceId).equals(NodeInstaceStates.ACTIVE_STATE);
 	}
 	
 	/**

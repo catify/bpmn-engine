@@ -29,7 +29,6 @@ import com.catify.processengine.core.nodes.NodeFactory;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.services.MessageDispatcherService;
 
-// TODO: Auto-generated Javadoc
 /**
  * Each (akka) node that has a catching message event definition instantiates
  * and binds an object of the MessageEventDefinition_Catch class. This class

@@ -75,27 +75,34 @@ public abstract class FlowElement extends UntypedActor {
 
 	/** The node instance mediator service. */
 	protected NodeInstanceMediatorService nodeInstanceMediatorService;
-
+	
 	/**
-	 * neo4jTemplate method for reacting to the three possible message types:.
-	 *
-	 * @param message the message
-	 * {@link ActivationMessage}, {@link DeactivationMessage},
-	 * {@link TriggerMessage}. This method should not be overridden by
+	 * Template method for reacting to the possible message types.
+	 * This method should not be overridden by
 	 * implementing classes.
+	 * 
+	 * @param message the message
 	 */
 	public void onReceive(Object message) {
 		LOG.debug(String.format("%s received %s", this.getSelf(), message
 				.getClass().getSimpleName()));
+		
 		if (this.isProcessableInstance((Message) message)) {
 			if (message instanceof ActivationMessage) {
 				activate((ActivationMessage) message);
-			} else if (message instanceof DeactivationMessage) {
-				deactivate((DeactivationMessage) message);
 			} else if (message instanceof TriggerMessage) {
 				trigger((TriggerMessage) message);
+			} else if (message instanceof DeactivationMessage) {
+				deactivate((DeactivationMessage) message);
+				// commit message after deactivation
+				this.getSender().tell(message, this.getSelf());
 			} else {
 				unhandled(message);
+			}
+		} else {
+			if (message instanceof DeactivationMessage) {
+				// commit message for already passed nodes (which do not need deactivation)
+				this.getSender().tell(message, this.getSelf());
 			}
 		}
 	}
@@ -135,13 +142,22 @@ public abstract class FlowElement extends UntypedActor {
 			return true;} 
 		else {
 			String nodeInstanceState = this.nodeInstanceMediatorService
-					.getState(message.getProcessInstanceId());
+					.getNodeInstanceState(message.getProcessInstanceId());
 			// if the node checked is in an inactive or active state consider it processable
 			if (nodeInstanceState.equals(NodeInstaceStates.INACTIVE_STATE)
 					|| nodeInstanceState.equals(NodeInstaceStates.ACTIVE_STATE)) {
 				return true;
+			} 
+			// if the node checked is in any other state (like deactivated or passed) but this is a DeactivationMessage consider it done and print appropriate debug log.
+			else if (message instanceof DeactivationMessage) {
+				LOG.debug(String
+						.format("Deactivation message received by already finished node instance. This is expected behaviour. (%s with instance id %s is already at state %s, not processing %s)",
+								this.getClass().getSimpleName(), message.getProcessInstanceId(),
+								nodeInstanceState, message.getClass().getSimpleName()));
+				return false;
+			} 
 			// if the node checked is in any other state (like deactivated or passed) consider it done.
-			} else {
+			else {
 				LOG.debug(String
 						.format("isActiveInstance-sanity-check failed: %s with instance id %s is already at state %s, not processing %s",
 								this.getClass().getSimpleName(), message.getProcessInstanceId(),
@@ -308,10 +324,20 @@ public abstract class FlowElement extends UntypedActor {
 	}
 	
 
+	/**
+	 * Gets the actor system.
+	 *
+	 * @return the actor system
+	 */
 	protected ActorSystem getActorSystem() {
 		return actorSystem;
 	}
 
+	/**
+	 * Sets the actor system.
+	 *
+	 * @param actorSystem the new actor system
+	 */
 	protected void setActorSystem(ActorSystem actorSystem) {
 		this.actorSystem = actorSystem;
 	}
