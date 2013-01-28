@@ -29,8 +29,6 @@
 		<spring.version>3.1.2.RELEASE</spring.version>
 		<spring-data-neo4j.version>2.1.0.RELEASE</spring-data-neo4j.version>
 		<jexl.version>2.1.1</jexl.version>
-		<!-- <neo4j.version>1.8.1</neo4j.version> -->
-		<!-- <akka.version>2.0.3</akka.version> -->
 		<neo4j.version>1.9.M04</neo4j.version>
 		<akka.version>2.1.0</akka.version>
 	</properties>
@@ -61,21 +59,6 @@
 			<version>${jexl.version}</version>
 		</dependency>
 		<!-- akka -->
-		<!-- <dependency> -->
-		<!-- <groupId>com.typesafe.akka</groupId> -->
-		<!-- <artifactId>akka-actor</artifactId> -->
-		<!-- <version>${akka.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>com.typesafe.akka</groupId> -->
-		<!-- <artifactId>akka-file-mailbox</artifactId> -->
-		<!-- <version>${akka.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>com.typesafe.akka</groupId> -->
-		<!-- <artifactId>akka-testkit</artifactId> -->
-		<!-- <version>${akka.version}</version> -->
-		<!-- </dependency> -->
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
 			<artifactId>akka-actor_2.10</artifactId>
@@ -299,55 +282,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<!-- creates jar with dependencies -->
-			<!-- <plugin> -->
-			<!-- <groupId>org.apache.maven.plugins</groupId> -->
-			<!-- <artifactId>maven-shade-plugin</artifactId> -->
-			<!-- <executions> -->
-			<!-- <execution> -->
-			<!-- <phase>package</phase> -->
-			<!-- <goals> -->
-			<!-- <goal>shade</goal> -->
-			<!-- </goals> -->
-			<!-- <configuration> -->
-			<!-- <transformers> -->
-			<!-- <transformer -->
-			<!-- implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> -->
-			<!-- <manifestEntries> -->
-			<!-- <Main-Class>com.catify.processengine.core.AppStarter</Main-Class> -->
-			<!-- </manifestEntries> -->
-			<!-- </transformer> -->
-			<!-- <transformer -->
-			<!-- implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" 
-				/> -->
-			<!-- <transformer -->
-			<!-- implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> -->
-			<!-- <resource>META-INF/spring.handlers</resource> -->
-			<!-- </transformer> -->
-			<!-- <transformer -->
-			<!-- implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> -->
-			<!-- <resource>META-INF/spring.schemas</resource> -->
-			<!-- </transformer> -->
-			<!-- <transformer -->
-			<!-- implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> -->
-			<!-- <resource>reference.conf</resource> -->
-			<!-- </transformer> -->
-			<!-- </transformers> -->
-			<!-- <filters> -->
-			<!-- <filter> -->
-			<!-- <artifact>*:*</artifact> -->
-			<!-- <excludes> -->
-			<!-- <exclude>META-INF/*.SF</exclude> -->
-			<!-- <exclude>META-INF/*.DSA</exclude> -->
-			<!-- <exclude>META-INF/*.RSA</exclude> -->
-			<!-- </excludes> -->
-			<!-- </filter> -->
-			<!-- </filters> -->
-			<!-- </configuration> -->
-			<!-- </execution> -->
-			<!-- </executions> -->
-			<!-- </plugin> -->
 
 			<!-- Execute the main class -->
 			<plugin>
