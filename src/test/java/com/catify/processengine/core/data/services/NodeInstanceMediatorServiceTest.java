@@ -91,7 +91,7 @@ public class NodeInstanceMediatorServiceTest {
 		
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstance("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId")).thenReturn(flowNodeInstance);
 		
-		String state = nodeInstanceMediatorServiceMockInjected.getState("testInstanceId");
+		String state = nodeInstanceMediatorServiceMockInjected.getNodeInstanceState("testInstanceId");
 		
 		assertEquals("TESTSTATE", state);
 	}
@@ -250,7 +250,7 @@ public class NodeInstanceMediatorServiceTest {
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstance("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId")).thenReturn(flowNodeInstance);
 		
 		// call a method that caches a node instance in the nodeInstanceMediatorService
-		nodeInstanceMediatorServiceMockInjected.getState("testInstanceId");
+		nodeInstanceMediatorServiceMockInjected.getNodeInstanceState("testInstanceId");
 	
 		assertTrue(nodeInstanceMediatorServiceMockInjected.isInitialized());
 	}

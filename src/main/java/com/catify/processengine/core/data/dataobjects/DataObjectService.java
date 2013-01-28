@@ -21,7 +21,6 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.stereotype.Component;
 
 /**
  * Wrapper class for saving/loading a data object within a process. Any class

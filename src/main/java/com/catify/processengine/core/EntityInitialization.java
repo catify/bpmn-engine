@@ -81,10 +81,6 @@ public class EntityInitialization {
 	@Autowired
 	private ActorSystem actorSystem;
 	
-	/** The node factory. */
-//	@Autowired
-//	private NodeFactory nodeFactory;
-	
 	/** The neo4j template. */
 	@Autowired
 	private Neo4jTemplate neo4jTemplate;

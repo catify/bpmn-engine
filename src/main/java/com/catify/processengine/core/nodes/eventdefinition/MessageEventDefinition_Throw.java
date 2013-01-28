@@ -39,7 +39,7 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  * message can have a payload object, which is defined in the process.xml and
  * loaded from the data store. For instantiation of this node see {@link NodeFactory}.
  */
-public class MessageEventDefinition_Throw implements EventDefinition {
+public class MessageEventDefinition_Throw extends EventDefinition {
 
 	static final Logger LOG = LoggerFactory
 			.getLogger(MessageEventDefinition_Throw.class);
@@ -83,7 +83,7 @@ public class MessageEventDefinition_Throw implements EventDefinition {
 	}
 
 	@Override
-	public void acitivate(ActivationMessage message) {
+	protected void activate(ActivationMessage message) {
 
 		// get the data from the data store that is associated with this node
 		Object data;
@@ -104,15 +104,17 @@ public class MessageEventDefinition_Throw implements EventDefinition {
 	}
 
 	@Override
-	public void deactivate(DeactivationMessage message) {
+	protected void deactivate(DeactivationMessage message) {
 		// deactivation is done on process level
+		this.replyCommit(message);
 	}
 
 	@Override
-	public void trigger(TriggerMessage message) {
+	protected void trigger(TriggerMessage message) {
 		LOG.warn(
 				"WARNING %s sent to throwing node. By definition this is not allowed to happen and is most likely an error",
 				message);
+		this.replyCommit(message);
 	}
 
 	/**
@@ -121,7 +123,7 @@ public class MessageEventDefinition_Throw implements EventDefinition {
 	 * @param messageIntegration
 	 *            the jaxb message integration
 	 */
-	public final void registerMessageEventDefinition_throw(
+	private final void registerMessageEventDefinition_throw(
 			TMessageIntegration messageIntegration) {
 		// start the message integration implementation for this flow node (like
 		// routes etc.)

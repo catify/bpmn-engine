@@ -36,7 +36,7 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  * the node gets a trigger message its trigger method saves the payload to the
  * object defined in the process.xml. For instantiation of this node see {@link NodeFactory}.
  */
-public class MessageEventDefinition_Catch implements EventDefinition {
+public class MessageEventDefinition_Catch extends EventDefinition {
 	
 	static final Logger LOG = LoggerFactory
 			.getLogger(MessageEventDefinition_Catch.class);
@@ -74,18 +74,18 @@ public class MessageEventDefinition_Catch implements EventDefinition {
 	}
 
 	@Override
-	public void acitivate(ActivationMessage message) {
+	protected void activate(ActivationMessage message) {
 		// activation has already been done at process level (in the
 		// constructor)
 	}
 
 	@Override
-	public void deactivate(DeactivationMessage message) {
+	protected void deactivate(DeactivationMessage message) {
 		// deactivation is done on process level
 	}
 
 	@Override
-	public void trigger(TriggerMessage message) {
+	protected void trigger(TriggerMessage message) {
 		// messages are dispatched by MessageDispatcherService (so there is nothing to do)
 	}
 
@@ -95,7 +95,7 @@ public class MessageEventDefinition_Catch implements EventDefinition {
 	 * @param messageIntegration
 	 *            the jaxb message integration
 	 */
-	public final void registerMessageEventDefinition_catch(
+	private final void registerMessageEventDefinition_catch(
 			TMessageIntegration messageIntegration) {
 		// start the message integration implementation for this flow node (like
 		// routes etc.)

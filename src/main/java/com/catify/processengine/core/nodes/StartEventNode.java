@@ -33,7 +33,7 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinition;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.services.ProcessInstanceMediatorService;
 
@@ -77,7 +77,7 @@ public class StartEventNode extends CatchEvent {
 	 *            the process id
 	 * @param uniqueFlowNodeId
 	 *            the unique flow node id
-	 * @param eventDefinition
+	 * @param eventDefinitionParameter
 	 *            the event definition
 	 * @param outgoingNodes
 	 *            the outgoing nodes
@@ -87,12 +87,12 @@ public class StartEventNode extends CatchEvent {
 	 *            the node instance service
 	 */
 	public StartEventNode(String uniqueProcessId, String uniqueFlowNodeId,
-			EventDefinition eventDefinition, List<ActorRef> outgoingNodes,
+			EventDefinitionParameter eventDefinitionParameter, List<ActorRef> outgoingNodes,
 			List<ActorRef> otherStartNodes, String parentsUniqueFlowNodeId,
 			DataObjectService dataObjectHandling) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinition(eventDefinition);
+		this.setEventDefinitionParameter(eventDefinitionParameter);
 		this.setOutgoingNodes(outgoingNodes);
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
@@ -100,6 +100,8 @@ public class StartEventNode extends CatchEvent {
 		this.setParentsUniqueFlowNodeId(parentsUniqueFlowNodeId);
 		this.setDataObjectHandling(dataObjectHandling);
 	}
+	
+	
 
 	@Override
 	protected void activate(ActivationMessage message) {
@@ -110,12 +112,12 @@ public class StartEventNode extends CatchEvent {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		eventDefinition.acitivate(message);
+		this.createAndCallEventDefinitionActor(message);
 	}
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		eventDefinition.deactivate(message);
+		this.createAndCallEventDefinitionActor(message);
 
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -161,7 +163,7 @@ public class StartEventNode extends CatchEvent {
 		this.getDataObjectService().saveObject(this.getUniqueProcessId(),
 				processInstanceId, message.getPayload());
 
-		eventDefinition.trigger(message);
+		this.createAndCallEventDefinitionActor(message);
 
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(processInstanceId, new Date());
 		
