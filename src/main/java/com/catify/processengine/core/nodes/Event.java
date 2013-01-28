@@ -21,13 +21,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import scala.concurrent.Await;
+import scala.concurrent.duration.Duration;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
-import akka.dispatch.Await;
 import akka.pattern.Patterns;
-import akka.util.Duration;
 import akka.util.Timeout;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectService;

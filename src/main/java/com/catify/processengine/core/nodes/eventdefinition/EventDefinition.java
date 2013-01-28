@@ -25,9 +25,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 
+import scala.concurrent.duration.Duration;
+
 import akka.actor.ActorSystem;
 import akka.actor.UntypedActor;
-import akka.util.Duration;
 import akka.util.Timeout;
 
 import com.catify.processengine.core.messages.ActivationMessage;

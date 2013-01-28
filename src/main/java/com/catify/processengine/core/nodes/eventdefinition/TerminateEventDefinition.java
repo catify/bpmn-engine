@@ -23,12 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import scala.concurrent.Await;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
+
 import akka.actor.ActorRef;
-import akka.dispatch.Await;
-import akka.dispatch.ExecutionContext;
-import akka.dispatch.Future;
 import akka.pattern.Patterns;
-import akka.util.Duration;
 import akka.util.Timeout;
 
 import com.catify.processengine.core.messages.ActivationMessage;
