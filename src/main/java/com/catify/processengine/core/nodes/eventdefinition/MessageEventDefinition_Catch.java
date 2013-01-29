@@ -22,13 +22,13 @@ import org.slf4j.LoggerFactory;
 
 import com.catify.processengine.core.integration.MessageIntegrationSPI;
 import com.catify.processengine.core.messages.ActivationMessage;
+import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.NodeFactory;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.services.MessageDispatcherService;
 
-// TODO: Auto-generated Javadoc
 /**
  * Each (akka) node that has a catching message event definition instantiates
  * and binds an object of the MessageEventDefinition_Catch class. This class
@@ -74,19 +74,22 @@ public class MessageEventDefinition_Catch extends EventDefinition {
 	}
 
 	@Override
-	protected void activate(ActivationMessage message) {
+	protected CommitMessage<?> activate(ActivationMessage message) {
 		// activation has already been done at process level (in the
 		// constructor)
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
 	@Override
-	protected void deactivate(DeactivationMessage message) {
+	protected CommitMessage<?> deactivate(DeactivationMessage message) {
 		// deactivation is done on process level
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
 	@Override
-	protected void trigger(TriggerMessage message) {
+	protected CommitMessage<?> trigger(TriggerMessage message) {
 		// messages are dispatched by MessageDispatcherService (so there is nothing to do)
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
 	/**

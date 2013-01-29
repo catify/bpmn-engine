@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.catify.processengine.core.messages.ActivationMessage;
+import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 
@@ -40,9 +41,10 @@ public class EmptyEventDefinition extends EventDefinition {
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#acitivate(com.catify.processengine.core.messages.ActivationMessage)
 	 */
 	@Override
-	protected void activate(ActivationMessage message) {
+	protected CommitMessage<?> activate(ActivationMessage message) {
 		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
 				.getClass().getSimpleName()));
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
 
@@ -51,18 +53,20 @@ public class EmptyEventDefinition extends EventDefinition {
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#deactivate(com.catify.processengine.core.messages.DeactivationMessage)
 	 */
 	@Override
-	protected void deactivate(DeactivationMessage message) {
+	protected CommitMessage<?> deactivate(DeactivationMessage message) {
 		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
 				.getClass().getSimpleName()));
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
 	/* (non-Javadoc)
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#trigger(com.catify.processengine.core.messages.TriggerMessage)
 	 */
 	@Override
-	protected void trigger(TriggerMessage message) {
+	protected CommitMessage<?> trigger(TriggerMessage message) {
 		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
 				.getClass().getSimpleName()));
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
 }

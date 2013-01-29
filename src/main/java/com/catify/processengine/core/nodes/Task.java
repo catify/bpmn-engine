@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
-
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;

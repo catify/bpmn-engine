@@ -18,6 +18,7 @@
 package com.catify.processengine.core.nodes.eventdefinition;
 
 import com.catify.processengine.core.messages.ActivationMessage;
+import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 
@@ -27,22 +28,25 @@ public class SignalEventDefinition_Throw extends EventDefinition {
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#acitivate(com.catify.processengine.core.messages.ActivationMessage)
 	 */
 	@Override
-	protected void activate(ActivationMessage message) {
+	protected CommitMessage<?> activate(ActivationMessage message) {
 		// TODO Auto-generated method stub
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 	/* (non-Javadoc)
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#deactivate(com.catify.processengine.core.messages.DeactivationMessage)
 	 */
 	@Override
-	protected void deactivate(DeactivationMessage message) {
+	protected CommitMessage<?> deactivate(DeactivationMessage message) {
 		// TODO Auto-generated method stub
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 	/* (non-Javadoc)
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#trigger(com.catify.processengine.core.messages.TriggerMessage)
 	 */
 	@Override
-	protected void trigger(TriggerMessage message) {
+	protected CommitMessage<?> trigger(TriggerMessage message) {
 		// TODO Auto-generated method stub
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 	
 

@@ -95,14 +95,14 @@ public abstract class FlowElement extends UntypedActor {
 			} else if (message instanceof DeactivationMessage) {
 				deactivate((DeactivationMessage) message);
 				// commit message after deactivation
-				this.getSender().tell(message, this.getSelf());
+				new NodeUtils().replySuccessfulCommit(((DeactivationMessage) message).getProcessInstanceId(), this.getSelf(), this.getSender());
 			} else {
 				unhandled(message);
 			}
 		} else {
 			if (message instanceof DeactivationMessage) {
 				// commit message for already passed nodes (which do not need deactivation)
-				this.getSender().tell(message, this.getSelf());
+				new NodeUtils().replySuccessfulCommit(((DeactivationMessage) message).getProcessInstanceId(), this.getSelf(), this.getSender());
 			}
 		}
 	}
@@ -115,7 +115,7 @@ public abstract class FlowElement extends UntypedActor {
 	protected abstract void activate(ActivationMessage message) ;
 
 	/**
-	 * Implements reaction to a {@link DeactivationMessage}.
+	 * Implements reaction to a {@link DeactivationMessage}. Note: After the deactivtion message has been processed the Node will emit a commit message to the sender of that message.
 	 *
 	 * @param message the message
 	 */

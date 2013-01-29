@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.catify.processengine.core.integration.IntegrationMessage;
 import com.catify.processengine.core.integration.MessageIntegrationSPI;
 import com.catify.processengine.core.messages.ActivationMessage;
+import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.NodeFactory;
@@ -83,7 +84,7 @@ public class MessageEventDefinition_Throw extends EventDefinition {
 	}
 
 	@Override
-	protected void activate(ActivationMessage message) {
+	protected CommitMessage<?> activate(ActivationMessage message) {
 
 		// get the data from the data store that is associated with this node
 		Object data;
@@ -101,20 +102,22 @@ public class MessageEventDefinition_Throw extends EventDefinition {
 		// dispatch that message via the integration spi
 		messageDispatcherService.dispatchViaIntegrationSPI(
 				this.uniqueFlowNodeId, integrationMessage);
+		
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
 	@Override
-	protected void deactivate(DeactivationMessage message) {
+	protected CommitMessage<?> deactivate(DeactivationMessage message) {
 		// deactivation is done on process level
-		this.replyCommit(message);
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
 	@Override
-	protected void trigger(TriggerMessage message) {
+	protected CommitMessage<?> trigger(TriggerMessage message) {
 		LOG.warn(
 				"WARNING %s sent to throwing node. By definition this is not allowed to happen and is most likely an error",
 				message);
-		this.replyCommit(message);
+		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
 	/**

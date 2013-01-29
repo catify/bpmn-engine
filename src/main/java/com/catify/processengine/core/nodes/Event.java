@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import scala.concurrent.Await;
+import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
-
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -64,15 +64,17 @@ public abstract class Event extends FlowElement {
 	 */
 	protected void createAndCallEventDefinitionActor(Message message) {
 		
-		ActorRef eventDefinitionActor = createEventDefinitionActor(message);
+		final ActorRef eventDefinitionActor = createEventDefinitionActor(message);
+		final Timeout eventDefinitionTimeout = new Timeout(Duration.create(timeoutInSeconds, "seconds"));
 		
-		Timeout eventDefinitionTimeout = new Timeout(Duration.create(timeoutInSeconds, "seconds"));
-		
+		// create an akka future which holds the commit message (if any) of the eventDefinitionActor
+		Future<Object> future = Patterns.ask(eventDefinitionActor, message, eventDefinitionTimeout);
+
 		try {
 			// make a synchronous ('Await.result') request ('Patterns.ask') to the event definition actor 
-			Await.result(Patterns.ask(eventDefinitionActor, message, eventDefinitionTimeout), eventDefinitionTimeout.duration());
+			Await.result(future, eventDefinitionTimeout.duration());
 		} catch (java.util.concurrent.TimeoutException timeout) {
-			LOG.error(String.format("Timeout while processing %s at EventDefintition:%s. Timeout was set to %s", 
+			LOG.error(String.format("Unhandled timeout while processing %s at EventDefintition:%s. Timeout was set to %s", 
 					message.getClass().getSimpleName(), eventDefinitionActor, eventDefinitionTimeout.duration()));
 		} catch (Exception e) {
 			e.printStackTrace();
