@@ -170,8 +170,7 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 
 	@Override
 	protected void trigger(TriggerMessage message) {
-		// TODO Auto-generated method stub
-
+		LOG.warn(String.format("Reaction to %s not implemented in %s. Please check your process.", message.getClass().getSimpleName(), this.getSelf()));
 	}
 
 	@Override
