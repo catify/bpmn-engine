@@ -32,7 +32,8 @@ import com.catify.processengine.core.messages.MetaDataMessage;
  * The MetaDataService asynchronously writes the meta data collected in the
  * {@link MessageIntegrationSPI} implementation.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 @Configurable
 public class MetaDataService extends UntypedActor {

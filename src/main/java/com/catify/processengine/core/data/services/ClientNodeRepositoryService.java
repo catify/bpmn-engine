@@ -26,8 +26,9 @@ import com.catify.processengine.core.data.model.entities.ClientNode;
 
 /**
  * The Interface ClientNodeRepositoryService.
- *
- * @author chris
+ * 
+ * @author christopher köster
+ * 
  */
 @Component
 public interface ClientNodeRepositoryService {

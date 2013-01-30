@@ -28,8 +28,9 @@ import com.catify.processengine.core.data.model.entities.ClientNode;
  * The Spring Data neo4j managed interface ClientNodeRepository provides 
  * convenient methods for accessing {@link ClientNode}s in the database. 
  * For implementation details please see {@link GraphRepository}.
- *
- * @author chris
+ * 
+ * @author christopher köster
+ * 
  */
 public interface ClientNodeRepository extends GraphRepository<ClientNode> {
 

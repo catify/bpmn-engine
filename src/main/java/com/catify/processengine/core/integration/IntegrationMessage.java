@@ -19,6 +19,12 @@ package com.catify.processengine.core.integration;
 
 import com.catify.processengine.core.messages.Message;
 
+/**
+ * The IntegrationMessage that is used by the integration spi.
+ * 
+ * @author christopher köster
+ * 
+ */
 public class IntegrationMessage  extends Message {
 
 	private static final long serialVersionUID = 1L;

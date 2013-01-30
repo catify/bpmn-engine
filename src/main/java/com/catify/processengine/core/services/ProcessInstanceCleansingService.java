@@ -34,7 +34,8 @@ import com.catify.processengine.core.messages.DeletionMessage;
 /**
  * The ProcessInstanceCleansingService either deletes or archives a process instance asynchronously.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 @Configurable
 public class ProcessInstanceCleansingService extends UntypedActor {

@@ -22,7 +22,7 @@ package com.catify.processengine.core.messages;
  * message to the catch event that triggered and arrived first at the event
  * based gateway.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public class WinningMessage extends Message {

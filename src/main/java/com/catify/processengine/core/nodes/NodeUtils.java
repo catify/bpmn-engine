@@ -42,6 +42,13 @@ import akka.util.Timeout;
 import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 
+/**
+ * Util class for common operations like sending deactivation messages to other nodes
+ * or to create commit messages used between Event and EvenDefinition.
+ * 
+ * @author christopher köster
+ * 
+ */
 @Configurable
 public class NodeUtils {
 	

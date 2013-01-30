@@ -29,6 +29,7 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.messages.WinningMessage;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
@@ -41,7 +42,7 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * If a catch event receives a fire message it and waits for the go from the
  * event based gateway until they proceed in the process.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public class EbgConnectedCatchEventNode extends CatchEvent {
@@ -73,6 +74,10 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
+		
+		// create EventDefinition actor
+		this.eventDefinitionActor = EventDefinitionHandling
+				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
 	}
 
 	/**
@@ -108,12 +113,12 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.createAndCallEventDefinitionActor(message);
+		this.callEventDefinitionActor(message);
 	}
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		this.createAndCallEventDefinitionActor(message);
+		this.callEventDefinitionActor(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -133,7 +138,7 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 	protected void trigger(TriggerMessage message) {
 		this.getDataObjectService().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
 		
-		this.createAndCallEventDefinitionActor(message);
+		this.callEventDefinitionActor(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		

@@ -35,6 +35,9 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  * implements the messaging part of the catching message event node. Each time
  * the node gets a trigger message its trigger method saves the payload to the
  * object defined in the process.xml. For instantiation of this node see {@link NodeFactory}.
+ * 
+ * @author christopher köster
+ * 
  */
 public class MessageEventDefinition_Catch extends EventDefinition {
 	

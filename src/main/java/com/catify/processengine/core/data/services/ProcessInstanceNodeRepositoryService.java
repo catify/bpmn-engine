@@ -27,8 +27,9 @@ import com.catify.processengine.core.data.model.entities.ProcessInstanceNode;
 /**
  * The ProcessInstanceNodeRepositoryService wraps methods of the ProcessInstanceNodeRepository and
  * provides additional methods that hide implementation details.
- *
- * @author chris
+ * 
+ * @author christopher köster
+ * 
  */
 @Component
 public interface ProcessInstanceNodeRepositoryService {

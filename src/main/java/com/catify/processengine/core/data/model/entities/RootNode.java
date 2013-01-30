@@ -33,8 +33,8 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
  * The root node is the master node of the graph database. 
  * It has no incoming connections but it has outgoing connections to all {@link ClientNodes}.
  * 
- * @author chris
- *
+ * @author christopher köster
+ * 
  */
 @NodeEntity
 public class RootNode {

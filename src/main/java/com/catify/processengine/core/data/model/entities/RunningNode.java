@@ -29,6 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class RunningNode.
+ * 
+ * @author christopher köster
+ * 
  */
 @NodeEntity
 public class RunningNode {

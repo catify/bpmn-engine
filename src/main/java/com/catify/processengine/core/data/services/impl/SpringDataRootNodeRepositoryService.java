@@ -31,11 +31,11 @@ import com.catify.processengine.core.data.services.RootNodeRepositoryService;
  * The RootNodeRepositoryServiceImpl implements the {@link RootNodeRepositoryService}.
  * It therefore uses methods from the Spring Data managed {@link RootNodeRepository}.
  * 
- * @author chris
- *
+ * @author christopher köster
+ * 
  */
 @Component
-public class RootNodeRepositoryServiceImpl implements RootNodeRepositoryService {
+public class SpringDataRootNodeRepositoryService implements RootNodeRepositoryService {
 
 	/** The root node repository. */
 	@Autowired

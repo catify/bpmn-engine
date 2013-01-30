@@ -24,6 +24,12 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The ProcessImportService provides an api to import bpmn process files.
+ * 
+ * @author christopher köster
+ * 
+ */
 public class ProcessImportService {
 
 	static final Logger LOG = LoggerFactory.getLogger(ProcessImportService.class);

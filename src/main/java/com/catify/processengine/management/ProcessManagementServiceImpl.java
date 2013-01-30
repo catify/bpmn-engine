@@ -35,6 +35,12 @@ import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.services.ActorReferenceService;
 
+/**
+ * Implementation of the ProcessManagementService.
+ * 
+ * @author christopher köster
+ * 
+ */
 @Configurable
 public class ProcessManagementServiceImpl implements ProcessManagementService {
 

@@ -49,8 +49,9 @@ import com.catify.processengine.core.services.ActorReferenceService;
 
 /**
  * A factory for creating EventDefinition objects.
- *
- * @author chris
+ * 
+ * @author christopher köster
+ * 
  */
 @Configurable
 public class EventDefinitionFactory {
@@ -63,7 +64,7 @@ public class EventDefinitionFactory {
 	}
 	
 	public EventDefinition getEventDefinition(EventDefinitionParameter eventDefinitionParameter) {
-//		// get the event definition (if any)
+		// get the event definition (if any)
 		TEventDefinition eventDefinitionJaxb = getTEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb,
 				eventDefinitionParameter.subProcessesJaxb, eventDefinitionParameter.flowNodeJaxb);
 	

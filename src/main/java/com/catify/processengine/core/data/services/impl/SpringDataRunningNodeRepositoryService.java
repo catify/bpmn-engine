@@ -28,9 +28,11 @@ import com.catify.processengine.core.data.services.RunningNodeRepositoryService;
  * The RunningNodeRepositoryServiceImpl implements the {@link RunningNodeRepositoryService}.
  * It therefore uses methods from the Spring Data managed {@link RunningNodeRepository}.
  * 
+ * @author christopher köster
+ * 
  */
 @Component
-public class RunningNodeRepositoryServiceImpl implements RunningNodeRepositoryService {
+public class SpringDataRunningNodeRepositoryService implements RunningNodeRepositoryService {
 
 	/** The running node repository. */
 	@Autowired

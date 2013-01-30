@@ -6,7 +6,7 @@ package com.catify.processengine.core.data.dataobjects;
  * implementation.
  * 
  * @author claus straube
- *
+ * 
  */
 public class TimerBean {
 

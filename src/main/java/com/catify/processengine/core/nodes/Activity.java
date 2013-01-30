@@ -17,6 +17,12 @@
  */
 package com.catify.processengine.core.nodes;
 
+/**
+ * The abstract class Activity is a base class for all bpmn activities.
+ * 
+ * @author christopher köster
+ * 
+ */
 public abstract class Activity extends FlowElement {
 	
 }

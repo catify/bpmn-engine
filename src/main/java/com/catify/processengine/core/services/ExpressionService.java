@@ -23,7 +23,7 @@ import com.catify.processengine.core.data.dataobjects.DataObjectService;
  * 
  * 
  * @author claus straube
- *
+ * 
  */
 public class ExpressionService {
 

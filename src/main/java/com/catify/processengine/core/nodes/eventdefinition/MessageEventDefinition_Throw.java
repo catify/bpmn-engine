@@ -39,6 +39,9 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  * dispatches a message via a message integration SPI implementation. The
  * message can have a payload object, which is defined in the process.xml and
  * loaded from the data store. For instantiation of this node see {@link NodeFactory}.
+ * 
+ * @author christopher köster
+ * 
  */
 public class MessageEventDefinition_Throw extends EventDefinition {
 

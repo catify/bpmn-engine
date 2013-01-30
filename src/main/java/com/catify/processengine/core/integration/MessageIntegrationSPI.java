@@ -34,6 +34,9 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  * engine. The message integration is an extension to the bpmn specification to
  * ease the integration of catching and throwing nodes to the application
  * landscape.
+ * 
+ * @author christopher köster
+ * 
  */
 public abstract class MessageIntegrationSPI {
 	

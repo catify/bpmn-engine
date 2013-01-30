@@ -37,7 +37,7 @@ import com.catify.processengine.core.data.services.FlowNodeInstanceRepositorySer
  * been assigned to it at process start. For process wide access responsibility
  * use {@link ProcessInstanceMediatorService}.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable

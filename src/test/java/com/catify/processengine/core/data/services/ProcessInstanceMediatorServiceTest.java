@@ -52,7 +52,7 @@ import com.catify.processengine.core.services.ProcessInstanceMediatorService;
 public class ProcessInstanceMediatorServiceTest {
 	
 	@Mock
-	private ProcessRepositoryService processRepositoryService;
+	private ProcessNodeRepositoryService processRepositoryService;
 	
 	@Mock 
 	private ProcessInstanceNodeRepositoryService processInstanceNodeRepositoryService;

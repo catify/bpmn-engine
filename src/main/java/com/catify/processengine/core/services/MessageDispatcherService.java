@@ -40,6 +40,9 @@ import com.catify.processengine.core.nodes.eventdefinition.EventDefinition;
 /**
  * The MessageDispatcherService dispatches messages between the nodes of the
  * process engine and the {@link MessageIntegrationSPI} implementation.
+ * 
+ * @author christopher köster
+ * 
  */
 @Configurable
 public class MessageDispatcherService {

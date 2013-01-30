@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 
 import scala.concurrent.Future;
-
 import akka.actor.ActorSystem;
 import akka.actor.UntypedActor;
 
@@ -43,7 +42,7 @@ import com.catify.processengine.core.nodes.NodeUtils;
  * can be plugged without altering any code in the encapsulating events. See GoF
  * 'strategy pattern'. <br>
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable

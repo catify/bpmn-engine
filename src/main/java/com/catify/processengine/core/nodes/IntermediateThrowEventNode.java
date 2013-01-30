@@ -27,6 +27,7 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
@@ -34,7 +35,7 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * An intermediate throw event can send (and load) messages outside of the
  * process engine.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public class IntermediateThrowEventNode extends ThrowEvent {
@@ -66,13 +67,17 @@ public class IntermediateThrowEventNode extends ThrowEvent {
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
+		
+		// create EventDefinition actor
+		this.eventDefinitionActor = EventDefinitionHandling
+				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
 	}
 
 	@Override
 	protected void activate(ActivationMessage message) {
 		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
-		this.createAndCallEventDefinitionActor(message);
+		this.callEventDefinitionActor(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
@@ -91,7 +96,7 @@ public class IntermediateThrowEventNode extends ThrowEvent {
 	protected void deactivate(DeactivationMessage message) {
 		String processInstanceId = message.getProcessInstanceId();
 		
-		this.createAndCallEventDefinitionActor(message);
+		this.callEventDefinitionActor(message);
 
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(processInstanceId, new Date());
 		

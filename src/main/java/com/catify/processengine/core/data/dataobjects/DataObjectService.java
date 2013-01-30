@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
  * that needs to access such an object needs to bind an object of this class.
  * The actual implementation of the data access is provided via the {@link DataObjectSPI}.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable

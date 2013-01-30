@@ -33,6 +33,7 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.services.ProcessInstanceMediatorService;
@@ -50,7 +51,7 @@ import com.catify.processengine.core.services.ProcessInstanceMediatorService;
  * Activation messages should therefore be only send to already instantiated
  * start nodes (eg. to trigger underlying event definitions).
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable
@@ -99,6 +100,10 @@ public class StartEventNode extends CatchEvent {
 		this.setOtherStartNodes(otherStartNodes);
 		this.setParentsUniqueFlowNodeId(parentsUniqueFlowNodeId);
 		this.setDataObjectHandling(dataObjectHandling);
+		
+		// create EventDefinition actor
+		this.eventDefinitionActor = EventDefinitionHandling
+				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
 	}
 	
 	
@@ -112,12 +117,12 @@ public class StartEventNode extends CatchEvent {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.createAndCallEventDefinitionActor(message);
+		this.callEventDefinitionActor(message);
 	}
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		this.createAndCallEventDefinitionActor(message);
+		this.callEventDefinitionActor(message);
 
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -163,7 +168,7 @@ public class StartEventNode extends CatchEvent {
 		this.getDataObjectService().saveObject(this.getUniqueProcessId(),
 				processInstanceId, message.getPayload());
 
-		this.createAndCallEventDefinitionActor(message);
+		this.callEventDefinitionActor(message);
 
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(processInstanceId, new Date());
 		

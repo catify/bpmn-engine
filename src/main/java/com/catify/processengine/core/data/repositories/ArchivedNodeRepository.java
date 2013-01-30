@@ -25,6 +25,9 @@ import com.catify.processengine.core.data.model.entities.ArchiveNode;
  * The Spring Data neo4j managed interface ArchivedNodeRepository provides 
  * convenient methods for accessing {@link ArchiveNode}s in the database. 
  * For implementation details please see {@link GraphRepository}.
+ * 
+ * @author christopher köster
+ * 
  */
 public interface ArchivedNodeRepository extends GraphRepository<ArchiveNode> {
 

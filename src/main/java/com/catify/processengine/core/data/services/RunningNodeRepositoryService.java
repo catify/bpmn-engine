@@ -22,6 +22,12 @@ import org.springframework.stereotype.Component;
 import com.catify.processengine.core.data.model.entities.FlowNode;
 import com.catify.processengine.core.data.model.entities.RunningNode;
 
+/**
+ * The Interface RunningNodeRepositoryService.
+ * 
+ * @author christopher köster
+ * 
+ */
 @Component
 public interface RunningNodeRepositoryService {
 

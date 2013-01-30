@@ -28,6 +28,14 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
+/**
+ * The SubProcessNode can embed other FlowElements. To implement this it triggers the embedded start event.
+ * When the embedded end event is reached it will trigger this sub process. After that the sub process continues 
+ * like a usual node.
+ * 
+ * @author christopher köster
+ * 
+ */
 public class SubProcessNode extends FlowElement {
 	
 	private List<ActorRef> embeddedStartNodes;

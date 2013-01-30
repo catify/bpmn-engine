@@ -48,7 +48,7 @@ import com.catify.processengine.core.data.model.entities.RunningNode;
 import com.catify.processengine.core.data.services.ArchivedNodeRepositoryService;
 import com.catify.processengine.core.data.services.ClientNodeRepositoryService;
 import com.catify.processengine.core.data.services.FlowNodeRepositoryService;
-import com.catify.processengine.core.data.services.ProcessRepositoryService;
+import com.catify.processengine.core.data.services.ProcessNodeRepositoryService;
 import com.catify.processengine.core.data.services.RootNodeRepositoryService;
 import com.catify.processengine.core.data.services.RunningNodeRepositoryService;
 import com.catify.processengine.core.data.services.impl.IdService;
@@ -68,7 +68,7 @@ import com.catify.processengine.core.services.ActorReferenceService;
  * {@link ProcessInstanceNode} and {@link FlowNode}) in the database via the repository services. <p>
  * The service node actor implementation is handled by the {@link NodeFactory}.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable
@@ -95,7 +95,7 @@ public class EntityInitialization {
 
 	/** The process repository service. */
 	@Autowired
-	private ProcessRepositoryService processRepositoryService;
+	private ProcessNodeRepositoryService processRepositoryService;
 
 	/** The flow node repository service. */
 	@Autowired

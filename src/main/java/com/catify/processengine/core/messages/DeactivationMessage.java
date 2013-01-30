@@ -21,7 +21,7 @@ package com.catify.processengine.core.messages;
  * The deactivation message stops a process instance on a given node and
  * triggers further actions based on the implemented message reaction.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public class DeactivationMessage extends Message {

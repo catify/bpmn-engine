@@ -31,7 +31,7 @@ import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
  * has been enhanced with custom Cypher queries.
  * For implementation details please see {@link GraphRepository}.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 // * The speed of the queries needs to be tested under high load (see redmine #66).

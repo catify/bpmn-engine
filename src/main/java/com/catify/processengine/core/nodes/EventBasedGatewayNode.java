@@ -40,7 +40,7 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * special parameter, so that they wait for the go from the event based gateway
  * until they proceed in the process.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public class EventBasedGatewayNode extends FlowElement {

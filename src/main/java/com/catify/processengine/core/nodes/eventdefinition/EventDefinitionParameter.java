@@ -6,6 +6,12 @@ import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 
+/**
+ * Parameter class for creating EventDefinitions.
+ * 
+ * @author christopher köster
+ * 
+ */
 public class EventDefinitionParameter {
 	public String clientId;
 	public TProcess processJaxb;

@@ -26,6 +26,9 @@ import org.springframework.data.neo4j.annotation.StartNode;
  * The Class ConnectedTo is a Spring Data neo4j RelationshipEntity. It is used
  * to connect the flow node instances as they are connected in the bpmn process
  * definition. Its bpmn equivalent is the sequence flow.
+ * 
+ * @author christopher köster
+ * 
  */
 @RelationshipEntity(type = "CONNECTED_TO")
 public class ConnectedTo {

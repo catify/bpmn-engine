@@ -28,6 +28,9 @@ import com.catify.processengine.core.data.model.entities.FlowNode;
  * convenient methods for accessing {@link FlowNode}s in the database and has
  * been enhanced with custom Cypher queries. For implementation details please
  * see {@link GraphRepository}.
+ * 
+ * @author christopher köster
+ * 
  */
 public interface FlowNodeRepository extends GraphRepository<FlowNode>,
 		IndexRepository<FlowNode> {

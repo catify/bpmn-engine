@@ -20,7 +20,7 @@ package com.catify.processengine.core.nodes;
 /**
  * Abstract class for all catching events.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public abstract class CatchEvent extends Event {

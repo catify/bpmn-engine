@@ -33,7 +33,7 @@ import com.catify.processengine.core.processdefinition.jaxb.TRootElement;
  * Delegates the initialization of the node instance services and their data
  * beans defined in a given process.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable

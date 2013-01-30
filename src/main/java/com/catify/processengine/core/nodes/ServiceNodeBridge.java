@@ -19,6 +19,9 @@ import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
  * A bridge to the NodeFactory. The bridge implements the UntypedActorFactory to be able to pass (non-final) parameters to it.
  * The create()-method of the UntypedActorFactory then calls the NodeFactory.createServiceNode(..) method to create the
  * correct Actor.
+ * 
+ * @author christopher köster
+ * 
  */
 @Configurable
 public class ServiceNodeBridge implements UntypedActorFactory {

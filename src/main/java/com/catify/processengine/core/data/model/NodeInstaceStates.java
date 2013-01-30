@@ -19,6 +19,9 @@ package com.catify.processengine.core.data.model;
 
 /**
  * The Class NodeInstaceStates is a utility class which holds the known node instance states.
+ * 
+ * @author christopher köster
+ * 
  */
 public class NodeInstaceStates {
 

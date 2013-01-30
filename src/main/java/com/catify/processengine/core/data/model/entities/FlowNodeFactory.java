@@ -28,6 +28,9 @@ import com.catify.processengine.core.processdefinition.jaxb.services.ExtensionSe
 
 /**
  * A factory for creating FlowNode objects.
+ * 
+ * @author christopher köster
+ * 
  */
 public class FlowNodeFactory {
 	

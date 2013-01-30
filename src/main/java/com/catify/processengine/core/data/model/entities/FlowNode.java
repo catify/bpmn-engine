@@ -40,7 +40,8 @@ import org.springframework.transaction.annotation.Transactional;
  * <br><br>
  * Level 2 of the database process representation.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 @NodeEntity
 public class FlowNode {

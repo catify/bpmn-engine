@@ -30,6 +30,14 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.NodeUtils;
 
+/**
+ * The TerminateEventDefinition end a  whole process instance (including all top level
+ * and sub process flow node instances) by sending deactivation messages to them. It then
+ * waits a configurable amount of time for the nodes to commit their deactivation.
+ * 
+ * @author christopher köster
+ * 
+ */
 public class TerminateEventDefinition extends EventDefinition {
 
 	private String uniqueProcessId;
