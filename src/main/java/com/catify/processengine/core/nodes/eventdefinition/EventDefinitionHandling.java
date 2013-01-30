@@ -21,19 +21,21 @@ public class EventDefinitionHandling {
 
 	static final Logger LOG = LoggerFactory.getLogger(EventDefinitionHandling.class);
 
+	private EventDefinitionHandling() {
+	}
+	
 	/**
-	 * Creates an EventDefinition actor and <b>synchronously</b> calls its method associated to the given message type.
-	 * After processing the message the created EventDefinition actor is stopped.
+	 * <b>Synchronously</b> calls an EventDefinition actor via sending a message to it and awaiting a result.
+	 * Note: This is a blocking operation!
 	 *
+	 * @param eventDefinitionActor the event definition actor
 	 * @param uniqueFlowNodeId the unique flow node id
 	 * @param message the message
 	 * @param timeoutInSeconds the timeout in seconds
-	 * @param context the akka actor context (of the calling actor)
 	 * @param eventDefinitionParameter the event definition parameter to instantiate the EventDefinition actor
 	 */
-	public void createAndCallEventDefinitionActor(String uniqueFlowNodeId, Message message, long timeoutInSeconds, UntypedActorContext context, EventDefinitionParameter eventDefinitionParameter) {
+	public static void callEventDefinitionActor(ActorRef eventDefinitionActor, String uniqueFlowNodeId, Message message, long timeoutInSeconds, EventDefinitionParameter eventDefinitionParameter) {
 		
-		final ActorRef eventDefinitionActor = createEventDefinitionActor(uniqueFlowNodeId, message, context, eventDefinitionParameter);
 		final Timeout eventDefinitionTimeout = new Timeout(Duration.create(timeoutInSeconds, "seconds"));
 		
 		// create an akka future which holds the commit message (if any) of the eventDefinitionActor
@@ -48,26 +50,25 @@ public class EventDefinitionHandling {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		// stop the event definition actor after processing message
-		context.stop(eventDefinitionActor);
 	}
 	
 	/**
-	 * Creates the event definition actor from the eventDefinitionParameter field 
-	 * and the process instance id of the message received.
+	 * Creates the event definition actor from the eventDefinitionParameter as a child node to the given actor context.
 	 *
+	 * @param uniqueFlowNodeId the unique flow node id
 	 * @param message the message
-	 * @return the actor ref
+	 * @param context the context
+	 * @param eventDefinitionParameter the event definition parameter
+	 * @return the ActorRef of the EventDefinition
 	 */
-	private ActorRef createEventDefinitionActor(String uniqueFlowNodeId, Message message, UntypedActorContext context, final EventDefinitionParameter eventDefinitionParameter) {
+	public static ActorRef createEventDefinitionActor(String uniqueFlowNodeId, UntypedActorContext context, final EventDefinitionParameter eventDefinitionParameter) {
 		ActorRef eventDefinitionActor = context.actorOf(new Props(new UntypedActorFactory() {
 			private static final long serialVersionUID = 1L;
 
 			public UntypedActor create() {
 					return new EventDefinitionFactory().getEventDefinition(eventDefinitionParameter);
 				}
-		}), ActorReferenceService.getActorReferenceString(uniqueFlowNodeId+"-eventDefinition-"+message.getProcessInstanceId()));
+		}), ActorReferenceService.getActorReferenceString(uniqueFlowNodeId+"-eventDefinition-"));
 		return eventDefinitionActor;
 	}
 }

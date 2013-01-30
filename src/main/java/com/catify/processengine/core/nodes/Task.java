@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import akka.actor.ActorRef;
+
 import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
@@ -36,8 +38,6 @@ import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandli
 public abstract class Task extends Activity {
 	
 	static final Logger LOG = LoggerFactory.getLogger(Task.class);
-
-	protected EventDefinitionHandling data = new EventDefinitionHandling();
 	
 	/** The EventDefinition parameter object of which an EventDefinition actor can be instantiated. */
 	protected EventDefinitionParameter eventDefinitionParameter;
@@ -48,16 +48,20 @@ public abstract class Task extends Activity {
 	@Value("${core.eventDefinitionTimeout}")
 	protected long timeoutInSeconds;
 	
+	/** The event definition actor bound to this node. */
+	protected ActorRef eventDefinitionActor;
+	
 	/**
-	 * Creates an EventDefinition actor and <b>synchronously</b> calls its method associated to the given message type.
-	 * After processing the message the created EventDefinition actor is stopped.
+	 * <b>Synchronously</b> calls an EventDefinition actor via sending a message to it and awaiting a result.
+	 * Note: This is a blocking operation!
 	 *
 	 * @param message the message
 	 */
-	protected void createAndCallEventDefinitionActor(Message message) {
-		new EventDefinitionHandling().createAndCallEventDefinitionActor(
+	protected void callEventDefinitionActor(Message message) {
+		EventDefinitionHandling.callEventDefinitionActor(
+				this.eventDefinitionActor,
 				this.uniqueFlowNodeId, message, this.timeoutInSeconds,
-				this.getContext(), this.eventDefinitionParameter);
+				this.eventDefinitionParameter);
 	}
 	
 	public DataObjectService getDataObjectService() {

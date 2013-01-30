@@ -108,12 +108,12 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.createAndCallEventDefinitionActor(message);
+		this.callEventDefinitionActor(message);
 	}
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		this.createAndCallEventDefinitionActor(message);
+		this.callEventDefinitionActor(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -133,7 +133,7 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 	protected void trigger(TriggerMessage message) {
 		this.getDataObjectService().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
 		
-		this.createAndCallEventDefinitionActor(message);
+		this.callEventDefinitionActor(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		

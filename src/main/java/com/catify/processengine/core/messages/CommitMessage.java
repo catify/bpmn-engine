@@ -51,7 +51,7 @@ public class CommitMessage<T> extends Message {
 	 * @param sendingActorRef the sending actor ref
 	 */
 	public CommitMessage(Future<T> future, String processInstanceId, String selfActorRef, String sendingActorRef) {
-//		this.future = future;
+//		this.future = future; // FIXME: saving the futures throws java.io.NotSerializableException: scala.concurrent.impl.Promise$KeptPromise
 		this.processInstanceId = processInstanceId;
 		this.selfActorRef = selfActorRef;
 		this.sendingActorRef = sendingActorRef;
