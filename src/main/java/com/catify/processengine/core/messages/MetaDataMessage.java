@@ -28,7 +28,7 @@ import com.catify.processengine.core.integration.MessageIntegrationSPI;
  * The meta data message carries the meta data generated in the message
  * integration ({@link MessageIntegrationSPI}.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public class MetaDataMessage extends Message {

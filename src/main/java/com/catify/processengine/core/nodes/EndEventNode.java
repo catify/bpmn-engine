@@ -45,7 +45,7 @@ import com.catify.processengine.core.services.ProcessInstanceMediatorService;
  * left. Has no outgoing flows. There can be multiple end event nodes in a
  * single process.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable

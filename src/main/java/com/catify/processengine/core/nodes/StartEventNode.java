@@ -50,7 +50,7 @@ import com.catify.processengine.core.services.ProcessInstanceMediatorService;
  * Activation messages should therefore be only send to already instantiated
  * start nodes (eg. to trigger underlying event definitions).
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable

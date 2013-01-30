@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * Base class for akka message exchanges.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public abstract class Message implements Serializable {

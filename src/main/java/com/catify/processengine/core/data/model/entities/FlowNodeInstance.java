@@ -46,7 +46,8 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
  * <br><br>
  * Level 3 of the database process representation.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 @NodeEntity
 @Configurable

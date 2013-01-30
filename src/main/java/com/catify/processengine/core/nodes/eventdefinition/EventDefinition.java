@@ -42,7 +42,7 @@ import com.catify.processengine.core.nodes.NodeUtils;
  * can be plugged without altering any code in the encapsulating events. See GoF
  * 'strategy pattern'. <br>
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable

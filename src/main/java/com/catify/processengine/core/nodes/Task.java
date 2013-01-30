@@ -19,8 +19,10 @@ package com.catify.processengine.core.nodes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import scala.concurrent.Await;
+import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -36,17 +38,24 @@ import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParame
 import com.catify.processengine.core.services.ActorReferenceService;
 
 
+/**
+ * The Class Task.
+ * 
+ * @author christopher köster
+ * 
+ */
 public abstract class Task extends Activity {
 	
 	static final Logger LOG = LoggerFactory.getLogger(Task.class);
 
 	/** The EventDefinition parameter object of which an EventDefinition actor can be instantiated. */
 	protected EventDefinitionParameter eventDefinitionParameter;
-	
-	/** The default timeout for a synchronous call to an EventDefinition. */
-	protected Timeout eventDefinitionTimeout = new Timeout(Duration.create(60, "seconds"));
 
 	protected DataObjectService dataObjectHandling;
+	
+	/** The timeout in seconds. Note: This value is only available after construction is completed. */
+	@Value("${core.eventDefinitionTimeout}")
+	protected long timeoutInSeconds;
 	
 	/**
 	 * Creates an EventDefinition actor and <b>synchronously</b> calls its method associated to the given message type.
@@ -56,14 +65,18 @@ public abstract class Task extends Activity {
 	 */
 	protected void createAndCallEventDefinitionActor(Message message) {
 		
-		ActorRef eventDefinitionActor = createEventDefinitionActor(message);
+		final ActorRef eventDefinitionActor = createEventDefinitionActor(message);
+		final Timeout eventDefinitionTimeout = new Timeout(Duration.create(timeoutInSeconds, "seconds"));
 		
+		// create an akka future which holds the commit message (if any) of the eventDefinitionActor
+		Future<Object> future = Patterns.ask(eventDefinitionActor, message, eventDefinitionTimeout);
+
 		try {
 			// make a synchronous ('Await.result') request ('Patterns.ask') to the event definition actor 
-			Await.result(Patterns.ask(eventDefinitionActor, message, this.eventDefinitionTimeout), this.eventDefinitionTimeout.duration());
+			Await.result(future, eventDefinitionTimeout.duration());
 		} catch (java.util.concurrent.TimeoutException timeout) {
-			LOG.error(String.format("Timeout while processing %s at EventDefintition:%s. Timeout was set to %s", 
-					message.getClass().getSimpleName(), eventDefinitionActor, this.getEventDefinitionTimeout().duration()));
+			LOG.error(String.format("Unhandled timeout while processing %s at EventDefintition:%s. Timeout was set to %s", 
+					message.getClass().getSimpleName(), eventDefinitionActor, eventDefinitionTimeout.duration()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -86,26 +99,8 @@ public abstract class Task extends Activity {
 			public UntypedActor create() {
 					return new EventDefinitionFactory().getEventDefinition(eventDefinitionParameter);
 				}
-		}), ActorReferenceService.getActorReferenceString(uniqueFlowNodeId+message.getProcessInstanceId()));
+		}), ActorReferenceService.getActorReferenceString(uniqueFlowNodeId+"-eventDefinition-"+message.getProcessInstanceId()));
 		return eventDefinitionActor;
-	}
-	
-	/**
-	 * Gets the event definition timeout used for synchronous calls.
-	 *
-	 * @return the event definition timeout
-	 */
-	public Timeout getEventDefinitionTimeout() {
-		return eventDefinitionTimeout;
-	}
-
-	/**
-	 * Sets the event definition timeout used for synchronous calls.
-	 *
-	 * @param eventDefinitionTimeout the new event definition timeout
-	 */
-	public void setEventDefinitionTimeout(Timeout eventDefinitionTimeout) {
-		this.eventDefinitionTimeout = eventDefinitionTimeout;
 	}
 	
 	public DataObjectService getDataObjectService() {

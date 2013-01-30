@@ -42,7 +42,7 @@ import com.catify.processengine.core.services.ProcessInstanceMediatorService;
  * implementation it will cover the 'n of m'-condition: If a user defined number
  * 'n' of the incoming flows 'm' fired, the gateway will fire.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable

@@ -33,6 +33,12 @@ import com.catify.processengine.core.processdefinition.jaxb.TDefinitions;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TRootElement;
 
+/**
+ * Utility class to work with bpmn process files and jaxb.
+ * 
+ * @author christopher köster
+ * 
+ */
 public class XmlJaxbTransformer {
 
 	/**

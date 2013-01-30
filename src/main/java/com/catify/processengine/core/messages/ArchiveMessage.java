@@ -26,6 +26,9 @@ import com.catify.processengine.core.services.ProcessInstanceCleansingService;
  * The ArchiveMessage is sent from the {@link EndEventNode} node to the
  * {@link ProcessInstanceCleansingService}. It signalizes the
  * ProcessInstanceCleansingService to save a process instance to the archive.
+ * 
+ * @author christopher köster
+ * 
  */
 public class ArchiveMessage extends Message {
 

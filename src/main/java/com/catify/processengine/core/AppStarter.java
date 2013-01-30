@@ -28,7 +28,10 @@ import com.catify.processengine.management.ProcessManagementServiceImpl;
 
 
 /**
- * Main class and starting point for the application.
+ * Main class and starting point for standalone application.
+ * 
+ * @author christopher köster
+ * 
  */
 public class AppStarter {
 

@@ -19,12 +19,13 @@ package com.catify.processengine.core.messages;
 
 import scala.concurrent.Future;
 
-
-
 /**
  * The CommitMessage is send as a reply to actors which initiate a 
  * (series of) future(s) and are waiting for a reply.
  * @param <T>
+ * 
+ * @author christopher köster
+ * 
  */
 public class CommitMessage<T> extends Message {
 

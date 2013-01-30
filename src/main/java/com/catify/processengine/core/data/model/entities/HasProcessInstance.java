@@ -32,7 +32,7 @@ import org.springframework.data.neo4j.annotation.StartNode;
  * It is the graph connection between {@link ProcessNode} and their instances
  * ({@link ProcessInstanceNode}) that holds the instance id.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @RelationshipEntity(type = "HAS_PROCESS_INSTANCE")

@@ -44,7 +44,7 @@ import com.catify.processengine.core.util.GatewayUtil;
 /**
  * Implements the exclusive gateway. See 13.3.2 of BPMN 2.0 specification.
  * 
- * @author claus straube
+ * @author christopher köster
  * 
  */
 public class ExclusiveGatewayNode extends FlowElement implements NOfMService {

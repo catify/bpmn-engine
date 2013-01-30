@@ -30,8 +30,9 @@ import com.catify.processengine.core.data.services.ProcessInstanceNodeRepository
 /**
  * The ProcessInstanceNodeRepositoryServiceImpl implements the {@link ProcessInstanceNodeRepositoryService}.
  * It therefore uses methods from the Spring Data managed {@link ProcessInstanceNodeRepository}.
- *
- * @author chris
+ * 
+ * @author christopher köster
+ * 
  */
 @Component
 public class ProcessInstanceNodeRepositoryServiceImpl implements ProcessInstanceNodeRepositoryService {

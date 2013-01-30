@@ -27,12 +27,12 @@ import com.catify.processengine.core.data.model.entities.ClientNode;
 import com.catify.processengine.core.data.repositories.ClientNodeRepository;
 import com.catify.processengine.core.data.services.ClientNodeRepositoryService;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ClientNodeRepositoryServiceImpl implements the {@link ClientNodeRepositoryService}. 
  * It therefore uses methods from the Spring Data managed {@link ClientNodeRepository}.
- *
- * @author chris
+ * 
+ * @author christopher köster
+ * 
  */
 @Component
 public class ClientNodeRepositoryServiceImpl implements ClientNodeRepositoryService {

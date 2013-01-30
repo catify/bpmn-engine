@@ -36,7 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
  * <br>
  * Level 1 of the database process representation.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 @NodeEntity
 public class ProcessNode {

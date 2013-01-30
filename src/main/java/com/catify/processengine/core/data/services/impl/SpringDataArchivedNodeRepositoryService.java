@@ -27,6 +27,9 @@ import com.catify.processengine.core.data.services.ArchivedNodeRepositoryService
 /**
  * The Class SpringDataArchivedNodeRepositoryService implements the {@link ArchivedNodeRepositoryService}. 
  * It therefore uses methods from the Spring Data managed {@link ArchivedNodeRepository}.
+ * 
+ * @author christopher köster
+ * 
  */
 @Component
 public class SpringDataArchivedNodeRepositoryService implements

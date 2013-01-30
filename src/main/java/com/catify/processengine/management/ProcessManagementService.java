@@ -25,6 +25,12 @@ import javax.xml.bind.JAXBException;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 
+/**
+ * The Interface ProcessManagementService defines the api to manage processes.
+ * 
+ * @author christopher köster
+ * 
+ */
 public interface ProcessManagementService {
 
 	/**

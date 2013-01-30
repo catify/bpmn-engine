@@ -32,6 +32,12 @@ import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.util.GatewayUtil;
 
+/**
+ * The ParallelGatewayNode triggers when all incoming flow nodes have triggered.
+ * 
+ * @author christopher köster
+ * 
+ */
 public class ParallelGatewayNode extends FlowElement implements NOfMService {
 
 	static final Logger LOG = LoggerFactory.getLogger(ParallelGatewayNode.class);

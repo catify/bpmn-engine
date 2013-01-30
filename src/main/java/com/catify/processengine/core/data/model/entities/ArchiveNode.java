@@ -28,6 +28,9 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * The Class ArchiveNode will mirror the {@link RunningNode}s processes and flow nodes, which hold all archived instances.
+ * 
+ * @author christopher köster
+ * 
  */
 @NodeEntity
 public class ArchiveNode {

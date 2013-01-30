@@ -19,6 +19,13 @@ package com.catify.processengine.core.nodes;
 
 import com.catify.processengine.core.messages.Message;
 
+/**
+ * The Interface NOfMService defines methods used in gateways that fire
+ * after a certain amount of incoming trigger messages.
+ * 
+ * @author christopher köster
+ * 
+ */
 public interface NOfMService {
 
 	/**

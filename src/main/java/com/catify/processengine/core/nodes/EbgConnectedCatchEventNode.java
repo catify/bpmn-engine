@@ -41,7 +41,7 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * If a catch event receives a fire message it and waits for the go from the
  * event based gateway until they proceed in the process.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public class EbgConnectedCatchEventNode extends CatchEvent {

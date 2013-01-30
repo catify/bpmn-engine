@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
  * The {@link TimerSPI} defines all methods that must be implemented to provide
  * a timer store. This store can persistent or in memory (depends on your needs).
  * 
- * 
  * @author claus straube
- *
+ * @author christopher köster
+ * 
  */
 public abstract class TimerSPI {
 

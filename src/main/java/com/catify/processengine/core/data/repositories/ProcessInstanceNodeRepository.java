@@ -30,8 +30,9 @@ import com.catify.processengine.core.data.model.entities.ProcessInstanceNode;
  * convenient methods for accessing {@link ProcessInstanceNode}s in the database and 
  * has been enhanced with custom Cypher queries.
  * For implementation details please see {@link GraphRepository}.
- *
- * @author chris
+ * 
+ * @author christopher köster
+ * 
  */
 public interface ProcessInstanceNodeRepository extends GraphRepository<ProcessInstanceNode>{
 	

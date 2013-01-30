@@ -37,8 +37,9 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 /**
  * The Class ProcessInstanceNode.
- *
- * @author chris
+ * 
+ * @author christopher köster
+ * 
  */
 @NodeEntity
 public class ProcessInstanceNode {

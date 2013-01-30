@@ -28,7 +28,8 @@ import com.catify.processengine.core.data.model.entities.FlowNode;
  * The FlowNodeRepositoryService wraps methods of the FlowNodeRepository and
  * provides additional methods that hide implementation details.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 @Component
 public interface FlowNodeRepositoryService {

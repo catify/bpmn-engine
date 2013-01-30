@@ -37,6 +37,9 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * The ServiceTaskInstance is a synchronous node. It will load a value from a data object (if specified), 
  * issue a request to the provided message integration and stay active until it gets a reply (or runs in a timeout specified 
  * in the message integration implementation). The reply received is then saved to a data object (if specified).
+ * 
+ * @author christopher köster
+ * 
  */
 public class ServiceTaskInstance extends Task {
 	

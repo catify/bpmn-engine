@@ -38,7 +38,7 @@ import com.catify.processengine.core.data.model.entities.ProcessNode;
 import com.catify.processengine.core.data.services.FlowNodeInstanceRepositoryService;
 import com.catify.processengine.core.data.services.FlowNodeRepositoryService;
 import com.catify.processengine.core.data.services.ProcessInstanceNodeRepositoryService;
-import com.catify.processengine.core.data.services.ProcessRepositoryService;
+import com.catify.processengine.core.data.services.ProcessNodeRepositoryService;
 import com.catify.processengine.core.processdefinition.jaxb.TStartEvent;
 
 /**
@@ -49,7 +49,7 @@ import com.catify.processengine.core.processdefinition.jaxb.TStartEvent;
  * needs access to more than its own database representation (eg. a start node
  * that instantiates other nodes).
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Component
@@ -61,7 +61,7 @@ public class ProcessInstanceMediatorService {
 	private Neo4jTemplate neo4jTemplate;
 	
 	@Autowired
-	private ProcessRepositoryService processRepositoryService;
+	private ProcessNodeRepositoryService processRepositoryService;
 	
 	@Autowired 
 	private FlowNodeRepositoryService flowNodeRepositoryService;

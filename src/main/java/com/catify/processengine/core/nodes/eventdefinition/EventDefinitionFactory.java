@@ -49,8 +49,9 @@ import com.catify.processengine.core.services.ActorReferenceService;
 
 /**
  * A factory for creating EventDefinition objects.
- *
- * @author chris
+ * 
+ * @author christopher köster
+ * 
  */
 @Configurable
 public class EventDefinitionFactory {

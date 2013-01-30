@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * need of every node to check if there is data bound to it and for debugging
  * purposes.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public class NoDataObjectSP extends DataObjectSPI {

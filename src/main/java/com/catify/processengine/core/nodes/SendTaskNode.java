@@ -30,6 +30,12 @@ import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
+/**
+ * The SendTaskNode acts like a throw event with a message event definition.
+ * 
+ * @author christopher köster
+ * 
+ */
 public class SendTaskNode extends Task {
 
 	public SendTaskNode() {

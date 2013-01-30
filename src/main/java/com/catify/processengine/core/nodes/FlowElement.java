@@ -45,7 +45,7 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * {@link ActivationMessage}, {@link TriggerMessage},
  * {@link DeactivationMessage}.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable

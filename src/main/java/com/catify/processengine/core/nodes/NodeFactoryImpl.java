@@ -67,7 +67,8 @@ import com.catify.processengine.core.services.ActorReferenceService;
 /**
  * A factory for creating akka node objects.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 @Repository
 public class NodeFactoryImpl implements NodeFactory {

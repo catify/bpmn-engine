@@ -40,7 +40,7 @@ import com.catify.processengine.core.services.ActorReferenceService;
 /**
  * Abstract class for all events.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public abstract class Event extends FlowElement {

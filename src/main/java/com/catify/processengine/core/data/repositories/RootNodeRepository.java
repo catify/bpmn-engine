@@ -29,7 +29,8 @@ import com.catify.processengine.core.data.model.entities.RootNode;
  * convenient methods for accessing {@link RootNode}s in the database. For
  * implementation details please see {@link GraphRepository}.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 public interface RootNodeRepository extends GraphRepository<RootNode> {
 

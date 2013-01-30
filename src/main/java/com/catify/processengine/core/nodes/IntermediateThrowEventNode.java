@@ -34,7 +34,7 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * An intermediate throw event can send (and load) messages outside of the
  * process engine.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public class IntermediateThrowEventNode extends ThrowEvent {

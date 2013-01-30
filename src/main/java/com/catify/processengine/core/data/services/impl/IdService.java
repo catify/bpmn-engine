@@ -34,6 +34,9 @@ import com.catify.processengine.core.processdefinition.jaxb.services.ExtensionSe
  * The Class IdService generates unique ids for processes and flow nodes.
  * Because the akka node services and the data services need the same
  * understanding of these ids, this is managed in a central service.
+ * 
+ * @author christopher köster
+ * 
  */
 public final class IdService {
 	

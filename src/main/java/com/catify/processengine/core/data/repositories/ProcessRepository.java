@@ -26,6 +26,9 @@ import com.catify.processengine.core.data.model.entities.ProcessNode;
  * The Spring Data neo4j managed interface ProcessRepository provides convenient
  * methods for accessing {@link }s in the database. For implementation details
  * please see {@link GraphRepository}.
+ * 
+ * @author christopher köster
+ * 
  */
 public interface ProcessRepository extends GraphRepository<ProcessNode>,
 		IndexRepository<ProcessNode> {

@@ -31,7 +31,8 @@ import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 /**
  * A factory for creating akka node objects. The factory implementation will instantiate an object derived from the {@link FlowElement}.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 public interface NodeFactory {
 

@@ -30,6 +30,12 @@ import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
+/**
+ * The ReceiveTaskNode acts like a catch event with a message event definition.
+ * 
+ * @author christopher köster
+ * 
+ */
 public class ReceiveTaskNode extends Task {
 	
 	public ReceiveTaskNode() {

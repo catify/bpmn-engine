@@ -24,6 +24,9 @@ import com.catify.processengine.core.data.model.entities.FlowNode;
 
 /**
  * The Interface ArchivedNodeRepositoryService.
+ * 
+ * @author christopher köster
+ * 
  */
 @Component
 public interface ArchivedNodeRepositoryService {

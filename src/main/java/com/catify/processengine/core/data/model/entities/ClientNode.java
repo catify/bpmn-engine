@@ -34,8 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
  * The client node has an outgoing connection to its running and archive node. 
  * A client should be only allowed to access nodes that are in the scope of his client node.
  * 
- * @author chris
- *
+ * @author christopher köster
+ * 
  */
 @NodeEntity
 public class ClientNode {

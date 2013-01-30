@@ -29,7 +29,7 @@ import org.springframework.data.neo4j.annotation.StartNode;
  * It is the graph connection between {@link FlowNode} and their instances
  * ({@link FlowNodeInstance}) that holds the instance id.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @RelationshipEntity(type = "HAS_INSTANCE")

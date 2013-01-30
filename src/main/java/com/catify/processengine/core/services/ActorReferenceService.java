@@ -33,7 +33,7 @@ import akka.actor.ActorSystem;
 /**
  * The ActorReferenceService creates actor references based on the uniqueFlowNodeId (cleaned of any characters not allowed by akka). 
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 @Configurable

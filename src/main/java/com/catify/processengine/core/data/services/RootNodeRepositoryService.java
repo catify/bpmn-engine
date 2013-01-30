@@ -26,8 +26,10 @@ import com.catify.processengine.core.data.model.entities.FlowNode;
 import com.catify.processengine.core.data.model.entities.RootNode;
 
 /**
- * @author chris
+ * The Interface RootNodeRepositoryService.
  *
+ * @author christopher köster
+ * 
  */
 @Component
 public interface RootNodeRepositoryService {

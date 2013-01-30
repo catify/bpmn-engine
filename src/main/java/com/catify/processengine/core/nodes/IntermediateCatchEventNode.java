@@ -34,7 +34,7 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * An intermediate catch event can receive (and save) messages sent from outside
  * of the process engine.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public class IntermediateCatchEventNode extends CatchEvent {

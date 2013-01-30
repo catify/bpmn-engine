@@ -33,7 +33,7 @@ import com.catify.processengine.core.services.ProcessInstanceCleansingService;
  * They resist in the application context and handle operations like writing
  * meta data or archive process instances etc.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public class CoreActors {

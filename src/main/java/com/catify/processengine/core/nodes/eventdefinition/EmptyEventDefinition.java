@@ -30,8 +30,9 @@ import com.catify.processengine.core.messages.TriggerMessage;
 
 /**
  * The Class EmptyEventDefinition is for Events that do not define an EventDefinition, which is valid in bpmn.
- *
- * @author chris
+ * 
+ * @author christopher köster
+ * 
  */
 public class EmptyEventDefinition extends EventDefinition {
 

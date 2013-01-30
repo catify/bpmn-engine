@@ -28,10 +28,11 @@ import com.catify.processengine.core.data.model.entities.ProcessNode;
  * The ProcessNode wraps methods of the ProcessRepository and provides
  * additional methods that hide implementation details.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 @Component
-public interface ProcessRepositoryService {
+public interface ProcessNodeRepositoryService {
 
 	/**
 	 * Find by process id.

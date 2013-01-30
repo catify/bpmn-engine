@@ -28,7 +28,7 @@ import com.catify.processengine.core.nodes.FlowElement;
  * The DataObjectHandlingSPI defines the methods needed to implement the storing 
  * and loading of data objects bound to process nodes.
  * 
- * @author chris
+ * @author christopher köster
  * 
  */
 public abstract class DataObjectSPI {

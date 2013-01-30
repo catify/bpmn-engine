@@ -46,7 +46,8 @@ import com.catify.processengine.core.data.services.FlowNodeInstanceRepositorySer
  * The FlowNodeInstanceRepositoryServiceImpl implements the {@link FlowNodeInstanceRepositoryService}.
  * It therefore uses methods from the Spring Data managed {@link FlowNodeInstanceRepository}.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 @Component
 public class FlowNodeInstanceRepositoryServiceImpl implements FlowNodeInstanceRepositoryService {

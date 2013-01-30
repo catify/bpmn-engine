@@ -25,16 +25,17 @@ import org.springframework.stereotype.Component;
 
 import com.catify.processengine.core.data.model.entities.ProcessNode;
 import com.catify.processengine.core.data.repositories.ProcessRepository;
-import com.catify.processengine.core.data.services.ProcessRepositoryService;
+import com.catify.processengine.core.data.services.ProcessNodeRepositoryService;
 
 /**
- * The ProcessRepositoryServiceImpl implements the {@link ProcessRepositoryService}.
+ * The ProcessRepositoryServiceImpl implements the {@link ProcessNodeRepositoryService}.
  * It therefore uses methods from the Spring Data managed {@link ProcessRepository}.
  * 
- * @author chris
+ * @author christopher köster
+ * 
  */
 @Component
-public class ProcessRepositoryServiceImpl implements ProcessRepositoryService {
+public class ProcessRepositoryServiceImpl implements ProcessNodeRepositoryService {
 
 	/** The process repository. */
 	@Autowired

@@ -40,6 +40,9 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
 /**
  * The ServiceTaskNode is the supervisor for the {@link ServiceTaskInstance}, which implements the actual bpmn service task. 
  * The ServiceTaskNode instantiates the synchronous ServiceTaskInstances. 
+ * 
+ * @author christopher köster
+ * 
  */
 @Configurable
 public class ServiceTaskNode extends Task {

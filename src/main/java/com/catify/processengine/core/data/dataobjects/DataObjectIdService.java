@@ -37,6 +37,12 @@ import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TTask;
 import com.catify.processengine.core.processdefinition.jaxb.TThrowEvent;
 
+/**
+ * Utility class for extracting associated data objects and getting their ids.
+ * 
+ * @author christopher köster
+ * 
+ */
 public class DataObjectIdService {
 	
 	private DataObjectIdService() {

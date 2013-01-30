@@ -26,6 +26,9 @@ import com.catify.processengine.core.services.ProcessInstanceCleansingService;
  * The DeletionMessage is sent from the {@link EndEventNode} node to the
  * {@link ProcessInstanceCleansingService}. It signalizes the
  * ProcessInstanceCleansingService to delete a process instance.
+ * 
+ * @author christopher köster
+ * 
  */
 public class DeletionMessage extends Message {
 
