@@ -42,7 +42,6 @@ import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.data.dataobjects.NoDataObjectSP;
 import com.catify.processengine.core.data.services.impl.IdService;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.nodes.eventdefinition.SynchronousEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TComplexGateway;
 import com.catify.processengine.core.processdefinition.jaxb.TEndEvent;
@@ -145,25 +144,6 @@ public class NodeFactoryImpl implements NodeFactory {
 							flowNodeJaxb.getClass()));
 			return null;
 		}
-	}
-
-	/**
-	 * Creates the service task worker node.
-	 *
-	 * @param uniqueProcessId the unique process id
-	 * @param uniqueFlowNodeId the unique flow node id
-	 * @param outgoingNodes the outgoing nodes
-	 * @param messageEventDefinitionInOut the message event definition in out
-	 * @param dataObjectHandling the data object handling
-	 * @return the service task worker
-	 */
-	@Override
-	public FlowElement createServiceTaskWorkerNode(String uniqueProcessId, String uniqueFlowNodeId,
-			List<ActorRef> outgoingNodes,
-			SynchronousEventDefinition messageEventDefinitionInOut, DataObjectService dataObjectHandling) {	
-		LOG.debug("Creating service task worker");
-		return new ServiceTaskInstance(
-				uniqueProcessId, uniqueFlowNodeId, outgoingNodes, messageEventDefinitionInOut, dataObjectHandling);
 	}
 	
 	/**

@@ -24,10 +24,13 @@ import akka.actor.ActorRef;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
+import com.catify.processengine.core.integration.IntegrationMessage;
+import com.catify.processengine.core.integration.MessageIntegrationSPI;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.eventdefinition.SynchronousEventDefinition;
+import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
+import com.catify.processengine.core.services.MessageDispatcherService;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
@@ -36,8 +39,9 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * in the message integration implementation). The reply received is then saved to a data object (if specified).
  */
 public class ServiceTaskInstance extends Task {
-
-	private SynchronousEventDefinition messageEventDefinitionInOut;
+	
+	private MessageIntegrationSPI integrationSPI;
+	private MessageDispatcherService messageDispatcherService = null;
 	
 	public ServiceTaskInstance() {
 
@@ -57,7 +61,7 @@ public class ServiceTaskInstance extends Task {
 	 */
 	public ServiceTaskInstance(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes,
-			SynchronousEventDefinition messageEventDefinitionInOut, DataObjectService dataObjectHandling) {
+			TMessageIntegration messageIntegrationInOut, DataObjectService dataObjectHandling) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
@@ -65,7 +69,14 @@ public class ServiceTaskInstance extends Task {
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		
-		this.messageEventDefinitionInOut = messageEventDefinitionInOut;
+		// messages are handled by the integrationSpi
+		if (messageIntegrationInOut != null) {
+			this.integrationSPI = MessageIntegrationSPI
+					.getMessageIntegrationImpl(messageIntegrationInOut.getPrefix());
+			this.messageDispatcherService = new MessageDispatcherService(
+					this.integrationSPI);
+			registerRequestReply(messageIntegrationInOut);
+		}
 	}
 	
 	@Override
@@ -77,7 +88,7 @@ public class ServiceTaskInstance extends Task {
 		
 		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
-		Object repliedDataObject = this.messageEventDefinitionInOut.acitivate(message);
+		Object repliedDataObject = this.requestReply(message);
 		
 		this.getDataObjectService().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), repliedDataObject);
 		
@@ -94,6 +105,46 @@ public class ServiceTaskInstance extends Task {
 		
 		// stop this instance node
 		this.getContext().stop(this.getSelf());
+	}
+	
+	/**
+	 * Request reply operation via the integration spi.
+	 *
+	 * @param message the message to send
+	 * @return the object returned by the spi
+	 */
+	private Object requestReply(ActivationMessage message) {
+		// get the data from the data store that is associated with this node
+		Object data;
+		if (message.getPayload() != null) {
+			data = message.getPayload();
+		} else {
+			data = "no payload";
+		}
+		
+		// create an IntegrationMessage to be send to the message dispatcher
+		IntegrationMessage integrationMessage = new IntegrationMessage(
+				this.uniqueProcessId, this.uniqueFlowNodeId,
+						message.getProcessInstanceId(), data);
+		
+		// dispatch that message via the integration spi and return the response
+		return messageDispatcherService.requestReplyViaIntegrationSPI(
+				this.uniqueFlowNodeId, integrationMessage);
+	}
+	
+	/**
+	 * Register throwing message event definition.
+	 * 
+	 * @param messageIntegration
+	 *            the jaxb message integration
+	 */
+	public final void registerRequestReply(
+			TMessageIntegration messageIntegration) {
+		// start the message integration implementation for this flow node (like
+		// routes etc.)
+		integrationSPI.startRequestReply(
+				this.uniqueFlowNodeId,
+				messageIntegration.getIntegrationstring());
 	}
 
 	@Override

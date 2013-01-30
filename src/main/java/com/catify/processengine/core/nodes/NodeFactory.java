@@ -23,10 +23,6 @@ package com.catify.processengine.core.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
-import akka.actor.ActorRef;
-
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
-import com.catify.processengine.core.nodes.eventdefinition.SynchronousEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TSequenceFlow;
@@ -51,18 +47,4 @@ public interface NodeFactory {
 	 */
 	FlowElement createServiceNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb);
-	
-	/**
-	 * Creates the service task worker node.
-	 *
-	 * @param uniqueProcessId the unique process id
-	 * @param uniqueFlowNodeId the unique flow node id
-	 * @param outgoingNodes the outgoing nodes
-	 * @param messageEventDefinitionInOut the message event definition in out
-	 * @param dataObjectHandling the data object handling
-	 * @return the service task worker
-	 */
-	 FlowElement createServiceTaskWorkerNode(String uniqueProcessId, String uniqueFlowNodeId,
-				List<ActorRef> outgoingNodes,
-				SynchronousEventDefinition messageEventDefinitionInOut, DataObjectService dataObjectHandling);
 }

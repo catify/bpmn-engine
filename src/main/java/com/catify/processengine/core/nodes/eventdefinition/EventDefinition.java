@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 
 import scala.concurrent.Future;
-
 import akka.actor.ActorSystem;
 import akka.actor.UntypedActor;
 

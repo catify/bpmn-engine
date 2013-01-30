@@ -33,7 +33,6 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.eventdefinition.MessageEventDefinition_InOut;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.services.ActorReferenceService;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
@@ -91,15 +90,11 @@ public class ServiceTaskNode extends Task {
 
 					// create an instance of a (synchronous) service worker
 					public UntypedActor create() {
-							return nodeFactory.createServiceTaskWorkerNode(getUniqueProcessId(), 
-									getUniqueFlowNodeId(), getOutgoingNodes(), 
-									new MessageEventDefinition_InOut(getUniqueProcessId(), 
-											getUniqueFlowNodeId(),
-											messageIntegrationInOut), 
-										getDataObjectService());
+							return new ServiceTaskInstance(getUniqueProcessId(), getUniqueFlowNodeId(), 
+									getOutgoingNodes(), messageIntegrationInOut, getDataObjectService());
 					}
 				}), ActorReferenceService.getAkkaComplientString(message.getProcessInstanceId()));
-		LOG.debug(String.format("Service task craeted %s --> resulting akka object: %s", this.getClass(),
+		LOG.debug(String.format("Service task instance craeted %s --> resulting akka object: %s", this.getClass(),
 				serviceTaskInstance.toString()));
 		
 		this.sendMessageToNodeActor(message, serviceTaskInstance);
