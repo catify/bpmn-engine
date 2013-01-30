@@ -21,21 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
-import akka.actor.ActorRef;
-import akka.actor.Props;
-import akka.actor.UntypedActor;
-import akka.actor.UntypedActorFactory;
-import akka.pattern.Patterns;
-import akka.util.Timeout;
-
 import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.messages.Message;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionFactory;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.ActorReferenceService;
 
 /**
  * Abstract class for all events.
@@ -63,43 +52,9 @@ public abstract class Event extends FlowElement {
 	 * @param message the message
 	 */
 	protected void createAndCallEventDefinitionActor(Message message) {
-		
-		final ActorRef eventDefinitionActor = createEventDefinitionActor(message);
-		final Timeout eventDefinitionTimeout = new Timeout(Duration.create(timeoutInSeconds, "seconds"));
-		
-		// create an akka future which holds the commit message (if any) of the eventDefinitionActor
-		Future<Object> future = Patterns.ask(eventDefinitionActor, message, eventDefinitionTimeout);
-
-		try {
-			// make a synchronous ('Await.result') request ('Patterns.ask') to the event definition actor 
-			Await.result(future, eventDefinitionTimeout.duration());
-		} catch (java.util.concurrent.TimeoutException timeout) {
-			LOG.error(String.format("Unhandled timeout while processing %s at EventDefintition:%s. Timeout was set to %s", 
-					message.getClass().getSimpleName(), eventDefinitionActor, eventDefinitionTimeout.duration()));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		// stop the event definition actor after processing message
-		this.getContext().stop(eventDefinitionActor);
-	}
-	
-	/**
-	 * Creates the event definition actor from the eventDefinitionParameter field 
-	 * and the process instance id of the message received.
-	 *
-	 * @param message the message
-	 * @return the actor ref
-	 */
-	protected ActorRef createEventDefinitionActor(Message message) {
-		ActorRef eventDefinitionActor = this.getContext().actorOf(new Props(new UntypedActorFactory() {
-			private static final long serialVersionUID = 1L;
-
-			public UntypedActor create() {
-					return new EventDefinitionFactory().getEventDefinition(eventDefinitionParameter);
-				}
-		}), ActorReferenceService.getActorReferenceString(uniqueFlowNodeId+"-eventDefinition-"+message.getProcessInstanceId()));
-		return eventDefinitionActor;
+		new EventDefinitionHandling().createAndCallEventDefinitionActor(
+				this.uniqueFlowNodeId, message, this.timeoutInSeconds,
+				this.getContext(), this.eventDefinitionParameter);
 	}
 	
 	public DataObjectService getDataObjectService() {
@@ -118,5 +73,4 @@ public abstract class Event extends FlowElement {
 			EventDefinitionParameter eventDefinitionParameter) {
 		this.eventDefinitionParameter = eventDefinitionParameter;
 	}
-
 }
