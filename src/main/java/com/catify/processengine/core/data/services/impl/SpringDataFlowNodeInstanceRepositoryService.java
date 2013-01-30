@@ -50,9 +50,9 @@ import com.catify.processengine.core.data.services.FlowNodeInstanceRepositorySer
  * 
  */
 @Component
-public class FlowNodeInstanceRepositoryServiceImpl implements FlowNodeInstanceRepositoryService {
+public class SpringDataFlowNodeInstanceRepositoryService implements FlowNodeInstanceRepositoryService {
 	
-	static final Logger LOG = LoggerFactory.getLogger(FlowNodeInstanceRepositoryServiceImpl.class);
+	static final Logger LOG = LoggerFactory.getLogger(SpringDataFlowNodeInstanceRepositoryService.class);
 
 	/** The flow node instance repository. */
 	@Autowired
@@ -61,7 +61,7 @@ public class FlowNodeInstanceRepositoryServiceImpl implements FlowNodeInstanceRe
 	/**
 	 * Instantiates a new flow node instance repository service impl.
 	 */
-	public FlowNodeInstanceRepositoryServiceImpl() {
+	public SpringDataFlowNodeInstanceRepositoryService() {
 	}
 
 	/* (non-Javadoc)

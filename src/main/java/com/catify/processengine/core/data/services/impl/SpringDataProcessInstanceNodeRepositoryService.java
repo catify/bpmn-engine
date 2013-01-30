@@ -35,7 +35,7 @@ import com.catify.processengine.core.data.services.ProcessInstanceNodeRepository
  * 
  */
 @Component
-public class ProcessInstanceNodeRepositoryServiceImpl implements ProcessInstanceNodeRepositoryService {
+public class SpringDataProcessInstanceNodeRepositoryService implements ProcessInstanceNodeRepositoryService {
 	
 	/** The process instance node repository. */
 	@Autowired
@@ -45,7 +45,7 @@ public class ProcessInstanceNodeRepositoryServiceImpl implements ProcessInstance
 	/**
 	 * Instantiates a new process instance node repository service impl.
 	 */
-	public ProcessInstanceNodeRepositoryServiceImpl() {
+	public SpringDataProcessInstanceNodeRepositoryService() {
 	}
 
 	/* (non-Javadoc)

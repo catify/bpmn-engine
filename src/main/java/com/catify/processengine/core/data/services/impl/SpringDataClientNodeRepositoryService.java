@@ -35,7 +35,7 @@ import com.catify.processengine.core.data.services.ClientNodeRepositoryService;
  * 
  */
 @Component
-public class ClientNodeRepositoryServiceImpl implements ClientNodeRepositoryService {
+public class SpringDataClientNodeRepositoryService implements ClientNodeRepositoryService {
 
 	@Autowired
 	private ClientNodeRepository clientNodeRepository;

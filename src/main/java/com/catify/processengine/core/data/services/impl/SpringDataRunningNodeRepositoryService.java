@@ -32,7 +32,7 @@ import com.catify.processengine.core.data.services.RunningNodeRepositoryService;
  * 
  */
 @Component
-public class RunningNodeRepositoryServiceImpl implements RunningNodeRepositoryService {
+public class SpringDataRunningNodeRepositoryService implements RunningNodeRepositoryService {
 
 	/** The running node repository. */
 	@Autowired

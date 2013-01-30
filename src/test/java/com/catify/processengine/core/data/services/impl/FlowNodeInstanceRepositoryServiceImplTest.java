@@ -48,7 +48,7 @@ import com.catify.processengine.core.data.model.entities.RunningNode;
 public class FlowNodeInstanceRepositoryServiceImplTest {
 
 	@Autowired
-	private FlowNodeInstanceRepositoryServiceImpl flowNodeInstanceRepositoryServiceImpl;
+	private SpringDataFlowNodeInstanceRepositoryService flowNodeInstanceRepositoryServiceImpl;
 	
 	/** The neo4j template. */
 	@Autowired

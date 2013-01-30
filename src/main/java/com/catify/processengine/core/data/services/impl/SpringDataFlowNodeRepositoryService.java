@@ -35,7 +35,7 @@ import com.catify.processengine.core.data.services.FlowNodeRepositoryService;
  * 
  */
 @Component
-public class FlowNodeRepositoryServiceImpl implements FlowNodeRepositoryService {
+public class SpringDataFlowNodeRepositoryService implements FlowNodeRepositoryService {
 
 	/** The flow node repository. */
 	@Autowired

@@ -35,7 +35,7 @@ import com.catify.processengine.core.data.services.RootNodeRepositoryService;
  * 
  */
 @Component
-public class RootNodeRepositoryServiceImpl implements RootNodeRepositoryService {
+public class SpringDataRootNodeRepositoryService implements RootNodeRepositoryService {
 
 	/** The root node repository. */
 	@Autowired
