@@ -29,6 +29,7 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.messages.WinningMessage;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
@@ -73,6 +74,10 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
+		
+		// create EventDefinition actor
+		this.eventDefinitionActor = EventDefinitionHandling
+				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
 	}
 
 	/**
