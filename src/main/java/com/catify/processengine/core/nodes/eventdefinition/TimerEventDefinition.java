@@ -22,6 +22,13 @@ import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 
+/**
+ * 
+ * 
+ * @author christopher köster
+ * @author claus straube
+ *
+ */
 public class TimerEventDefinition extends EventDefinition {
 	
 	/* (non-Javadoc)

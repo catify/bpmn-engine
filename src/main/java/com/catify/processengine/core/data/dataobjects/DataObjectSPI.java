@@ -33,7 +33,7 @@ import com.catify.processengine.core.nodes.FlowElement;
  */
 public abstract class DataObjectSPI {
 	
-	static final Logger LOG = LoggerFactory.getLogger(FlowElement.class);
+	static final Logger LOG = LoggerFactory.getLogger(DataObjectSPI.class);
 
 	/**
 	 * Custom implementation id to figure
