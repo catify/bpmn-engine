@@ -19,8 +19,21 @@
 	<packaging>jar</packaging>
 	<version>1.0</version>
 
-	<name>a graph backed bpmn process engine</name>
+	<name>catify BPMN Engine core</name>
 	<url>http://www.catify.com</url>
+
+	<description>The catify BPMN Engine core is a graph backed lightweight yet extensible bpmn compatible business process engine</description>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<scm>
+		<url>https://github.com/catify/bpmn-engine</url>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -78,6 +91,11 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-jexl</artifactId>
+			<version>${jexl.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>joda-time</groupId>
@@ -139,7 +157,8 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-		<!-- neo4j web admin for embedded db -->
+		
+		<!-- neo4j web admin for embedded db (disabled until fixed) -->
 		<!-- <dependency> -->
 		<!-- <groupId>org.neo4j.app</groupId> -->
 		<!-- <artifactId>neo4j-server</artifactId> -->
@@ -184,6 +203,7 @@
 		<!-- <artifactId>jsp-2.1-jetty</artifactId> -->
 		<!-- <version>6.1.25</version> -->
 		<!-- </dependency> -->
+		
 		<!-- for testing -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -402,7 +422,7 @@
 
 		<pluginManagement>
 			<plugins>
-				<!-- This plugin's configuration is used to store Eclipse m2e settings 
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
@@ -411,6 +431,26 @@
 					<configuration>
 						<lifecycleMappingMetadata>
 							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.mojo
+										</groupId>
+										<artifactId>
+											aspectj-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.2,)
+										</versionRange>
+										<goals>
+											<goal>test-compile</goal>
+											<goal>compile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>
@@ -424,26 +464,6 @@
 										</versionRange>
 										<goals>
 											<goal>run</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.codehaus.mojo
-										</groupId>
-										<artifactId>
-											aspectj-maven-plugin
-										</artifactId>
-										<versionRange>
-											[1.2,)
-										</versionRange>
-										<goals>
-											<goal>compile</goal>
-											<goal>test-compile</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>

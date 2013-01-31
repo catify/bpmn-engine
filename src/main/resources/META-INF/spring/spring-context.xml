@@ -69,7 +69,7 @@
       	</property>
       	<property name="properties">
 			<props>
-				<prop key="datastore.implementation">voldemort</prop>
+				<prop key="datastore.implementation">jpa-data-object</prop>
 				<prop key="core.processInstanceCleansingActor">processInstanceCleansingActor</prop>
 				<prop key="core.metaDataActor">metaDataWriter</prop>
 				<prop key="core.eventDefinitionTimeout">60</prop>
