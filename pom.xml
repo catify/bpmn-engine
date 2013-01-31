@@ -22,7 +22,7 @@
 	<name>catify BPMN Engine Core</name>
 	<url>http://www.catify.com</url>
 
-	<description>The catify BPMN Engine Core is a graph backed lightweight yet extensible bpmn compatible business process engine</description>
+	<description>The catify BPMN Engine Core is a graph backed lightweight yet extensible BPMN compatible business process engine</description>
 
 	<licenses>
 		<license>
@@ -66,11 +66,6 @@
 	</repositories>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-jexl</artifactId>
-			<version>${jexl.version}</version>
-		</dependency>
 		<!-- akka -->
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
@@ -102,7 +97,11 @@
 			<artifactId>joda-time</artifactId>
 			<version>2.1</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-jexl</artifactId>
+			<version>${jexl.version}</version>
+		</dependency>
 		<!-- spring data neo4j -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
@@ -129,11 +128,6 @@
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-cypher</artifactId>
 			<version>${neo4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo4j-cypher-dsl</artifactId>
-			<version>1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.persistence</groupId>
