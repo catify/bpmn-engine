@@ -19,10 +19,10 @@
 	<packaging>jar</packaging>
 	<version>1.0</version>
 
-	<name>catify BPMN Engine core</name>
+	<name>catify BPMN Engine Core</name>
 	<url>http://www.catify.com</url>
 
-	<description>The catify BPMN Engine core is a graph backed lightweight yet extensible bpmn compatible business process engine</description>
+	<description>The catify BPMN Engine Core is a graph backed lightweight yet extensible bpmn compatible business process engine</description>
 
 	<licenses>
 		<license>
