@@ -11,7 +11,7 @@ import org.joda.time.format.ISOPeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 
 /**
- * 
+ * Util class to calculate time stamps based on ISO 8601 dates.
  * 
  * @author claus straube
  *
@@ -40,11 +40,17 @@ public class TimerUtil {
 	 * to fire time of the previous repetition. If the 'R' is 
 	 * empty (e.g. R/PT1M), which means an unbounded number of repetitions,
 	 * the next time to fire is calculated.<br/><br/>
-	 * You can have the following scenarios:<br/>
-	 *  
 	 * 
-	 * @param now
-	 * @param isoDate
+	 * You can have the following scenarios:<br/>
+	 * Cycle with duration and bounded repetitions: R5/PT1M<br/>
+	 * Cycle with duration and unbounded repetitions: R/PT1M<br/>
+	 * Cycle with duration, bounded repetitions and start date: R3/2013-04-09T16:34:08Z/P1D<br/> 
+	 * Cycle with duration, unbounded repetitions and start date: R/2013-04-09T16:34:08Z/P1D<br/>
+	 * Cycle with duration, bounded repetitions and end date: R3/PT1H/2013-01-30T23:01:00Z<br/> 
+	 * Cycle with duration, unbounded repetitions and end date: R/PT1H/2013-01-30T23:01:00Z<br/>
+	 * 
+	 * @param now actual time stamp in millis
+	 * @param isoDate as {@link String} e.g. R7/2013-04-09T16:34:08Z/P1D
 	 * @return {@link List} of time stamps in millis
 	 */
 	public static List<Long> calculateTimeToFireForCycle(long now, String isoDate) {
@@ -172,15 +178,24 @@ public class TimerUtil {
 	}
 	
 	/**
+	 * Convenient method to calculate the time cycle based on
+	 * the now time.
 	 * 
-	 * 
-	 * @param isoDate
-	 * @return
+	 * @param isoDate as {@link String} e.g. R7/2013-04-09T16:34:08Z/P1D
+	 * @return a {@link List} of time stamps in millis
 	 */
 	public static List<Long> calculateTimeToFireForCycle(String isoDate) {
 		return calculateTimeToFireForCycle(System.currentTimeMillis(), isoDate);
 	}
 	
+	/**
+	 * Calculate the next time to fire time stamp (in millis) 
+	 * based on the given 'now' time, plus the ISO 8601 duration.
+	 * 
+	 * @param now actual time stamp in millis
+	 * @param isoDate as {@link String} e.g. PT2H1M10S
+	 * @return time to fire time stamp in millis
+	 */
 	public static long calculateTimeToFireForDuration(long now, String isoDate) {
 		DateTime dateTime = new DateTime(now);
 		Period period = periodformatter.parsePeriod(isoDate);
@@ -188,10 +203,25 @@ public class TimerUtil {
 		return dateTime.getMillis();
 	}
 	
+	/**
+	 * Convenient method to calculate the duration based on the
+	 * now time.
+	 * 
+	 * @param isoDate as {@link String} e.g. PT2H1M10S
+	 * @return time to fire time stamp in millis
+	 */
 	public static long calculateTimeToFireForDuration(String isoDate) {
 		return calculateTimeToFireForDuration(System.currentTimeMillis(), isoDate);
 	}
 	
+	/**
+	 * This method checks, if a cycle has unbounded
+	 * repetitions or not. If it is unbounded 'true' 
+	 * will be returned, otherwise 'false'.
+	 * 
+	 * @param isoDate as {@link String} e.g. R7/2013-04-09T16:34:08Z/P1D
+	 * @return true if it's unbounded
+	 */
 	public static boolean isUnboundedCycle(String isoDate) {
 		boolean result = Boolean.FALSE;
 		
