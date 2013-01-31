@@ -39,7 +39,9 @@ public class TimerUtil {
 	 * repetition a value will be calculated based on the time
 	 * to fire time of the previous repetition. If the 'R' is 
 	 * empty (e.g. R/PT1M), which means an unbounded number of repetitions,
-	 * the next time to fire is calculated. 
+	 * the next time to fire is calculated.<br/><br/>
+	 * You can have the following scenarios:<br/>
+	 *  
 	 * 
 	 * @param now
 	 * @param isoDate
@@ -89,37 +91,75 @@ public class TimerUtil {
 		// we have start or end date
 		if(split.length == 3) {
 			
-			if (split[1].startsWith("P") && unbounded) {
+			if(split[1].startsWith("P")) {
 				/*
-				 * calculate all times to fire, until the 
-				 * end date is reached.
+				 * end date -- e.g. R4/PT1H/2013-01-30T23:00:00Z
 				 */
 				DateTime end = dateFormatter.parseDateTime(split[2]);
 				Period period = periodformatter.parsePeriod(split[1]);
-				while(baseTime.isBefore(end)) {
-					baseTime = baseTime.plus(period);
-					result.add(baseTime.getMillis());
-				}
-				
-			} else if (split[2].startsWith("P")) {
-				// cycle with start date
-				DateTime start = dateFormatter.parseDateTime(split[1]);
-				if(start.isBefore(now)) {
+				if (unbounded) {
 					/*
-					 * if the start date is in the past,
-					 * calculate the next time to fire based
-					 * on the 'now' time.
+					 * --> R/PT1H/2013-01-30T23:00:00Z <--
+					 * calculate all times to fire, until the 
+					 * end date is reached.
 					 */
-					Period period = periodformatter.parsePeriod(split[1]);
-					baseTime = baseTime.plus(period);
-					result.add(baseTime.getMillis());
+					while(baseTime.isBefore(end)) {
+						baseTime = baseTime.plus(period);
+						result.add(baseTime.getMillis());
+					}
 				} else {
-					/* 
-					 * if the start date is in the future,
-					 * the first time to fire is the start
-					 * date. 
-					 */					
-					result.add(start.getMillis());
+					/*
+					 * --> R4/PT1H/2013-01-30T23:00:00Z <--
+					 * calculate all times to fire until the 
+					 * end date, or the maximum number
+					 * of cycles is reached.
+					 */
+					for(int i = 0; i < r; i++) {
+						baseTime = baseTime.plus(period);
+						if(baseTime.isBefore(end)){
+							result.add(baseTime.getMillis());
+						}
+					}
+				}
+			} else if (split[2].startsWith("P")) {
+				/*
+				 * start date -- e.g. R/2013-04-09T16:34:08Z/P1D
+				 */
+				DateTime start = dateFormatter.parseDateTime(split[1]);
+				Period period = periodformatter.parsePeriod(split[2]);
+				if (unbounded) {
+					/*
+					 * --> R/2013-04-09T16:34:08Z/P1D <--
+					 * unbounded cycle with start date
+					 */
+					if(start.isBefore(now)) {
+						/*
+						 * if the start date is in the past,
+						 * calculate the next time to fire based
+						 * on the 'now' time.
+						 */
+						baseTime = baseTime.plus(period);
+						result.add(baseTime.getMillis());
+					} else {
+						/* 
+						 * if the start date is in the future,
+						 * the first time to fire is the start
+						 * date. 
+						 */					
+						result.add(start.getMillis());
+					}	
+				} else {
+					/*
+					 * --> R7/2013-04-09T16:34:08Z/P1D <--
+					 * bounded cycle with start date
+					 */
+					baseTime = new DateTime(start.getMillis());
+					// the first entry is the start date
+					result.add(baseTime.getMillis());
+					for(int i = 0; i < r; i++) {
+						baseTime = baseTime.plus(period);
+						result.add(baseTime.getMillis());
+					}
 				}
 			} else {
 				throw new IllegalArgumentException(
@@ -150,6 +190,22 @@ public class TimerUtil {
 	
 	public static long calculateTimeToFireForDuration(String isoDate) {
 		return calculateTimeToFireForDuration(System.currentTimeMillis(), isoDate);
+	}
+	
+	public static boolean isUnboundedCycle(String isoDate) {
+		boolean result = Boolean.FALSE;
+		
+		if(isoDate.startsWith("R")) {
+			String num = isoDate.substring(1, 2);
+			
+			if(num.equals("/")) {
+				result = Boolean.TRUE;
+			}
+		} else {
+			throw new IllegalArgumentException("A ISO 8601 repetition date must start with a 'R'.");
+		}
+		
+		return result;
 	}
 	
 }
