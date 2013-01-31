@@ -46,7 +46,31 @@
 		<akka.version>2.1.0</akka.version>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>typesafe</id>
+			<name>Typesafe Repository</name>
+			<url>http://repo.typesafe.com/typesafe/releases/</url>
+		</repository>
+		<repository>
+			<id>neo4j-release-repository</id>
+			<name>Neo4j Maven 2 release repository</name>
+			<url>http://m2.neo4j.org/releases</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<dependencies>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-jexl</artifactId>
+			<version>${jexl.version}</version>
+		</dependency>
 		<!-- akka -->
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
@@ -73,6 +97,12 @@
 			<artifactId>commons-jexl</artifactId>
 			<version>${jexl.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.1</version>
+		</dependency>
+
 		<!-- spring data neo4j -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
@@ -99,6 +129,11 @@
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-cypher</artifactId>
 			<version>${neo4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j-cypher-dsl</artifactId>
+			<version>1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.persistence</groupId>
