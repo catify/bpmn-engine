@@ -65,7 +65,7 @@ public abstract class TimerSPI {
 	public abstract void saveTimer(TimerBean timer);
 	
 	/**
-	 * Loads all due timers (<= the current time).
+	 * Loads all due timers (<= the current time) and removes them from the database.
 	 * 
 	 * @param actorRef a akka AktorReference as {@link String}
 	 * @return a {@link List} of due {@link TimerBean}s

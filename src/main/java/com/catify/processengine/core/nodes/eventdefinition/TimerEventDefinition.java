@@ -147,10 +147,7 @@ public class TimerEventDefinition extends EventDefinition {
 	 * @see com.catify.processengine.core.nodes.eventdefinition.EventDefinition#trigger(com.catify.processengine.core.messages.TriggerMessage)
 	 */
 	@Override
-	protected CommitMessage<?> trigger(TriggerMessage message) {
-		// delete timer that triggered this EventDefinition
-		this.timerSPI.deleteTimer(this.getSelf().toString(), message.getProcessInstanceId());
-		
+	protected CommitMessage<?> trigger(TriggerMessage message) {		
 		// if this timer is unbounded set next timer
 		if (timerType == TimerTypes.TIMECYCLE && TimerUtil.isUnboundedCycle(isoDate)) {
 			List<Long> timeToFire = this.getTimeToFire();
