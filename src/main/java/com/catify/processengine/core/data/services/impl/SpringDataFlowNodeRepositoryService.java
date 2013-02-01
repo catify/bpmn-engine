@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import com.catify.processengine.core.data.model.entities.FlowNode;
 import com.catify.processengine.core.data.repositories.FlowNodeRepository;
 import com.catify.processengine.core.data.services.FlowNodeRepositoryService;
+import com.catify.processengine.core.data.services.IdService;
 
 /**
  * The FlowNodeRepositoryService implements the {@link FlowNodeRepositoryService}.

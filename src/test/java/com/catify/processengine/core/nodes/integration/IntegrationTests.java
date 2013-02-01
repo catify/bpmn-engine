@@ -51,7 +51,7 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.data.model.entities.FlowNode;
 import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
 import com.catify.processengine.core.data.services.FlowNodeInstanceRepositoryService;
-import com.catify.processengine.core.data.services.impl.IdService;
+import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.management.ProcessManagementService;
@@ -112,14 +112,24 @@ public class IntegrationTests {
 	
 	@Test
 	public void testprocessTimerCatchDuration() throws IOException, JAXBException, InterruptedException {
-		simpleProcessTest("testprocess_timer_catch_duration.bpmn", 3000, 50000, 6, 3);
-	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
+//		simpleProcessTest("testprocess_timer_catch_duration.bpmn", 3000, 20000, 8, 4);
+		
+		Assert.fail("Not yet implemented");
+		
+//	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
 	}
 	
 	@Test
 	public void testprocessTimerStartCycle() throws IOException, JAXBException, InterruptedException {
-		simpleProcessTest("testprocess_timer_start_cycle.bpmn", 3000, 50000, 6, 3);
-	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
+//		startProcess("testprocess_timer_start_cycle.bpmn", 3000);
+		
+		Assert.fail("Not yet implemented");
+		
+//		Thread.sleep(20000);
+		// check results
+//		Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
+//		Assert.assertEquals(6, getFlowNodeCount());
+//		Assert.assertEquals(9, getFlowNodeInstanceCount());
 	}
 	
 	@Test

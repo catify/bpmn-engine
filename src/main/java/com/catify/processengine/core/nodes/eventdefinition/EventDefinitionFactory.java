@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.services.impl.IdService;
+import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;

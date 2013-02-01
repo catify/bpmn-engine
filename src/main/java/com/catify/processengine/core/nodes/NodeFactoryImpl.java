@@ -40,7 +40,7 @@ import akka.actor.ActorRef;
 import com.catify.processengine.core.data.dataobjects.DataObjectIdService;
 import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.data.dataobjects.NoDataObjectSP;
-import com.catify.processengine.core.data.services.impl.IdService;
+import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TComplexGateway;

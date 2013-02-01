@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import com.catify.processengine.core.data.model.entities.ProcessNode;
 import com.catify.processengine.core.data.repositories.ProcessRepository;
+import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.data.services.ProcessNodeRepositoryService;
 
 /**

@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import akka.actor.ActorRef;
 
 import com.catify.processengine.core.ProcessInitializer;
-import com.catify.processengine.core.data.services.impl.IdService;
+import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.services.ActorReferenceService;

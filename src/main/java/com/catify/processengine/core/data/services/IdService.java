@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.catify.processengine.core.data.services.impl;
+package com.catify.processengine.core.data.services;
 
 import java.util.ArrayList;
 

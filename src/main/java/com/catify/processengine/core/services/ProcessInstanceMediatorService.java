@@ -26,6 +26,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,7 @@ import com.catify.processengine.core.processdefinition.jaxb.TStartEvent;
  * 
  */
 @Component
+@Scope("prototype")
 public class ProcessInstanceMediatorService {
 
 	static final Logger LOG = LoggerFactory.getLogger(ProcessInstanceMediatorService.class);
