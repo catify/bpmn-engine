@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1359651054330" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http://www.w3.org/1999/XPath" id="_1359651054330" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1359651054330" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
-  <process id="_1" isClosed="false" isExecutable="true" processType="None">
-    <startEvent id="_2" isInterrupting="true" name="cycle start" parallelMultiple="false">
+  <process id="testprocess_timer_start_cycle" isClosed="false" isExecutable="true" processType="None">
+    <startEvent id="startEvent1" isInterrupting="true" name="cycle start" parallelMultiple="false">
       <outgoing>_6</outgoing>
       <timerEventDefinition id="_2_ED_1">
         <timeCycle><![CDATA[R3/PT5S]]></timeCycle>
@@ -14,7 +14,7 @@
       <incoming>_6</incoming>
       <outgoing>_7</outgoing>
     </intermediateThrowEvent>
-    <sequenceFlow id="_6" sourceRef="_2" targetRef="_5"/>
+    <sequenceFlow id="_6" sourceRef="startEvent1" targetRef="_5"/>
     <sequenceFlow id="_7" sourceRef="_5" targetRef="_4"/>
   </process>
   <bpmndi:BPMNDiagram documentation="background=#FFFFFF;count=1;horizontalcount=1;orientation=0;width=597.6;height=842.4;imageableWidth=587.6;imageableHeight=832.4;imageableX=5.0;imageableY=5.0" id="Yaoqiang_Diagram-_1" name="New Diagram">

@@ -44,6 +44,7 @@ import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TTerminateEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TThrowEvent;
+import com.catify.processengine.core.processdefinition.jaxb.TTimerEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.services.ExtensionService;
 import com.catify.processengine.core.services.ActorReferenceService;
 
@@ -84,6 +85,10 @@ public class EventDefinitionFactory {
 					TTerminateEventDefinition.class)) {
 				return createTerminateEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb, eventDefinitionParameter.subProcessesJaxb, 
 						eventDefinitionParameter.flowNodeJaxb, eventDefinitionJaxb);
+			} else if (eventDefinitionJaxb.getClass().equals(
+					TTimerEventDefinition.class)) {
+				return createTimerEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb, eventDefinitionParameter.subProcessesJaxb, 
+						eventDefinitionParameter.flowNodeJaxb, eventDefinitionJaxb);
 			}
 			// return empty event definition for unimplemented event definitions
 			LOG.error(String.format("Unimplemented event definition %s found. Associated events will fail!", getTEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb,
@@ -92,6 +97,41 @@ public class EventDefinitionFactory {
 		}
 	}
 
+	private EventDefinition createTimerEventDefinition(String clientId,
+			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TFlowNode flowNodeJaxb, TEventDefinition eventDefinitionJaxb) {
+		
+		return new TimerEventDefinition(
+				new ActorReferenceService().getActorReference(
+						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+								flowNodeJaxb)), 
+				getTimerType((TTimerEventDefinition) eventDefinitionJaxb), 
+				getIsoDate((TTimerEventDefinition) eventDefinitionJaxb));
+
+	}
+
+	private TimerTypes getTimerType(TTimerEventDefinition timerEventDefinitionJaxb) {
+		if (timerEventDefinitionJaxb.getTimeDate() != null) {
+			return TimerTypes.TIMEDATE;
+		} else if (timerEventDefinitionJaxb.getTimeDuration() != null) {
+			return TimerTypes.TIMEDURATION;
+		} else if (timerEventDefinitionJaxb.getTimeCycle() != null) {
+			return TimerTypes.TIMECYCLE;
+		}
+		return null;
+	}
+
+	private String  getIsoDate(TTimerEventDefinition timerEventDefinitionJaxb) {
+		if (timerEventDefinitionJaxb.getTimeDate() != null) {
+			return timerEventDefinitionJaxb.getTimeDate().getContent().get(0).toString();
+		} else if (timerEventDefinitionJaxb.getTimeDuration() != null) {
+			return timerEventDefinitionJaxb.getTimeDuration().getContent().get(0).toString();
+		} else if (timerEventDefinitionJaxb.getTimeCycle() != null) {
+			return timerEventDefinitionJaxb.getTimeCycle().getContent().get(0).toString();
+		}
+		return null;
+	}
+	
 	/**
 	 * Creates a new MessageEventDefinition object.
 	 *

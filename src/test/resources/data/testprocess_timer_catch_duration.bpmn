@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1359651359423" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http://www.w3.org/1999/XPath" id="_1359651359423" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1359651359423" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
-  <process id="_1" isClosed="false" isExecutable="true" processType="None">
-    <startEvent id="_2" isInterrupting="true" name="start" parallelMultiple="false">
+  <process id="testprocess_timer_catch_duration" isClosed="false" isExecutable="true" processType="None">
+    <startEvent id="startEvent1" isInterrupting="true" name="start" parallelMultiple="false">
       <outgoing>_6</outgoing>
     </startEvent>
     <intermediateThrowEvent id="_4" name="node 1">
@@ -18,7 +18,7 @@
         <timeDuration><![CDATA[PT5S]]></timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <sequenceFlow id="_6" sourceRef="_2" targetRef="_3"/>
+    <sequenceFlow id="_6" sourceRef="startEvent1" targetRef="_3"/>
     <sequenceFlow id="_7" sourceRef="_3" targetRef="_4"/>
     <sequenceFlow id="_8" sourceRef="_4" targetRef="_5"/>
   </process>

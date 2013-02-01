@@ -74,6 +74,8 @@ public class ProcessInstanceMediatorService {
 
 	private ProcessInstanceNode processInstanceNode;
 	
+	private ProcessNode process;
+	
 	public ProcessInstanceMediatorService() {
 
 	}
@@ -97,18 +99,21 @@ public class ProcessInstanceMediatorService {
 	@Transactional
 	public synchronized void createProcessInstance(String uniqueProcessId, String processInstanceId) {
 
-		ProcessNode process = processRepositoryService
-				.findByUniqueProcessId(uniqueProcessId);
+		// get the ProcessNode from db or cache
+		if (this.process == null) {
+			this.process = processRepositoryService
+					.findByUniqueProcessId(uniqueProcessId);
+		}
 		
 		LOG.debug(String.format(
 				"Starting to instantiate process %s with instanceId %s",
-				process.getProcessName(), processInstanceId));
+				this.process.getProcessName(), processInstanceId));
 
-		Set<FlowNode> flowNodes = neo4jTemplate.fetch(process.getFlowNodes());
+		Set<FlowNode> flowNodes = neo4jTemplate.fetch(this.process.getFlowNodes());
 		
 		createFlowNodeInstances(processInstanceId, flowNodes);
 		
-		createProcessInstanceNode(uniqueProcessId, processInstanceId, process, flowNodes);
+		createProcessInstanceNode(uniqueProcessId, processInstanceId, this.process, flowNodes);
 		
 		LOG.debug(String.format(
 				"Finished instantiating process %s with instanceId %s",

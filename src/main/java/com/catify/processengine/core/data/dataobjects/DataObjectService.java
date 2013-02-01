@@ -35,7 +35,7 @@ public class DataObjectService {
 
 	/** The data object implementation id set in the spring context. */
 	@Value("${datastore.implementation}")
-	private String dataObjectServiceProviderIdSetting;
+	private String dataObjectServiceProviderId;
 
 	/** The data input object id. */
 	private String dataInputObjectId;
@@ -70,10 +70,10 @@ public class DataObjectService {
 	 * annotated fields get filled by spring <b>after</b> construction.
 	 */
 	@PostConstruct
-	void initAnnotations() {
+	void initSpringDependentFields() {
 		if (this.dataObjectServiceProvider == null) {
 			this.dataObjectServiceProvider = DataObjectSPI
-					.getDataObjectServiceProvider(this.dataObjectServiceProviderIdSetting);
+					.getDataObjectServiceProvider(this.dataObjectServiceProviderId);
 		}
 	}
 	
@@ -161,7 +161,7 @@ public class DataObjectService {
 	 * @return the data object service provider
 	 */
 	public String getDataObjectServiceProviderId() {
-		return dataObjectServiceProviderIdSetting;
+		return dataObjectServiceProviderId;
 	}
 
 	/**
@@ -170,7 +170,7 @@ public class DataObjectService {
 	 * @param dataObjectServiceProviderId the new data object service provider id
 	 */
 	public void setDataObjectServiceProviderId(String dataObjectServiceProviderId) {
-		this.dataObjectServiceProviderIdSetting = dataObjectServiceProviderId;
+		this.dataObjectServiceProviderId = dataObjectServiceProviderId;
 	}
 	
 	/**
@@ -184,12 +184,12 @@ public class DataObjectService {
 	}
 	
 	public String getDataObjectServiceProviderIdSetting() {
-		return dataObjectServiceProviderIdSetting;
+		return dataObjectServiceProviderId;
 	}
 
 	public void setDataObjectServiceProviderIdSetting(
 			String dataObjectServiceProviderIdSetting) {
-		this.dataObjectServiceProviderIdSetting = dataObjectServiceProviderIdSetting;
+		this.dataObjectServiceProviderId = dataObjectServiceProviderIdSetting;
 	}
 
 	/**

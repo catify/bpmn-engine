@@ -111,6 +111,18 @@ public class IntegrationTests {
 	}
 	
 	@Test
+	public void testprocessTimerCatchDuration() throws IOException, JAXBException, InterruptedException {
+		simpleProcessTest("testprocess_timer_catch_duration.bpmn", 3000, 50000, 6, 3);
+	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
+	}
+	
+	@Test
+	public void testprocessTimerStartCycle() throws IOException, JAXBException, InterruptedException {
+		simpleProcessTest("testprocess_timer_start_cycle.bpmn", 3000, 50000, 6, 3);
+	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
+	}
+	
+	@Test
 	public void testprocessThrowThrowComplex() throws IOException, JAXBException, InterruptedException {
 		simpleProcessTest("testprocess_throw_throw_complex.bpmn", 3000, 5000, 10, 5);
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));

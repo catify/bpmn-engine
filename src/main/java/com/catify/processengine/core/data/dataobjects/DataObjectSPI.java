@@ -22,8 +22,6 @@ import java.util.ServiceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.catify.processengine.core.nodes.FlowElement;
-
 /**
  * The DataObjectHandlingSPI defines the methods needed to implement the storing 
  * and loading of data objects bound to process nodes.

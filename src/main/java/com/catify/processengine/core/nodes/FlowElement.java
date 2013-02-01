@@ -138,7 +138,9 @@ public abstract class FlowElement extends UntypedActor {
 	 */
 	protected boolean isProcessableInstance(Message message) {
 		// if the node checked is an uninitialized (start) node, consider it processable (as it has no saved state yet)
-		if (!this.nodeInstanceMediatorService.isInitialized() || message.getProcessInstanceId()==null) {
+		if (!this.nodeInstanceMediatorService.isInitialized() || message.getProcessInstanceId()==null
+				// if this is a start event it might have been initialized, but has not created instances yet
+				|| this.nodeInstanceMediatorService.getNodeInstanceState(message.getProcessInstanceId())==null) {
 			return true;} 
 		else {
 			String nodeInstanceState = this.nodeInstanceMediatorService

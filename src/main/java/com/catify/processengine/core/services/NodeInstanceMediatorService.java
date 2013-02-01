@@ -149,7 +149,11 @@ public class NodeInstanceMediatorService {
 	public String getNodeInstanceState(String processInstanceId) {
 		this.nodeInstance = getNodeInstance(processInstanceId);
 
-		return this.nodeInstance.getNodeInstanceState();
+		if (this.nodeInstance == null) {
+			return null;
+		} else {
+			return this.nodeInstance.getNodeInstanceState();
+		}
 	}
 
 	/**

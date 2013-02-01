@@ -46,25 +46,6 @@
 		<akka.version>2.1.0</akka.version>
 	</properties>
 
-	<repositories>
-		<repository>
-			<id>typesafe</id>
-			<name>Typesafe Repository</name>
-			<url>http://repo.typesafe.com/typesafe/releases/</url>
-		</repository>
-		<repository>
-			<id>neo4j-release-repository</id>
-			<name>Neo4j Maven 2 release repository</name>
-			<url>http://m2.neo4j.org/releases</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-
 	<dependencies>
 		<!-- akka -->
 		<dependency>
@@ -273,8 +254,7 @@
 						</manifest>
 						<!-- if used without maven the service providers can be manually bound -->
 						<manifestEntries>
-							<Class-Path>services/integration-spi-camel-1.0.jar
-								services/data-spi-voldemort-1.0.jar</Class-Path>
+							<Class-Path>services/integration-spi-camel-1.0.jar services/data-spi-voldemort-1.0.jar</Class-Path>
 						</manifestEntries>
 					</archive>
 				</configuration>
