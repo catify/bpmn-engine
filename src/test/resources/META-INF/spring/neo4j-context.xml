@@ -57,8 +57,7 @@
 	<!-- class="org.springframework.data.neo4j.rest.SpringRestGraphDatabase"> -->
 	<!-- <constructor-arg index="0" value="http://172.17.16.95:7474/db/data" /> -->
 	<!-- </bean> -->
-	
+
 	<neo4j:config graphDatabaseService="graphDatabaseService" />
 	<neo4j:repositories base-package="com.catify.processengine.core" />
-
 </beans>

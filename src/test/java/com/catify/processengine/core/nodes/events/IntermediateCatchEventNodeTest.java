@@ -23,6 +23,7 @@ package com.catify.processengine.core.nodes.events;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
@@ -45,6 +46,7 @@ import com.catify.processengine.core.nodes.Base_nodes;
 import com.catify.processengine.core.nodes.NodeFactory;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
+import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.core.services.ActorReferenceService;
 
 /**
@@ -65,7 +67,7 @@ public class IntermediateCatchEventNodeTest extends Base_nodes {
 	@Test
 	public void testUnmarshalling() throws FileNotFoundException, JAXBException {
 
-		List<TProcess> processList = getProcessesFromXML("data/testprocess.xml");
+		List<TProcess> processList = getProcessesFromXML("testprocess_catch.bpmn");
 
 		TProcess process = processList.get(0);
 		assertNotNull(process);
@@ -75,12 +77,12 @@ public class IntermediateCatchEventNodeTest extends Base_nodes {
 	public void testAkkaNodeCreation() throws FileNotFoundException,
 			JAXBException {
 
-		List<TProcess> processList = getProcessesFromXML("data/testprocess.xml");
+		List<TProcess> processList = getProcessesFromXML("testprocess_catch.bpmn");
 		final TProcess process_jaxb = processList.get(0);
 
 		assertNotNull(process_jaxb);
 
-		final TFlowNode flowNode_jaxb = extractFlowNodes(process_jaxb).get("_3");
+		final TFlowNode flowNode_jaxb = extractFlowNodes(process_jaxb).get("catchEvent1");
 
 		assertNotNull(flowNode_jaxb);
 		
@@ -90,7 +92,7 @@ public class IntermediateCatchEventNodeTest extends Base_nodes {
 
 					public UntypedActor create() {
 							return nodeFactory.createServiceNode("clientId", 
-									process_jaxb, null, flowNode_jaxb,
+									process_jaxb, new ArrayList<TSubProcess>(), flowNode_jaxb,
 									extractSequenceFlows(process_jaxb));
 					}
 				}).withDispatcher("file-mailbox-dispatcher"), 

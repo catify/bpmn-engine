@@ -50,12 +50,12 @@ public class Base_nodes {
 	/**
 	 * Gets the process from given xml.
 	 *
-	 * @param processLocation the process location
+	 * @param processName the process location
 	 * @return the bpmn process xml
 	 * @throws JAXBException the jAXB exception
 	 * @throws FileNotFoundException the file not found exception
 	 */
-	public List<TProcess> getProcessesFromXML(String processLocation) throws JAXBException,
+	public List<TProcess> getProcessesFromXML(String processName) throws JAXBException,
 			FileNotFoundException {
 
 		List<TProcess> processList = new ArrayList<TProcess>();
@@ -65,9 +65,11 @@ public class Base_nodes {
 		JAXBContext jaxbContext = JAXBContext
 				.newInstance("com.catify.processengine.core.processdefinition.jaxb");
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+		
+		File processFile = new File(getClass().getResource("/data/" + processName).getFile());
 
 		// extract the TDefinitions root element (without @RootElement-Annotation)
-		JAXBElement<TDefinitions> root = unmarshaller.unmarshal(new StreamSource(new File(processLocation)),TDefinitions.class);
+		JAXBElement<TDefinitions> root = unmarshaller.unmarshal(new StreamSource(processFile),TDefinitions.class);
 		TDefinitions definition = root.getValue();
 
 		// extract the process from the element

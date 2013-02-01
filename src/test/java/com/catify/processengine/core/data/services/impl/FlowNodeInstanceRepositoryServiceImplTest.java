@@ -20,7 +20,6 @@ package com.catify.processengine.core.data.services.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 import java.util.Set;
 
@@ -167,26 +166,6 @@ public class FlowNodeInstanceRepositoryServiceImplTest {
 		for (FlowNodeInstance flowNodeInstanceFound : flowNodeInstances) {
 			assertEquals(flowNodeInstance.getGraphId(), flowNodeInstanceFound.getGraphId());
 		}
-	}
-
-	@Test
-	public void testFindLoosingFlowNodeInstances() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testFindLoosingFlowNodeIds() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testDeleteAllFlowNodeInstanceNodes() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testFindAllFlowNodeInstancesAndFlowNodeIds() {
-		fail("Not yet implemented");
 	}
 
 }

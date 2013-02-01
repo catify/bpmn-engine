@@ -111,28 +111,6 @@ public class IntegrationTests {
 	}
 	
 	@Test
-	public void testprocessTimerCatchDuration() throws IOException, JAXBException, InterruptedException {
-//		simpleProcessTest("testprocess_timer_catch_duration.bpmn", 3000, 20000, 8, 4);
-		
-		Assert.fail("Not yet implemented");
-		
-//	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
-	}
-	
-	@Test
-	public void testprocessTimerStartCycle() throws IOException, JAXBException, InterruptedException {
-//		startProcess("testprocess_timer_start_cycle.bpmn", 3000);
-		
-		Assert.fail("Not yet implemented");
-		
-//		Thread.sleep(20000);
-		// check results
-//		Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
-//		Assert.assertEquals(6, getFlowNodeCount());
-//		Assert.assertEquals(9, getFlowNodeInstanceCount());
-	}
-	
-	@Test
 	public void testprocessThrowThrowComplex() throws IOException, JAXBException, InterruptedException {
 		simpleProcessTest("testprocess_throw_throw_complex.bpmn", 3000, 5000, 10, 5);
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));

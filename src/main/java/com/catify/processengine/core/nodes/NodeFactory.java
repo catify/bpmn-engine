@@ -38,10 +38,11 @@ public interface NodeFactory {
 
 	/**
 	 * Creates a service node from a jaxb flow node which can be used to create a service node actor
-	 * actor.
+	 * actor. Note: None of the parameters should be null.
 	 *
 	 * @param clientId the client id
 	 * @param processJaxb the jaxb process
+	 * @param subProcessesJaxb the sub processes jaxb
 	 * @param flowNodeJaxb the flow nodeJaxb
 	 * @param sequenceFlowsJaxb the list of jaxb sequence flows of that process
 	 * @return the start event node
