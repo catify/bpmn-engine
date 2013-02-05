@@ -120,6 +120,12 @@ public class SpringDataFlowNodeInstanceRepositoryService implements FlowNodeInst
 			String processInstanceId) {
 		return flowNodeInstanceRepository.findAllFlowNodeInstances(uniqueProcessId, processInstanceId);
 	}
+	
+
+	@Override
+	public Set<String> findAllFlowNodeInstances(String uniqueProcessId) {
+		return flowNodeInstanceRepository.findAllFlowNodeInstances(uniqueProcessId);
+	}
 
 	/* (non-Javadoc)
 	 * @see com.catify.processengine.core.data.services.FlowNodeInstanceRepositoryService#delete(com.catify.processengine.core.data.model.entities.FlowNodeInstance)

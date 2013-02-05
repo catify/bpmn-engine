@@ -82,13 +82,22 @@ public interface FlowNodeInstanceRepositoryService {
 	FlowNodeInstance save(FlowNodeInstance flowNodeInstance);
 	
 	/**
-	 * Find all flow node instances including sub processes (starting from a given process).
+	 * Find all flow node instances including sub processes with a given processInstanceId (starting from a given process).
 	 *
 	 * @param uniqueProcessId the unique process id
 	 * @param processInstanceId the process instance id
 	 * @return the set of flow node instances
 	 */
 	Set<FlowNodeInstance> findAllFlowNodeInstances(String uniqueProcessId, String processInstanceId);
+	
+	/**
+	 * Find all flow node instances of a process including sub processes (starting from a given process).
+	 *
+	 * @param uniqueProcessId the unique process id
+	 * @param processInstanceId the process instance id
+	 * @return the set of flow node instances
+	 */
+	Set<String> findAllFlowNodeInstances(String uniqueProcessId);
 	
 	/**
 	 * Find all flow node instances and their flow node ids.

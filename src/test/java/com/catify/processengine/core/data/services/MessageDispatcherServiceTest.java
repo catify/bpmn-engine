@@ -19,6 +19,7 @@ package com.catify.processengine.core.data.services;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,8 +31,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import akka.actor.ActorRef;
+
 import com.catify.processengine.core.integration.IntegrationMessage;
 import com.catify.processengine.core.integration.MessageIntegrationSPI;
+import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.MessageDispatcherService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -58,16 +62,18 @@ public class MessageDispatcherServiceTest {
 		assertNotNull(mds);
 	}
 
-	@Test
-	public void testDispatchToEngine() {
-		IntegrationMessage integrationMessage = getNewIntegrationMessage();
-		
-		messageDispatcherServiceMockInjected.dispatchToEngine(integrationMessage, null);
+	// test of akka actor message receiving etc. can only be made when the upcoming JavaTestKit of akka 2.1 is released
+//	@Test
+//	public void testDispatchToEngine() {
+//		
+//		IntegrationMessage integrationMessage = getNewIntegrationMessage();
+//		
+//		messageDispatcherServiceMockInjected.dispatchToEngine(integrationMessage, null);
 
 		// test of akka actor message receiving etc. can only be made when the upcoming JavaTestKit of akka 2.1 is released
 		// other functionality will be tested in integration tests
 		// method invocations to test: targetNodeActor.tell(triggerMessage) and metaDataActor.tell(metaDataMessage)
-	}
+//	}
 
 	@Test
 	public void testDispatchViaIntegrationSPI() {

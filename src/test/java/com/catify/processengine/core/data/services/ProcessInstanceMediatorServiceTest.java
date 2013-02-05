@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -129,28 +128,29 @@ public class ProcessInstanceMediatorServiceTest {
 		assertEquals(flowNodeInstances, processInstanceMediatorServiceMockInjected.findActiveFlowNodeInstances("uniqueFlowNodeId", "testInstanceId"));
 	}
 
-	@Test
-	public void testArchiveProcessInstance() {
-		// should be an integrational test, as this is mostly db work
-		
-		// create map and contents
-		String flowNodeId = "uniqueFlowNodeId";
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTAE");
-		Map<String,Object> idInstanceMap = new HashMap<String, Object>();
-		idInstanceMap.put("flownode.uniqueFlowNodeId", flowNodeId);
-		idInstanceMap.put("flownodeinstance", flowNodeInstance);
-		
-		// create result map
-		Set<Map<String,Object>> resultMap = new HashSet<Map<String,Object>>();
-		resultMap.add(idInstanceMap);
-		
-		when(flowNodeInstanceRepositoryService.findAllFlowNodeInstancesAndFlowNodeIds("uniqueProcessId", "testInstanceId")).thenReturn(resultMap);
-		
-		processInstanceMediatorServiceMockInjected.archiveProcessInstance("uniqueProcessId", "testInstanceId", new Date());
-		
-		verify(flowNodeInstanceRepositoryService).findAllFlowNodeInstancesAndFlowNodeIds("uniqueProcessId", "testInstanceId");
-		verify(processRepositoryService).findArchivedByRunningUniqueProcessId("uniqueProcessId");
-	}
+// archiving will be reimplemented in next version 
+//	@Test
+//	public void testArchiveProcessInstance() {
+//		// should be an integrational test, as this is mostly db work
+//		
+//		// create map and contents
+//		String flowNodeId = "uniqueFlowNodeId";
+//		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTAE");
+//		Map<String,Object> idInstanceMap = new HashMap<String, Object>();
+//		idInstanceMap.put("flownode.uniqueFlowNodeId", flowNodeId);
+//		idInstanceMap.put("flownodeinstance", flowNodeInstance);
+//		
+//		// create result map
+//		Set<Map<String,Object>> resultMap = new HashSet<Map<String,Object>>();
+//		resultMap.add(idInstanceMap);
+//		
+//		when(flowNodeInstanceRepositoryService.findAllFlowNodeInstancesAndFlowNodeIds("uniqueProcessId", "testInstanceId")).thenReturn(resultMap);
+//		
+//		processInstanceMediatorServiceMockInjected.archiveProcessInstance("uniqueProcessId", "testInstanceId", new Date());
+//		
+//		verify(flowNodeInstanceRepositoryService).findAllFlowNodeInstancesAndFlowNodeIds("uniqueProcessId", "testInstanceId");
+//		verify(processRepositoryService).findArchivedByRunningUniqueProcessId("uniqueProcessId");
+//	}
 
 	@Test
 	public void testDeleteProcessInstance() {
@@ -192,10 +192,6 @@ public class ProcessInstanceMediatorServiceTest {
 		verify(processInstanceNodeRepositoryService).save(processInstanceNodeSpy);
 		
 		assertEquals("testValue", processInstanceNodeSpy.getMetaDataProperties().getProperty("testKey"));
-		
-		// causes NPE although everything seems to be fine
-//		verify(processInstanceNodeSpy).setMetaDataProperties(processInstanceNodeSpy
-//				.getMetaDataProperties().createFrom(metaData));
 	}
 
 }

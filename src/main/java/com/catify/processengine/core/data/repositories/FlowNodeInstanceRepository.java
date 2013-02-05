@@ -93,6 +93,16 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 * @param processInstanceId the process instance id
 	 * @return the set of flow node instances
 	 */
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance return r2.instanceId")
+	Set<String> findAllFlowNodeInstances(String uniqueProcessId);
+	
+	/**
+	 * Find all flow node instances including sub processes (starting from a given process).
+	 *
+	 * @param uniqueProcessId the unique process id
+	 * @param processInstanceId the process instance id
+	 * @return the set of flow node instances
+	 */
 	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where r2.instanceId = {1} return flownodeinstance, flownode.uniqueFlowNodeId")
 	Iterable<Map<String,Object>> findAllFlowNodeInstancesAndFlowNodeIds(String uniqueProcessId, String processInstanceId);
 	

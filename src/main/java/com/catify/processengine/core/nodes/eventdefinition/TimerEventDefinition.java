@@ -26,14 +26,11 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 
 import scala.concurrent.duration.Duration;
-
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 
 import com.catify.processengine.core.data.dataobjects.TimerBean;
 import com.catify.processengine.core.data.dataobjects.TimerSPI;
@@ -66,10 +63,9 @@ public class TimerEventDefinition extends EventDefinition {
 	@Value("${timer.interval}")
 	private long timerPollingInterval;
 	
-	@Autowired
-	private ActorSystem actorSystem;
-	
+	/** The event that is holding this event definition. */
 	private ActorRef eventActorRef;
+	
 	private TimerTypes timerType;
 	private String isoDate;
 	

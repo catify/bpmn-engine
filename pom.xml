@@ -239,6 +239,24 @@
 					<header>src/main/resources/apache_license.txt</header>
 				</configuration>
 			</plugin>
+			
+			<!-- gpg -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<configuration>
+							<keyname>catify</keyname>
+						</configuration>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 			<!-- creates an executable jar -->
 			<plugin>

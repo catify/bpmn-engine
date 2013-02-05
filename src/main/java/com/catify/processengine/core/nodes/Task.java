@@ -25,8 +25,8 @@ import akka.actor.ActorRef;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.messages.Message;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 
 
 /**

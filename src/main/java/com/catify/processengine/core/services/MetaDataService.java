@@ -42,7 +42,6 @@ public class MetaDataService extends UntypedActor {
 	private ProcessInstanceMediatorService processInstanceMediatorService;
 	
 	public MetaDataService() {
-		processInstanceMediatorService = new ProcessInstanceMediatorService();
 	}
 
 	/**
