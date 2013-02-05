@@ -99,7 +99,7 @@ public class ProcessInstanceMediatorService {
 	 * @param processInstanceId the process instance id
 	 */
 	@Transactional
-	public synchronized void createProcessInstance(String uniqueProcessId, String processInstanceId) {
+	public void createProcessInstance(String uniqueProcessId, String processInstanceId) {
 
 		// get the ProcessNode from db or cache
 		if (this.process == null) {
@@ -129,7 +129,7 @@ public class ProcessInstanceMediatorService {
 	 * @param processInstanceId the process instance id
 	 */
 	@Transactional
-	public synchronized void createSubProcessInstance(String parentUniqueFlowNodeId, String processInstanceId) {
+	public void createSubProcessInstance(String parentUniqueFlowNodeId, String processInstanceId) {
 		
 		FlowNode subProcessFlowNode = flowNodeRepositoryService.findByUniqueFlowNodeId(parentUniqueFlowNodeId);
 		
@@ -164,7 +164,7 @@ public class ProcessInstanceMediatorService {
 				processInstanceId, new Date());
 		
 		// create relationships between process instance node and start node instances
-		// FIXME: this is a pretty costly operation and should be evaluated
+		// TODO: this is a pretty costly operation and should be evaluated
 		for (FlowNode flowNode : flowNodes) {
 			if (flowNode.getNodeType().equals(TStartEvent.class.toString())) {
 				FlowNodeInstance startNodeInstance = flowNodeInstanceRepositoryService
@@ -202,11 +202,6 @@ public class ProcessInstanceMediatorService {
 			flowNodeInstanceRepositoryService.save(flowNodeInstance);
 			
 			flowNodeInstances.put(flowNode, flowNodeInstance);
-			
-			// create nested sub process flow node instances 
-//			if (flowNode.getNodeType().equals(TSubProcess.class.toString())) {
-//				this.createFlowNodeInstances(processInstanceId, neo4jTemplate.fetch(flowNode.getSubProcessNodes()));
-//			}
 		}   
 		
 		// create relationships between the node instances
@@ -219,7 +214,7 @@ public class ProcessInstanceMediatorService {
 			// mirror the flow node relationships to the flow node instances
 			for (FlowNode followingFlowNode : neo4jTemplate.fetch(flowNode.getFollowingFlowNodes())) {
 
-				// (FIXME: evaluate if a query beginning at the process might be faster)
+				// (TODO: evaluate if a query beginning at the process might be faster)
 				FlowNodeInstance followingFlowNodeInstance = flowNodeInstanceRepositoryService
 						.findFlowNodeInstance(followingFlowNode.getGraphId(),
 								processInstanceId);
@@ -256,7 +251,7 @@ public class ProcessInstanceMediatorService {
 	 * @param processInstanceId the process instance id
 	 */
 	@Transactional
-	public synchronized void archiveProcessInstance(String uniqueProcessId, String processInstanceId, Date endTime) {	
+	public void archiveProcessInstance(String uniqueProcessId, String processInstanceId, Date endTime) {	
 		
 		// save the flow node instances to their archived flow nodes
 		Iterable<Map<String,Object>> result = flowNodeInstanceRepositoryService.findAllFlowNodeInstancesAndFlowNodeIds(uniqueProcessId, processInstanceId);
@@ -284,7 +279,7 @@ public class ProcessInstanceMediatorService {
 	 * @param processInstanceId the process instance id
 	 */
 	@Transactional
-	public synchronized void deleteProcessInstance(String uniqueProcessId, String processInstanceId) {
+	public void deleteProcessInstance(String uniqueProcessId, String processInstanceId) {
 		flowNodeInstanceRepositoryService.deleteAllFlowNodeInstanceNodes(uniqueProcessId, processInstanceId);
 	}
 

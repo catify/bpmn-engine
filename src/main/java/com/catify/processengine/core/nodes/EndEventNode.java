@@ -20,11 +20,8 @@ package com.catify.processengine.core.nodes;
 import java.util.Date;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Value;
 
 import akka.actor.ActorRef;
 
@@ -32,9 +29,7 @@ import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
 import com.catify.processengine.core.messages.ActivationMessage;
-import com.catify.processengine.core.messages.ArchiveMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
-import com.catify.processengine.core.messages.DeletionMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
@@ -55,19 +50,11 @@ public class EndEventNode extends ThrowEvent {
 	@Autowired
 	private ProcessInstanceMediatorService processInstanceMediatorService;
 	
-	// FIXME: implement catify extension to set this value
-	private boolean processInstanceArchiving = true;
-	
 	/** The sub process node that is parent of this end node (if any). */
 	private ActorRef parentSubProcessNode;
 	
 	/** The data object ids of the whole process. Will be null if this is not a top level end event. */
 	private Set<String> dataObjectIds;
-	
-	/** The process instance cleansing actor to either delete the process instance or archive it. */
-	@Value("${core.processInstanceCleansingActor}")
-	private String processInstanceCleansingActorName;
-	private ActorRef processInstanceCleansingActor;
 
 	public EndEventNode() {
 	}
@@ -96,14 +83,6 @@ public class EndEventNode extends ThrowEvent {
 		// create EventDefinition actor
 		this.eventDefinitionActor = EventDefinitionHandling
 				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
-	}
-	
-	/**
-	 * Inits the annotated processInstanceCleansingActor after construction, because the @Value annotated fields get filled by spring <b>after</b> construction.
-	 */
-	@PostConstruct
-	void initAnnotations() {
-		this.processInstanceCleansingActor = this.getActorSystem().actorFor("user/" + processInstanceCleansingActorName);
 	}
 
 	@Override
@@ -164,16 +143,9 @@ public class EndEventNode extends ThrowEvent {
 			// embedded end events call their embedding sub processes to move on in the process
 			if (this.parentSubProcessNode != null) {
 				this.sendMessageToNodeActor(new TriggerMessage(processInstanceId, null), this.parentSubProcessNode);
-			
+				LOG.debug(String.format("Sub-Process instance with instance id '%s' ended sucessfully", processInstanceId));
 			// top level end events will work with the whole process instance to either save or delete it
 			} else {
-				if (isProcessInstanceArchiving()) {
-					this.sendMessageToNodeActor(new ArchiveMessage(this.getUniqueProcessId(), processInstanceId, new Date()),
-							this.processInstanceCleansingActor);
-				} else {
-					this.sendMessageToNodeActor(new DeletionMessage(this.getUniqueProcessId(), processInstanceId, this.dataObjectIds),
-							this.processInstanceCleansingActor);
-				} 
 				LOG.debug(String.format("Process instance with instance id '%s' ended sucessfully", processInstanceId));
 			}
 			// return instance has ended
@@ -182,14 +154,6 @@ public class EndEventNode extends ThrowEvent {
 			// return instance is still active
 			return false;
 		}
-	}
-
-	public boolean isProcessInstanceArchiving() {
-		return processInstanceArchiving;
-	}
-
-	public void setProcessInstanceArchiving(boolean processInstanceArchiving) {
-		this.processInstanceArchiving = processInstanceArchiving;
 	}
 
 	public ActorRef getSubProcessNode() {

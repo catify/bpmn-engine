@@ -84,21 +84,19 @@ public class SpringDataFlowNodeInstanceRepositoryService implements FlowNodeInst
 		boolean errorCatched = false;
 
 		do {
-
 			try {
 				return flowNodeInstanceRepository.findFlowNodeInstance(
 						uniqueProcessId, uniqueFlowNodeId, instanceId);
 			} catch (org.neo4j.kernel.impl.nioneo.store.InvalidRecordException e) {
 				errorCatched = true;
-				LOG.debug("Concurrend searching and deleting lead to a InvalidRecordException in findFlowNodeInstance(). This is expected, retrying query.");
+				LOG.debug("Concurrent searching and deleting lead to a InvalidRecordException in findFlowNodeInstance(). This is expected, retrying query.");
 			} catch (org.neo4j.cypher.EntityNotFoundException e2) {
 				errorCatched = true;
-				LOG.debug("Concurrend searching and deleting lead to a EntityNotFoundException in findFlowNodeInstance(). This is expected, retrying query.");
+				LOG.debug("Concurrent searching and deleting lead to a EntityNotFoundException in findFlowNodeInstance(). This is expected, retrying query.");
 			} catch (org.neo4j.graphdb.NotFoundException e3) {
 				errorCatched = true;
-				LOG.debug("Concurrend searching and deleting lead to a NotFoundException in findFlowNodeInstance(). This is expected, retrying query.");
+				LOG.debug("Concurrent searching and deleting lead to a NotFoundException in findFlowNodeInstance(). This is expected, retrying query.");
 			}
-			
 		} while (errorCatched);
 
 		return null;

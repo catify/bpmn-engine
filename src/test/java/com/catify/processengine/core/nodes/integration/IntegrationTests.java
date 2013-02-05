@@ -188,6 +188,27 @@ public class IntegrationTests {
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
 	}
 	
+	@Test
+	public void testprocessThrowMassData() throws IOException, JAXBException, InterruptedException {
+		TProcess simpleProcessTest = startProcess("testprocess_throw.bpmn", 3000);
+		pm.createProcessInstance(client, simpleProcessTest, startEvent, new TriggerMessage(defaultInstanceId, null));
+		
+		Thread.sleep(5000);
+		
+		for (int i = 0; i < 1000; i++) {
+			// trigger the waiting catch event
+		    pm.sendTriggerMessage(client, simpleProcessTest, startEvent, new TriggerMessage(null, null));
+		}
+		
+		Thread.sleep(5000);
+		
+		while (!checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE)) {
+			Thread.sleep(10000);
+		}
+		
+	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE));
+	}
+	
 	/**
 	 * Helper method to test standard scenarios.
 	 *

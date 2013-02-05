@@ -101,7 +101,7 @@ public class NodeInstanceMediatorService {
 	 *            the instance id
 	 * @return the neo4j flow node instance
 	 */
-	private synchronized FlowNodeInstance loadFlowNodeInstance(String uniqueProcessId,
+	private FlowNodeInstance loadFlowNodeInstance(String uniqueProcessId,
 			String uniqueFlowNodeId, String processInstanceId) {
 		// check if nodeInstance has already been loaded (eg. by another
 		// operation) to avoid unnecessary db lookups
