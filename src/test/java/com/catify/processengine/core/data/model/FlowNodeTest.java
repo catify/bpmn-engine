@@ -94,7 +94,7 @@ public class FlowNodeTest extends ModelTestBase {
 		template.save(flowNode2);
 
 		// create the relationship between the flow nodes
-		flowNode.addFollowingFlowNodes(template, flowNode2);
+		flowNode.addFollowingFlowNodes(template, flowNode2); // this does not seem to have an effect in this test
 
 		template.save(flowNode);
 		template.save(flowNode2);
@@ -110,7 +110,7 @@ public class FlowNodeTest extends ModelTestBase {
 		
 		// check if it could be added successfully
 		// FIXME: test is broken, works in actual application (see EntityInitialization and ProcessInstanceMediatorService) 
-//		assertEquals(followingFlowNodeSet.size(), 1);
+//		assertEquals(1, followingFlowNodeSet.size());
 	}
 
 }
