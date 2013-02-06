@@ -113,6 +113,14 @@ public class SpringDataFlowNodeInstanceRepositoryService implements FlowNodeInst
 	}
 	
 	/* (non-Javadoc)
+	 * @see com.catify.processengine.core.data.services.FlowNodeInstanceRepositoryService#findAllFlowNodeInstances(java.lang.String)
+	 */
+	@Override
+	public Set<String> findAllFlowNodeInstances(String uniqueProcessId) {
+		return flowNodeInstanceRepository.findAllFlowNodeInstances(uniqueProcessId);
+	}
+	
+	/* (non-Javadoc)
 	 * @see com.catify.processengine.core.data.services.FlowNodeInstanceRepositoryService#findAllFlowNodeInstances(java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -121,10 +129,14 @@ public class SpringDataFlowNodeInstanceRepositoryService implements FlowNodeInst
 		return flowNodeInstanceRepository.findAllFlowNodeInstances(uniqueProcessId, processInstanceId);
 	}
 	
-
+	/* (non-Javadoc)
+	 * @see com.catify.processengine.core.data.services.FlowNodeInstanceRepositoryService#findAllFlowNodeInstancesAtState(java.lang.String, java.lang.String, java.lang.String)
+	 */
 	@Override
-	public Set<String> findAllFlowNodeInstances(String uniqueProcessId) {
-		return flowNodeInstanceRepository.findAllFlowNodeInstances(uniqueProcessId);
+	public Set<String> findAllFlowNodeInstancesAtState(
+			String uniqueProcessId, String uniqueFlowNodeId, String state) {
+		// TODO Auto-generated method stub
+		return flowNodeInstanceRepository.findAllFlowNodeInstancesAtState(uniqueProcessId, uniqueFlowNodeId, state);
 	}
 
 	/* (non-Javadoc)

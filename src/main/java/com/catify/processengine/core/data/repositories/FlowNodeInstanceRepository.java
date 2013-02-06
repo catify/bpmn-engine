@@ -83,8 +83,8 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 * @param processInstanceId the process instance id
 	 * @return the set of flow node instances
 	 */
-	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where r2.instanceId = {1} return flownodeinstance")
-	Set<FlowNodeInstance> findAllFlowNodeInstances(String uniqueProcessId, String processInstanceId);
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance return r2.instanceId")
+	Set<String> findAllFlowNodeInstances(String uniqueProcessId);
 	
 	/**
 	 * Find all flow node instances including sub processes (starting from a given process).
@@ -93,8 +93,19 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 * @param processInstanceId the process instance id
 	 * @return the set of flow node instances
 	 */
-	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance return r2.instanceId")
-	Set<String> findAllFlowNodeInstances(String uniqueProcessId);
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where r2.instanceId = {1} return flownodeinstance")
+	Set<FlowNodeInstance> findAllFlowNodeInstances(String uniqueProcessId, String processInstanceId);
+	
+	/**
+	 * Find all flow node instances of a flow node at a given state.
+	 *
+	 * @param uniqueProcessId the unique process id
+	 * @param uniqueFlowNodeId the unique flow node id
+	 * @param state the flow node instance state
+	 * @return the set of flow node instance ids at the given state of that node
+	 */
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where flownode.uniqueFlowNodeId = {1} and flownodeinstance.nodeInstanceState = {2} return r2.instanceId")
+	Set<String> findAllFlowNodeInstancesAtState(String uniqueProcessId, String uniqueFlowNodeId, String state);
 	
 	/**
 	 * Find all flow node instances including sub processes (starting from a given process).
