@@ -23,104 +23,57 @@ import static org.junit.Assert.assertNull;
 
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.catify.processengine.core.data.model.ModelTestBase;
-import com.catify.processengine.core.data.model.entities.ClientNode;
+import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.data.model.entities.FlowNode;
 import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
 import com.catify.processengine.core.data.model.entities.ProcessNode;
-import com.catify.processengine.core.data.model.entities.RootNode;
 import com.catify.processengine.core.data.model.entities.RunningNode;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:META-INF/spring/spring-context.xml" })
-@Transactional
-public class FlowNodeInstanceRepositoryServiceImplTest {
+public class FlowNodeInstanceRepositoryServiceImplTest extends ModelTestBase {
 
 	@Autowired
 	private SpringDataFlowNodeInstanceRepositoryService flowNodeInstanceRepositoryServiceImpl;
-	
-	/** The neo4j template. */
-	@Autowired
-	private Neo4jTemplate neo4jTemplate;
-	
-	@Before
-	public void before() {
-		MockitoAnnotations.initMocks(this);
-	}
 	
 	@Test
 	public void testFlowNodeInstanceRepositoryServiceImpl() {
 		assertNotNull(flowNodeInstanceRepositoryServiceImpl);
 	}
-
-	private FlowNodeInstance createAndSaveFlowNodeInstance(String instanceId) {
-		// create nodes
-		RootNode rootNode = new RootNode();
-		ClientNode clientNode = new ClientNode("uniqueClientId");
-		RunningNode runningNode = new RunningNode();
-		
-		ModelTestBase model = new ModelTestBase();
-		ProcessNode processNode = model.createProcessNode("uniqueProcessId", "processId", "processName", "processVersion");
-		FlowNode flowNode = model.createFlowNode("uniqueFlowNodeId", "flowNodeId", "typeOfNode", "name");
-		FlowNodeInstance flowNodeInstance = model.createFlowNodeInstance();
-		
-		// create base relationships
-		rootNode.addRelationshipToClientNode(clientNode);
-		clientNode.addRelationshipToRunningProcessNode(runningNode);
-		runningNode.addRelationshipToProcessNode(processNode);
-		
-		// create a relationship between process node and flow node
-		processNode.addRelationshipToFlowNode(flowNode);
-		// create a relationship between flow node and instance
-		flowNodeInstance.addAsInstanceOf(flowNode, instanceId);
-		
-		// save the nodes to the db
-		neo4jTemplate.save(rootNode);
-		neo4jTemplate.save(clientNode);
-		neo4jTemplate.save(runningNode);
-		neo4jTemplate.save(processNode);
-		neo4jTemplate.save(flowNode);
-		neo4jTemplate.save(flowNodeInstance);
-		
-		return flowNodeInstance;
-	}
-
 	
 	@Test
 	public void testFindFlowNodeInstanceStringStringString() {
-		FlowNodeInstance flowNodeInstance = createAndSaveFlowNodeInstance("TESTINSTANCE");
+		FlowNode flowNode = createBaseNodesToFlowNode();
+		FlowNodeInstance flowNodeInstance = createAndSaveFlowNodeInstance(flowNode, "TESTINSTANCE", NodeInstaceStates.ACTIVE_STATE);
 		assertNotNull(flowNodeInstance);
 		
-		FlowNodeInstance flowNodeInstanceFound = flowNodeInstanceRepositoryServiceImpl.findFlowNodeInstance("uniqueProcessId", "uniqueFlowNodeId", "TESTINSTANCE");
+		FlowNodeInstance flowNodeInstanceFound = flowNodeInstanceRepositoryServiceImpl.findFlowNodeInstance(
+				ModelTestBase.UNIQUEPROCESSID, ModelTestBase.UNIQUE_FLOWNODE_ID, "TESTINSTANCE");
 		
 		assertEquals(flowNodeInstance.getGraphId(), flowNodeInstanceFound.getGraphId());
 	}
 
 	@Test
 	public void testFindFlowNodeInstanceLongString() {
-		FlowNodeInstance flowNodeInstance = createAndSaveFlowNodeInstance("TESTINSTANCE");
+		FlowNode flowNode = createBaseNodesToFlowNode();
+		FlowNodeInstance flowNodeInstance = createAndSaveFlowNodeInstance(flowNode, "TESTINSTANCE", NodeInstaceStates.ACTIVE_STATE);
 		assertNotNull(flowNodeInstance);
 		
-		FlowNodeInstance flowNodeInstanceFound = flowNodeInstanceRepositoryServiceImpl.findFlowNodeInstance(flowNodeInstance.getFlowNodeOfHasInstanceRelationship().getGraphId(), "TESTINSTANCE");
+		FlowNodeInstance flowNodeInstanceFound = flowNodeInstanceRepositoryServiceImpl.findFlowNodeInstance(
+				flowNodeInstance.getFlowNodeOfHasInstanceRelationship().getGraphId(), "TESTINSTANCE");
 		assertEquals(flowNodeInstance.getGraphId(), flowNodeInstanceFound.getGraphId());
 	}
 
 	@Test
 	public void testFindAllFlowNodeInstances() {
-		FlowNodeInstance flowNodeInstance = createAndSaveFlowNodeInstance("TESTINSTANCE");
+		FlowNode flowNode = createBaseNodesToFlowNode();
+		FlowNodeInstance flowNodeInstance = createAndSaveFlowNodeInstance(flowNode, "TESTINSTANCE", NodeInstaceStates.ACTIVE_STATE);
 		assertNotNull(flowNodeInstance);
 		
-		Set<FlowNodeInstance> flowNodeInstances = flowNodeInstanceRepositoryServiceImpl.findAllFlowNodeInstances("uniqueProcessId", "TESTINSTANCE");
+		Set<FlowNodeInstance> flowNodeInstances = flowNodeInstanceRepositoryServiceImpl.findAllFlowNodeInstances(
+				"uniqueProcessId", "TESTINSTANCE");
 		assertNotNull(flowNodeInstances);
 		
 		// the flow node instance should be in the set (and nothing else) 
@@ -131,7 +84,8 @@ public class FlowNodeInstanceRepositoryServiceImplTest {
 
 	@Test
 	public void testDelete() {
-		FlowNodeInstance flowNodeInstance = createAndSaveFlowNodeInstance("TESTINSTANCE");
+		FlowNode flowNode = createBaseNodesToFlowNode();
+		FlowNodeInstance flowNodeInstance = createAndSaveFlowNodeInstance(flowNode, "TESTINSTANCE", NodeInstaceStates.ACTIVE_STATE);
 		assertNotNull(flowNodeInstance);
 		
 		flowNodeInstanceRepositoryServiceImpl.delete(flowNodeInstance);
@@ -156,7 +110,8 @@ public class FlowNodeInstanceRepositoryServiceImplTest {
 
 	@Test
 	public void testFindFlowNodeInstancesAtCurrentLevelByState() {
-		FlowNodeInstance flowNodeInstance = createAndSaveFlowNodeInstance("TESTINSTANCE");
+		FlowNode flowNode = createBaseNodesToFlowNode();
+		FlowNodeInstance flowNodeInstance = createAndSaveFlowNodeInstance(flowNode, "TESTINSTANCE", NodeInstaceStates.ACTIVE_STATE);
 		assertNotNull(flowNodeInstance);
 		
 		Set<FlowNodeInstance> flowNodeInstances = flowNodeInstanceRepositoryServiceImpl.findFlowNodeInstancesAtCurrentLevelByState("uniqueFlowNodeId", "instanceId", "TESTING");
@@ -167,5 +122,24 @@ public class FlowNodeInstanceRepositoryServiceImplTest {
 			assertEquals(flowNodeInstance.getGraphId(), flowNodeInstanceFound.getGraphId());
 		}
 	}
+	
+	@Test
+	public void testFindAllFlowNodeInstancesAtState() {
+		FlowNode flowNode = createBaseNodesToFlowNode();
+		FlowNodeInstance flowNodeInstance = createAndSaveFlowNodeInstance(flowNode, "TESTINSTANCE", NodeInstaceStates.ACTIVE_STATE);
+		assertNotNull(flowNodeInstance);
+		
+		FlowNodeInstance flowNodeInstance2 = createAndSaveFlowNodeInstance(flowNode, "TESTINSTANCE2", NodeInstaceStates.PASSED_STATE);
+		assertNotNull(flowNodeInstance2);
+		
+		Set<String> flowNodeInstanceIds = flowNodeInstanceRepositoryServiceImpl.findAllFlowNodeInstancesAtState("uniqueProcessId", "uniqueFlowNodeId", NodeInstaceStates.ACTIVE_STATE);
+		assertNotNull(flowNodeInstanceIds);
+		assertEquals(1, flowNodeInstanceIds.size());
+	}
 
+	private FlowNode createBaseNodesToFlowNode() {
+		RunningNode runningNode = createAndSaveBaseNodes();
+		ProcessNode processNode = createAndSaveProcessNode(runningNode);
+		return createAndSaveFlowNode(processNode);
+	}
 }

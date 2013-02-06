@@ -85,7 +85,6 @@ public interface FlowNodeInstanceRepositoryService {
 	 * Find all flow node instances of a process including sub processes.
 	 *
 	 * @param uniqueProcessId the unique process id
-	 * @param processInstanceId the process instance id
 	 * @return the set of flow node instances
 	 */
 	Set<String> findAllFlowNodeInstances(String uniqueProcessId);
@@ -145,9 +144,10 @@ public interface FlowNodeInstanceRepositoryService {
 	/**
 	 * Find flow node ids of previous loosing flow node instances.
 	 *
-	 * @param graphId the graph id
-	 * @param state the state
-	 * @return the sets the
+	 * @param uniqueProcessId the unique process id
+	 * @param uniqueFlowNodeId the unique flow node id
+	 * @param instanceId the instance id
+	 * @return the set of flow node ids
 	 */
 	Set<String> findLoosingFlowNodeIds(String uniqueProcessId,
 			String uniqueFlowNodeId, String instanceId);
@@ -155,7 +155,6 @@ public interface FlowNodeInstanceRepositoryService {
 	/**
 	 * Find all flow nodes of a given process level (not including sub and parent processes) that have a given state.
 	 *
-	 * @param uniqueProcessId the unique process id
 	 * @param uniqueFlowNodeId the unique flow node id
 	 * @param instanceId the instance id
 	 * @param state the state
