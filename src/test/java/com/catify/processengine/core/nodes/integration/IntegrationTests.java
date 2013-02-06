@@ -20,7 +20,7 @@
  */
 package com.catify.processengine.core.nodes.integration;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import javax.validation.constraints.AssertTrue;
 import javax.xml.bind.JAXBException;
 
 import junit.framework.Assert;
@@ -186,13 +187,44 @@ public class IntegrationTests {
 		
 		Thread.sleep(1000);
 		int i = 0;
-		while (countAllFlowNodeInstances(process) != 300 && i < 5) {
+		while (countAllProcessInstances(process) != 300 && i < 5) {
 			Thread.sleep(10000);
 			i++;
 		}
 		
-		Assert.assertEquals(300, countAllFlowNodeInstances(process));
+		Assert.assertEquals(300, countAllProcessInstances(process));
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
+	}
+	
+	@Test
+	public void testprocessSignalEventCatchThrow() throws FileNotFoundException, JAXBException, InterruptedException {
+		// deploy processes
+		TProcess p1 = startProcess("testprocess_throw_signal_event.bpmn", 3000);
+		TProcess p2 = startProcess("testprocess_catch_signal_event.bpmn", 3000);
+		TProcess p3 = startProcess("testprocess_catch_signal_start_event.bpmn", 3000);
+		TProcess p4 = startProcess("testprocess_catch_other_signal_event.bpmn", 3000);
+		
+		// start processes
+		pm.createProcessInstance(client, p2, startEvent, new TriggerMessage("20", null)); // catch signal 'SIG_1' 
+		pm.createProcessInstance(client, p2, startEvent, new TriggerMessage("21", null)); // catch signal 'SIG_1' 
+		pm.createProcessInstance(client, p4, startEvent, new TriggerMessage("40", null)); // catch signal 'SIG_2' 
+		pm.createProcessInstance(client, p4, startEvent, new TriggerMessage("41", null)); // catch signal 'SIG_2' 
+		Thread.sleep(2000);
+		pm.createProcessInstance(client, p1, startEvent, new TriggerMessage("10", null)); // throw signal 'SIG_1'
+		Thread.sleep(1500);
+		
+		//  check results 
+		this.checkProcess(p1, 6, 3, "10");
+		this.checkProcess(p2, 6, 3, "20");
+		this.checkProcess(p2, 6, 3, "21");
+		this.checkProcess(p4, 6, 3, "40");
+		this.checkProcess(p4, 6, 3, "41");
+		assertTrue(this.checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, p1, "10")); // send 'SIG_1'
+		assertTrue(this.checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, p2, "20")); // received 'SIG_1'
+		assertTrue(this.checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, p2, "21")); // received 'SIG_1'
+		assertFalse(this.checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, p4, "40")); // received 'SIG_1' but not 'SIG_2'
+		assertFalse(this.checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, p4, "41")); // received 'SIG_1' but not 'SIG_2'
+		assertEquals(1, this.countAllProcessInstances(p3)); // started instance on 'SIG_1'
 	}
 	
 	/**
@@ -217,10 +249,33 @@ public class IntegrationTests {
 		Thread.sleep(secondSleep);
 
 		// check results
-		Assert.assertEquals(awaitedFlowNodeCount, getFlowNodeCount(process));
-		Assert.assertEquals(awaitedInstanceNodeCount, getFlowNodeInstanceCount(process));
+		this.checkProcess(process, awaitedFlowNodeCount, awaitedInstanceNodeCount);
 		
 		return process;
+	}
+	
+	/**
+	 * Checks if a process execution was successful.
+	 * 
+	 * @param process
+	 * @param awaitedFlowNodeCount
+	 * @param awaitedInstanceNodeCount
+	 */
+	private void checkProcess(TProcess process, int awaitedFlowNodeCount, int awaitedInstanceNodeCount) {
+		this.checkProcess(process, awaitedFlowNodeCount, awaitedInstanceNodeCount, defaultInstanceId);
+	}
+	
+	/**
+	 * Checks if a process execution was successful.
+	 * 
+	 * @param process
+	 * @param awaitedFlowNodeCount
+	 * @param awaitedInstanceNodeCount
+	 * @param instanceId
+	 */
+	private void checkProcess(TProcess process, int awaitedFlowNodeCount, int awaitedInstanceNodeCount, String instanceId) {
+		Assert.assertEquals(awaitedFlowNodeCount, getFlowNodeCount(process));
+		Assert.assertEquals(awaitedInstanceNodeCount, getFlowNodeInstanceCount(process, instanceId));
 	}
 	
 	/**
@@ -253,8 +308,7 @@ public class IntegrationTests {
 	    Thread.sleep(thirdSleep);
 
 		// check results
-		Assert.assertEquals(awaitedFlowNodeCount, getFlowNodeCount(process));
-		Assert.assertEquals(awaitedInstanceNodeCount, getFlowNodeInstanceCount(process));
+		this.checkProcess(process, awaitedFlowNodeCount, awaitedInstanceNodeCount);
 		
 		return process;
 	}
@@ -302,9 +356,20 @@ public class IntegrationTests {
 	 *
 	 * @return the flow node instance count
 	 */
-	long getFlowNodeInstanceCount(TProcess process) {
+	long getFlowNodeInstanceCount(TProcess process) {		
+		return this.getFlowNodeInstanceCount(process, defaultInstanceId);
+	}
+	
+	/**
+	 * Gets the flow node instance count.
+	 * 
+	 * @param process {@link TProcess} process object
+	 * @param instanceId instance id as {@link String}
+	 * @return
+	 */
+	long getFlowNodeInstanceCount(TProcess process, String instanceId) {
 		String processId = IdService.getUniqueProcessId(client, process);
-		Set<FlowNodeInstance> fni = flowNodeInstanceRepo.findAllFlowNodeInstances(processId, defaultInstanceId);
+		Set<FlowNodeInstance> fni = flowNodeInstanceRepo.findAllFlowNodeInstances(processId, instanceId);
 		
 		return Iterables.count(fni);
 	}
@@ -356,7 +421,7 @@ public class IntegrationTests {
 	 * @param state the state
 	 * @return the int
 	 */
-	int countAllFlowNodeInstances(TProcess process) {
+	int countAllProcessInstances(TProcess process) {
 		String processId = IdService.getUniqueProcessId(client, process);
 		Set<String> fni = flowNodeInstanceRepo.findAllFlowNodeInstances(processId);
 

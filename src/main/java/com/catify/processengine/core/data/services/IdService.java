@@ -24,6 +24,7 @@ import javax.xml.bind.JAXBElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
@@ -102,6 +103,16 @@ public final class IdService {
 				+ processJaxb.getId() + processJaxb.getName() + ExtensionService.getTVersion(processJaxb).getVersion() 
 				+ parentSubProcesses
 				+ flowNodeJaxb.getId() + flowNodeJaxb.getName());
+	}
+	
+	/**
+	 * Convenient method to create a unique flownode id.
+	 * 
+	 * @param params in a {@link EventDefinitionParameter} bean.
+	 * @return the unique flow node id 
+	 */
+	public static String getUniqueFlowNodeId(EventDefinitionParameter params) {
+		return getUniqueFlowNodeId(params.clientId, params.processJaxb, params.subProcessesJaxb, params.flowNodeJaxb);
 	}
 	
 	/**

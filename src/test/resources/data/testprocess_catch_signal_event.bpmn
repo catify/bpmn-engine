@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:catify="http://www.catify.com/processengine/core/processdefinition" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1340971831366" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
+  <process id="testprocess_catch_signal_event" isClosed="false" isExecutable="true" processType="Public">
+    <extensionElements>
+      <catify:version id="VERSION_ID" version="testProcessVersion1"/>
+    </extensionElements>
+    <property id="testprocess_catch_camel_messageIntegration_P_1" itemSubjectRef="xsd:string" name="mySuperSignal"/>
+    <startEvent id="startEvent1" isInterrupting="true" name="start2" parallelMultiple="false">
+      <outgoing>_14</outgoing>
+    </startEvent>
+    <intermediateCatchEvent id="_12" name="catch foo signal" parallelMultiple="false">
+      <incoming>_14</incoming>
+      <outgoing>_15</outgoing>
+      <signalEventDefinition id="_12_ED_1" signalRef="SIG_1"/>
+    </intermediateCatchEvent>
+    <endEvent id="_13" name="end2">
+      <incoming>_15</incoming>
+    </endEvent>
+    <sequenceFlow id="_14" sourceRef="startEvent1" targetRef="_12"/>
+    <sequenceFlow id="_15" sourceRef="_12" targetRef="_13"/>
+  </process>
+  <signal id="SIG_1" name="foo" structureRef="xsd:string"/>
+  <bpmndi:BPMNDiagram documentation="background=#FFFFFF;count=1;horizontalcount=1;orientation=0;width=597.6;height=842.4;imageableWidth=587.6;imageableHeight=832.4;imageableX=5.0;imageableY=5.0" id="Yaoqiang_Diagram-_1" name="New Diagram">
+    <bpmndi:BPMNPlane bpmnElement="testprocess_catch_camel_messageIntegration">
+      <bpmndi:BPMNShape bpmnElement="startEvent1" id="Yaoqiang-startEvent1">
+        <dc:Bounds height="32.0" width="32.0" x="45.0" y="150.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="18.80048076923077" width="36.76923076923077" x="92.61538461538463" y="240.13822115384613"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_12" id="Yaoqiang-_12">
+        <dc:Bounds height="32.0" width="32.0" x="142.5" y="150.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="18.80048076923077" width="89.07692307692308" x="163.96153846153842" y="240.13822115384613"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_13" id="Yaoqiang-_13">
+        <dc:Bounds height="32.0" width="32.0" x="240.0" y="150.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="18.80048076923077" width="33.692307692307686" x="289.15384615384613" y="240.13822115384613"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="_15" id="Yaoqiang-_15" sourceElement="_12" targetElement="_13">
+        <di:waypoint x="150.0" y="175.0"/>
+        <di:waypoint x="260.0" y="175.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_14" id="Yaoqiang-_14" sourceElement="startEvent1" targetElement="_12">
+        <di:waypoint x="60.0" y="165.0"/>
+        <di:waypoint x="155.0" y="180.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

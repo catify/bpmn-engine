@@ -41,6 +41,8 @@ import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
+import com.catify.processengine.core.processdefinition.jaxb.TSignalEventDefinition;
+import com.catify.processengine.core.processdefinition.jaxb.TStartEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TTerminateEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TThrowEvent;
@@ -89,12 +91,36 @@ public class EventDefinitionFactory {
 					TTimerEventDefinition.class)) {
 				return createTimerEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb, eventDefinitionParameter.subProcessesJaxb, 
 						eventDefinitionParameter.flowNodeJaxb, eventDefinitionJaxb);
+			// *** create a signal event actor ***
+			} else if (eventDefinitionJaxb instanceof TSignalEventDefinition) {
+				return createSignaleventDefinition(eventDefinitionParameter, (TSignalEventDefinition) eventDefinitionJaxb );
 			}
 			// return empty event definition for unimplemented event definitions
 			LOG.error(String.format("Unimplemented event definition %s found. Associated events will fail!", getTEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb,
 					eventDefinitionParameter.subProcessesJaxb, eventDefinitionParameter.flowNodeJaxb)));
 			return null;
 		}
+	}
+
+	/**
+	 * Creates a new signal event definition.
+	 * 
+	 * @param eventDefinitionParameter
+	 * @param eventDefinitionJaxb
+	 * @return
+	 */
+	private EventDefinition createSignaleventDefinition(EventDefinitionParameter params, TSignalEventDefinition signal) {
+		ActorRef actorRef = new ActorReferenceService().getActorReference(params.getUniqueFlowNodeId());
+		boolean isStart = Boolean.FALSE;
+		if(params.flowNodeJaxb instanceof TStartEvent) {
+			isStart = Boolean.TRUE;
+		}
+		boolean isThrow = Boolean.FALSE;
+		if(params.flowNodeJaxb instanceof TThrowEvent) {
+			isThrow = Boolean.TRUE;
+		}
+		String signalRef = signal.getSignalRef().getLocalPart();
+		return new SignalEventDefinition(actorRef, isStart, isThrow, signalRef, params);
 	}
 
 	private EventDefinition createTimerEventDefinition(String clientId,
