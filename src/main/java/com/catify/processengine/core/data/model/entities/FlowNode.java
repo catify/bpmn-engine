@@ -202,7 +202,7 @@ public class FlowNode {
 	 * @param neo4jTemplate
 	 *            the neo4jTemplate
 	 * @param flowNode
-	 *            the flow node
+	 *            the flow node to connect
 	 */
 	@Transactional
 	public void addFollowingFlowNodes(Neo4jTemplate neo4jTemplate,

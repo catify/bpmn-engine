@@ -25,11 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.catify.processengine.core.data.model.entities.FlowNode;
 import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
@@ -42,9 +38,6 @@ import com.catify.processengine.core.data.repositories.FlowNodeRepository;
  * @author chris
  * 
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:META-INF/spring/spring-context.xml" })
-@Transactional
 public class FlowNodeInstanceTest extends ModelTestBase {
 
 	@Autowired
@@ -57,7 +50,7 @@ public class FlowNodeInstanceTest extends ModelTestBase {
 	public void testSaveAndLoad() {
 
 		// create a flow node instance
-		FlowNodeInstance flowNodeInstance = createFlowNodeInstance();
+		FlowNodeInstance flowNodeInstance = createFlowNodeInstance(NodeInstaceStates.ACTIVE_STATE);
 
 		// save it to the db
 		flowNodeInstanceRepository.save(flowNodeInstance);
@@ -74,7 +67,7 @@ public class FlowNodeInstanceTest extends ModelTestBase {
 	public void testInstanceOf() {
 
 		// create a flow node instance
-		FlowNodeInstance flowNodeInstance = createFlowNodeInstance();
+		FlowNodeInstance flowNodeInstance = createFlowNodeInstance(NodeInstaceStates.ACTIVE_STATE);
 		flowNodeInstanceRepository.save(flowNodeInstance);
 
 		// create a FlowNode object
@@ -95,11 +88,11 @@ public class FlowNodeInstanceTest extends ModelTestBase {
 	public void testFollowingInstance() {
 
 		// create a flow node instance
-		FlowNodeInstance flowNodeInstance = createFlowNodeInstance();
+		FlowNodeInstance flowNodeInstance = createFlowNodeInstance(NodeInstaceStates.ACTIVE_STATE);
 		flowNodeInstanceRepository.save(flowNodeInstance);
 
 		// create a second flow node instance
-		FlowNodeInstance followingInstance = createFlowNodeInstance();
+		FlowNodeInstance followingInstance = createFlowNodeInstance(NodeInstaceStates.ACTIVE_STATE);
 		flowNodeInstanceRepository.save(followingInstance);
 
 
