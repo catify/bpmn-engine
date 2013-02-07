@@ -20,12 +20,14 @@
  */
 package com.catify.processengine.core.nodes.eventdefinition;
 
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,7 @@ import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
+import com.catify.processengine.core.processdefinition.jaxb.TLinkEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
@@ -106,6 +109,9 @@ public class EventDefinitionFactory {
 			// *** create a signal event actor ***
 			} else if (eventDefinitionJaxb instanceof TSignalEventDefinition) {
 				return createSignaleventDefinition(eventDefinitionParameter, (TSignalEventDefinition) eventDefinitionJaxb );
+			// *** create a link event actor ***
+			} else if (eventDefinitionJaxb instanceof TLinkEventDefinition) {
+				return createLinkEventDefinition(eventDefinitionParameter, (TLinkEventDefinition) eventDefinitionJaxb );
 			}
 			// return empty event definition for unimplemented event definitions
 			LOG.error(String.format("Unimplemented event definition %s found. Associated events will fail!", getTEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb,
@@ -115,7 +121,7 @@ public class EventDefinitionFactory {
 	}
 
 	/**
-	 * Creates a new signal event definition.
+	 * Creates a new {@link SignalEventDefinition}.
 	 * 
 	 * @param eventDefinitionParameter
 	 * @param eventDefinitionJaxb
@@ -133,6 +139,48 @@ public class EventDefinitionFactory {
 		}
 		String signalRef = signal.getSignalRef().getLocalPart();
 		return new SignalEventDefinition(actorRef, isStart, isThrow, signalRef, params);
+	}
+	
+	/**
+	 * Creates a new {@link LinkEventDefinition}.
+	 * 
+	 * @param params
+	 * @param link
+	 * @return
+	 */
+	private EventDefinition createLinkEventDefinition(EventDefinitionParameter params, TLinkEventDefinition link) {
+		ActorRef actorRef = new ActorReferenceService().getActorReference(params.getUniqueFlowNodeId());
+	
+		if(params.flowNodeJaxb instanceof TThrowEvent) {
+			/*
+			 * if it is a throwing event we need the 
+			 * target (where to go). 
+			 */
+			String target = "";
+			if(link.getTarget() != null) {
+				target = link.getTarget().getLocalPart();
+			} else {
+				LOG.warn(String.format("The throwing signal event '%s' has no target element. This will not work.", params.getUniqueFlowNodeId()));
+			}
+			
+			return new LinkEventDefinition(target, params.getUniqueProcessId(), actorRef);
+		} else {
+			/*
+			 * if it is a catching event we need the 
+			 * sources (where the link comes from)
+			 */
+			List<String> sources = new ArrayList<String>();
+			if(link.getSource() != null) {
+				List<QName> source = link.getSource();
+				for (QName qName : source) {
+					sources.add(qName.getLocalPart());
+				}
+			} else {
+				LOG.warn(String.format("The catching signal event '%s' has no source element. This will not work.", params.getUniqueFlowNodeId()));
+			}
+			return new LinkEventDefinition(sources, params.getUniqueProcessId(), actorRef);
+		}
+		
 	}
 
 	private EventDefinition createTimerEventDefinition(String clientId,

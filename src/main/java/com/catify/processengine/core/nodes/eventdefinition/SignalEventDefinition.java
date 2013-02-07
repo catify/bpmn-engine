@@ -35,7 +35,6 @@ import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.SignalEventMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.NodeUtils;
 
 /**
  * Event definition for BPMN 2.0 signal events (catching and throwing).
@@ -159,12 +158,8 @@ public class SignalEventDefinition extends EventDefinition {
 				.getClass().getSimpleName()));
 		
 		// process message and reply with a commit message to the underlying node event
-		if (message instanceof ActivationMessage) {
-			new NodeUtils().replyCommitMessage(activate((ActivationMessage) message), getSelf(), getSender());
-		} else if (message instanceof DeactivationMessage) {
-			new NodeUtils().replyCommitMessage(deactivate((DeactivationMessage) message), getSelf(), getSender());
-		} else if (message instanceof TriggerMessage) {
-			new NodeUtils().replyCommitMessage(trigger((TriggerMessage) message), getSelf(), getSender());
+		if (this.handle(message)) {
+			// everything is done
 		} else if (message instanceof SignalEventMessage) {
 			this.listen((SignalEventMessage) message);
 		} else {
