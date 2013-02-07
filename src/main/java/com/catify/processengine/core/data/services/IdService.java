@@ -137,7 +137,7 @@ public final class IdService {
 	
 	
 	/**
-	 * Gets the unique flow node id of a top level flow node.
+	 * Gets the unique flow node id of a flow node.
 	 *
 	 * @param clientId the client id
 	 * @param processJaxb the process jaxb
@@ -154,7 +154,7 @@ public final class IdService {
 	}
 	
 	/**
-	 * Gets the unique flow node id of a top level flow node.
+	 * Gets the unique flow node id of an archived flow node.
 	 *
 	 * @param clientId the client id
 	 * @param processJaxb the process jaxb
@@ -195,15 +195,37 @@ public final class IdService {
 	 * @param nodeId the node id
 	 * @return the flow node by id
 	 */
-	private static TFlowNode getTFlowNodeById(TProcess processJaxb, String nodeId) {
+	public static TFlowNode getTFlowNodeById(TProcess processJaxb, String nodeId) {
 		
 		for (JAXBElement<? extends TFlowElement> flowElementJaxb : processJaxb
 				.getFlowElement()) {
-			if (flowElementJaxb.getValue() instanceof TFlowNode
-					&& flowElementJaxb.getValue().getId().equals(nodeId)) {
-				LOG.debug(String.format("Found Flow Node with id ",
-						flowElementJaxb.getValue().getId()));
-				return (TFlowNode) flowElementJaxb.getValue();
+			if (flowElementJaxb.getValue() instanceof TFlowNode) {
+				if (flowElementJaxb.getValue().getId().equals(nodeId)) {
+					LOG.debug(String.format("Found Flow Node with id ",
+							flowElementJaxb.getValue().getId()));
+					return (TFlowNode) flowElementJaxb.getValue();
+				} else 	if (flowElementJaxb.getValue() instanceof TSubProcess) {
+					return getTFlowNodeByIdFromSubprocess((TSubProcess) flowElementJaxb.getValue(), nodeId);
+				}
+
+			}
+		}
+		LOG.error("The node id " + nodeId + " could not be found!");
+		return null;
+	}
+
+	private static TFlowNode getTFlowNodeByIdFromSubprocess(TSubProcess subProcessJaxb, String nodeId) {
+		for (JAXBElement<? extends TFlowElement> flowElementJaxb : subProcessJaxb
+				.getFlowElement()) {
+			if (flowElementJaxb.getValue() instanceof TFlowNode) {
+				if (flowElementJaxb.getValue().getId().equals(nodeId)) {
+					LOG.debug(String.format("Found Flow Node with id ",
+							flowElementJaxb.getValue().getId()));
+					return (TFlowNode) flowElementJaxb.getValue();
+				} else 	if (flowElementJaxb.getValue() instanceof TSubProcess) {
+					return getTFlowNodeByIdFromSubprocess((TSubProcess) flowElementJaxb.getValue(), nodeId);
+				}
+
 			}
 		}
 		LOG.error("The node id " + nodeId + " could not be found!");

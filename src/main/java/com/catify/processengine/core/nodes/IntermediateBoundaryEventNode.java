@@ -32,59 +32,62 @@ import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParame
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
- * The ReceiveTaskNode acts like a catch event with a message event definition.
+ * An intermediate catch event can receive (and save) messages sent from outside
+ * of the process engine.
  * 
  * @author christopher köster
  * 
  */
-public class ReceiveTaskNode extends Task {
-	
-	public ReceiveTaskNode() {
+public class IntermediateBoundaryEventNode extends CatchEvent {
 
+	/** The activity a boundary event is connected to. */
+	private ActorRef boundaryActivity;
+
+	public IntermediateBoundaryEventNode() {
 	}
-	
+
 	/**
-	 * Instantiates a new receive task node.
+	 * Instantiates a new catch event node.
 	 * 
 	 * @param uniqueProcessId
 	 *            the process id
 	 * @param uniqueFlowNodeId
 	 *            the unique flow node id
+	 * @param eventDefinitionActor
+	 *            the event definition
 	 * @param outgoingNodes
 	 *            the outgoing nodes
+	 * @param boundaryActivity 
+	 * @param nodeInstanceMediatorService
+	 *            the node instance service
 	 */
-	public ReceiveTaskNode(String uniqueProcessId, String uniqueFlowNodeId,
-			List<ActorRef> outgoingNodes, String actorRefString,
-			EventDefinitionParameter eventDefinitionParameter, DataObjectService dataObjectHandling, ActorRef boundaryEvent) {
+	public IntermediateBoundaryEventNode(String uniqueProcessId,
+			String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter,
+			List<ActorRef> outgoingNodes, DataObjectService dataObjectHandling, ActorRef boundaryActivity) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
+		this.setEventDefinitionParameter(eventDefinitionParameter);
 		this.setOutgoingNodes(outgoingNodes);
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
-		this.setEventDefinitionParameter(eventDefinitionParameter);
 		this.setDataObjectHandling(dataObjectHandling);
-		this.setBoundaryEvent(boundaryEvent);
+		this.setBoundaryActivity(boundaryActivity);
 		
 		// create EventDefinition actor
 		this.eventDefinitionActor = EventDefinitionHandling
 				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
 	}
-	
+
 	@Override
 	protected void activate(ActivationMessage message) {
 		this.getNodeInstanceMediatorService().setState(
 				message.getProcessInstanceId(), NodeInstaceStates.ACTIVE_STATE);
-
-		this.callEventDefinitionActor(message);
-		
-		// activate boundary event
-		this.sendMessageToNodeActor(
-				new ActivationMessage(message.getProcessInstanceId()),
-				this.getBoundaryEvent());
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		
 		this.getNodeInstanceMediatorService().persistChanges();
+		
+		this.callEventDefinitionActor(message);
 	}
 
 	@Override
@@ -117,4 +120,13 @@ public class ReceiveTaskNode extends Task {
 				new ActivationMessage(message.getProcessInstanceId()),
 				this.getOutgoingNodes());
 	}
+
+	public ActorRef getBoundaryActivity() {
+		return boundaryActivity;
+	}
+
+	public void setBoundaryActivity(ActorRef boundaryActivity) {
+		this.boundaryActivity = boundaryActivity;
+	}
+
 }

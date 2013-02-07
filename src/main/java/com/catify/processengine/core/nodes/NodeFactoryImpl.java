@@ -42,6 +42,7 @@ import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.data.dataobjects.NoDataObjectSP;
 import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
+import com.catify.processengine.core.processdefinition.jaxb.TBoundaryEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TComplexGateway;
 import com.catify.processengine.core.processdefinition.jaxb.TEndEvent;
@@ -98,6 +99,13 @@ public class NodeFactoryImpl implements NodeFactory {
 				TEndEvent.class)) {
 			return this.createEndEventNode(clientId, processJaxb, subProcessesJaxb,
 					flowNodeJaxb, sequenceFlowsJaxb);
+			
+		// boundary event nodes
+		} else if (flowNodeJaxb.getClass().equals(
+				TBoundaryEvent.class)) {
+			return this.createIntermediateBoundaryEventNode(clientId, 
+					processJaxb, subProcessesJaxb, flowNodeJaxb,
+					sequenceFlowsJaxb);
 
 		// gateways
 		} else if (flowNodeJaxb.getClass().equals(
@@ -147,6 +155,22 @@ public class NodeFactoryImpl implements NodeFactory {
 		}
 	}
 	
+	private FlowElement createIntermediateBoundaryEventNode(String clientId,
+			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
+		
+		TBoundaryEvent boundaryEvent = (TBoundaryEvent) flowNodeJaxb;
+		
+		return new IntermediateBoundaryEventNode(IdService.getUniqueProcessId(clientId, processJaxb),
+				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+						boundaryEvent),
+				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
+				this.getOutgoingActorReferences(clientId, processJaxb, subProcessesJaxb,
+						boundaryEvent, sequenceFlowsJaxb),
+				this.getDataObjectService(flowNodeJaxb),
+				this.getBoundaryActivity(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb));
+	}
+
 	/**
 	 * Creates a start event node which can be used to create a start event
 	 * actor.
@@ -511,9 +535,111 @@ public class NodeFactoryImpl implements NodeFactory {
 								IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 										flowNodeJaxb)),  
 				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb), 
-				this.getDataObjectService(flowNodeJaxb));
+				this.getDataObjectService(flowNodeJaxb),
+				this.getBoundaryEvent(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb));
 	}
 
+	/**
+	 * Gets the activity a boundary event is connected to.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @param flowNodeJaxb the jaxb flow node
+	 * @return the boundary activity
+	 */
+	private ActorRef getBoundaryActivity(String clientId, TProcess processJaxb,
+			ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb) {
+
+		TBoundaryEvent boundaryEvent = (TBoundaryEvent) flowNodeJaxb;
+
+		String connectedTo = boundaryEvent.getAttachedToRef().getLocalPart();
+		TFlowNode connectedToFlowNodeJaxb = IdService.getTFlowNodeById(processJaxb, connectedTo);
+		
+		return new ActorReferenceService().getActorReference(
+				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+						connectedToFlowNodeJaxb));
+	}
+	
+	/**
+	 * Gets the activity a boundary event is connected to.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @param flowNodeJaxb the jaxb flow node
+	 * @return the boundary activity
+	 */
+	private ActorRef getBoundaryEvent(String clientId, TProcess processJaxb,
+			ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb) {
+
+		TFlowNode boundaryEvent = this.getTBoundaryEventById(processJaxb, flowNodeJaxb.getId());
+		
+		if (boundaryEvent == null) {
+			return null;
+		} else {
+			return new ActorReferenceService().getActorReference(
+					IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+							boundaryEvent));
+		}
+	}
+
+	/**
+	 * Gets the boundary event node by the id of the node connected to. The information wheter an activity binds a boundary event
+	 * or not is only available at the TBoundaryEvent. The TActivity does not have this information so we have to parse the 
+	 * TProcess. 
+	 *
+	 * @param processJaxb the jaxb process
+	 * @param activityNodeId the node id of the element the boundary event is connected to 
+	 * @return the boundary node that is attached
+	 */
+	private TFlowNode getTBoundaryEventById(TProcess processJaxb, String activityNodeId) {
+		
+		for (JAXBElement<? extends TFlowElement> flowElementJaxb : processJaxb
+				.getFlowElement()) {
+			if (flowElementJaxb.getValue() instanceof TBoundaryEvent) {
+				
+				TBoundaryEvent boundaryEvent = (TBoundaryEvent) flowElementJaxb.getValue();
+				
+				if (boundaryEvent.getAttachedToRef().getLocalPart().equals(activityNodeId)) {
+					LOG.debug(String.format("Found Boundary Event Node with id ",
+							boundaryEvent.getId()));
+					return boundaryEvent;
+				} 
+			} else	if (flowElementJaxb.getValue() instanceof TSubProcess) {
+				return getTBoundaryEventByIdFromSubprocess((TSubProcess) flowElementJaxb.getValue(), activityNodeId);
+			}
+
+			
+		}
+		LOG.error("The node id " + activityNodeId + " could not be found!");
+		return null;
+	}
+
+	private TFlowNode getTBoundaryEventByIdFromSubprocess(TSubProcess subProcessJaxb, String activityNodeId) {
+		for (JAXBElement<? extends TFlowElement> flowElementJaxb : subProcessJaxb
+				.getFlowElement()) {
+			if (flowElementJaxb.getValue() instanceof TBoundaryEvent) {
+				
+				TBoundaryEvent boundaryEvent = (TBoundaryEvent) flowElementJaxb.getValue();
+				
+				if (boundaryEvent.getAttachedToRef().getLocalPart().equals(activityNodeId)) {
+					LOG.debug(String.format("Found Boundary Event Node with id ",
+							boundaryEvent.getId()));
+					return boundaryEvent;
+				} 
+			} else if (flowElementJaxb.getValue() instanceof TSubProcess) {
+					return getTBoundaryEventByIdFromSubprocess((TSubProcess) flowElementJaxb.getValue(), activityNodeId);
+			}
+
+			
+		}
+		LOG.error("The node id " + activityNodeId + " could not be found!");
+		return null;
+	}
+	
+	
+	
 	/**
 	 * Creates the receive task node.
 	 *
@@ -538,7 +664,8 @@ public class NodeFactoryImpl implements NodeFactory {
 								IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 										flowNodeJaxb)), 
 				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
-				this.getDataObjectService(flowNodeJaxb));
+				this.getDataObjectService(flowNodeJaxb),
+				this.getBoundaryEvent(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb));
 	}
 
 	/**
@@ -564,7 +691,8 @@ public class NodeFactoryImpl implements NodeFactory {
 				this.getOutgoingActorReferences(clientId, 
 						processJaxb, subProcessesJaxb, serviceTaskJaxb, sequenceFlowsJaxb),
 				messageIntegration,
-				this.getDataObjectService(flowNodeJaxb));
+				this.getDataObjectService(flowNodeJaxb),
+				this.getBoundaryEvent(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb));
 	}
 
 	/**

@@ -17,6 +17,8 @@
  */
 package com.catify.processengine.core.nodes;
 
+import akka.actor.ActorRef;
+
 /**
  * The abstract class Activity is a base class for all bpmn activities.
  * 
@@ -24,5 +26,26 @@ package com.catify.processengine.core.nodes;
  * 
  */
 public abstract class Activity extends FlowElement {
+	
+	/** The boundary event connected to this activity. */
+	protected ActorRef boundaryEvent;
+
+	/**
+	 * Gets the boundary event.
+	 *
+	 * @return the boundary event
+	 */
+	public ActorRef getBoundaryEvent() {
+		return boundaryEvent;
+	}
+
+	/**
+	 * Sets the boundary event.
+	 *
+	 * @param boundaryEvent the new boundary event
+	 */
+	public void setBoundaryEvent(ActorRef boundaryEvent) {
+		this.boundaryEvent = boundaryEvent;
+	}
 	
 }

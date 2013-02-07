@@ -120,7 +120,7 @@ public class NodeUtils {
 	}
 	
 	/**
-	 * Deactivate nodes via DeactivationMessages. 
+	 * Deactivate nodes via DeactivationMessages (blocking operation). 
 	 *
 	 * @param actorReferences the actor references to deactivate
 	 * @param processInstanceId the process instance id

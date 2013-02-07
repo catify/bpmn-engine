@@ -30,6 +30,7 @@ import akka.actor.UntypedActor;
 
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
+import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
@@ -141,23 +142,25 @@ public abstract class FlowElement extends UntypedActor {
 		if (!this.nodeInstanceMediatorService.isInitialized() || message.getProcessInstanceId()==null
 				// if this is a start event it might have been initialized, but has not created instances yet
 				|| this.nodeInstanceMediatorService.getNodeInstanceState(message.getProcessInstanceId())==null) {
-			return true;} 
+				return true;
+			} 
 		else {
 			String nodeInstanceState = this.nodeInstanceMediatorService
 					.getNodeInstanceState(message.getProcessInstanceId());
+			
 			// if the node checked is in an inactive or active state consider it processable
 			if (nodeInstanceState.equals(NodeInstaceStates.INACTIVE_STATE)
 					|| nodeInstanceState.equals(NodeInstaceStates.ACTIVE_STATE)) {
 				return true;
 			} 
-			// if the node checked is in any other state (like deactivated or passed) but this is a DeactivationMessage consider it done and print appropriate debug log.
-			else if (message instanceof DeactivationMessage) {
+			// if the node checked is in any other state (like deactivated or passed) but this is a DeactivationMessage or CommitMessage consider it done and print appropriate debug log.
+			else if (message instanceof DeactivationMessage || message instanceof CommitMessage) {
 				LOG.debug(String
-						.format("Deactivation message received by already finished node instance. This is expected behaviour. (%s with instance id %s is already at state %s, not processing %s)",
+						.format("Message received by already finished node instance. This is expected behaviour. (%s with instance id %s is already at state %s, not processing %s)",
 								this.getClass().getSimpleName(), message.getProcessInstanceId(),
 								nodeInstanceState, message.getClass().getSimpleName()));
 				return false;
-			} 
+			}
 			// if the node checked is in any other state (like deactivated or passed) consider it done.
 			else {
 				LOG.debug(String
@@ -182,13 +185,15 @@ public abstract class FlowElement extends UntypedActor {
 				.getSimpleName(), this.getSelf().toString(), targetNode
 				.toString()));
 		
-		// FIXME: this is a bugfix, because messages are not properly sent without
-		// prior calling of the actorSystem
-		String ars = targetNode.path().toString();
-		ActorRef ar = actorSystem.actorFor(ars);
-		ar.tell(message, this.getSelf());
-		
-//		targetNode.tell(message, this.getSelf());
+		if (targetNode != null) {
+			// FIXME: this is a bugfix, because messages are not properly sent without
+			// prior calling of the actorSystem
+			String ars = targetNode.path().toString();
+			ActorRef ar = actorSystem.actorFor(ars);
+			ar.tell(message, this.getSelf());
+			
+	//		targetNode.tell(message, this.getSelf());
+		}
 	}
 	
 	/**

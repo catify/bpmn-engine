@@ -95,6 +95,12 @@ public class IntegrationTests {
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
 	}
 	
+//	@Test
+//	public void testprocessMessageIntegration() throws IOException, JAXBException, InterruptedException {
+//		TProcess process = simpleProcessTest("testprocess_throw_camel_messageIntegration.bpmn", 3000, 5000, 6, 3);
+//	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
+//	}
+	
 	@Test
 	public void testprocessThrowThrowComplex() throws IOException, JAXBException, InterruptedException {
 		TProcess process = simpleProcessTest("testprocess_throw_throw_complex.bpmn", 3000, 5000, 10, 5);
@@ -384,6 +390,10 @@ public class IntegrationTests {
 		
 		String processId = IdService.getUniqueProcessId(client, process);
 		Set<FlowNodeInstance> fni = flowNodeInstanceRepo.findAllFlowNodeInstances(processId, processInstanceId);
+		
+		if (fni.size()==0) {
+			return false;
+		}
 		
 		for (FlowNodeInstance flowNodeInstance : fni) {
 			if (!flowNodeInstance.getNodeInstanceState().equals(state)) {
