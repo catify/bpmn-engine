@@ -41,9 +41,12 @@ import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
+import com.catify.processengine.core.processdefinition.jaxb.TReceiveTask;
+import com.catify.processengine.core.processdefinition.jaxb.TSendTask;
 import com.catify.processengine.core.processdefinition.jaxb.TSignalEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TStartEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
+import com.catify.processengine.core.processdefinition.jaxb.TTask;
 import com.catify.processengine.core.processdefinition.jaxb.TTerminateEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TThrowEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TTimerEventDefinition;
@@ -73,6 +76,15 @@ public class EventDefinitionFactory {
 	
 		// if there is no event definition, create an EmptyEventDefinition actor
 		if (eventDefinitionJaxb == null) {
+			
+			// Tasks can have event definition-like behavior (eg receive task will bind a MessageIntegration)
+			if (eventDefinitionParameter.flowNodeJaxb instanceof TTask) {
+				TMessageIntegration messageIntegration = ExtensionService.getTMessageIntegration(eventDefinitionParameter.flowNodeJaxb);
+				if (messageIntegration != null) {
+					return createMessageEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb, eventDefinitionParameter.subProcessesJaxb, 
+						eventDefinitionParameter.flowNodeJaxb, messageIntegration);
+				}
+			}
 			return new EmptyEventDefinition();
 			// else create the implementing event definition actor
 		} else {
@@ -170,27 +182,46 @@ public class EventDefinitionFactory {
 			TFlowNode flowNodeJaxb, TEventDefinition eventDefinitionJaxb) {
 		
 		TMessageIntegration messageIntegration = ExtensionService.getTMessageIntegration((TMessageEventDefinition) eventDefinitionJaxb);
-		EventDefinition eventDefinition = null;
 		
+		return getMessageEventDefinition(clientId, processJaxb,
+				subProcessesJaxb, flowNodeJaxb, messageIntegration);
+	}
+	
+	/**
+	 * Creates a new MessageEventDefinition object.
+	 *
+	 * @param processJaxb the processJaxb
+	 * @param flowNodeJaxb the flow nodeJaxb
+	 * @param messageEventDefinitionJaxb the event definitionJaxb
+	 * @return the event definition
+	 */
+	private EventDefinition createMessageEventDefinition(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TFlowNode flowNodeJaxb, TMessageIntegration messageIntegration) {
+		return getMessageEventDefinition(clientId, processJaxb,
+				subProcessesJaxb, flowNodeJaxb, messageIntegration);
+	}
+
+	private EventDefinition getMessageEventDefinition(String clientId,
+			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TFlowNode flowNodeJaxb, TMessageIntegration messageIntegration) {
 		// message event is catching
 		if (flowNodeJaxb.getClass().getSuperclass()
-				.equals(TCatchEvent.class)) {
+				.equals(TCatchEvent.class) || flowNodeJaxb instanceof TReceiveTask) {
 			
 			// create catching message event definition to be used in akka actor	
-			eventDefinition = getMessageEventDefinitionCatch(clientId,
+			return getMessageEventDefinitionCatch(clientId,
 					processJaxb, subProcessesJaxb, flowNodeJaxb,
 					messageIntegration);
 	
 		// message event is throwing
 		} else if (flowNodeJaxb.getClass().getSuperclass()
-				.equals(TThrowEvent.class)) {
+				.equals(TThrowEvent.class) || flowNodeJaxb instanceof TSendTask) {
 			
-			eventDefinition = getMessageEventDefinitionThrow(clientId,
+			return getMessageEventDefinitionThrow(clientId,
 					processJaxb, subProcessesJaxb, flowNodeJaxb,
 					messageIntegration);
 		}
-		
-		return 	eventDefinition;
+		return null;
 	}
 
 	public EventDefinition getMessageEventDefinitionCatch(String clientId,

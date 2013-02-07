@@ -43,8 +43,6 @@ public class EmptyEventDefinition extends EventDefinition {
 	 */
 	@Override
 	protected CommitMessage<?> activate(ActivationMessage message) {
-		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
-				.getClass().getSimpleName()));
 		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
@@ -55,8 +53,6 @@ public class EmptyEventDefinition extends EventDefinition {
 	 */
 	@Override
 	protected CommitMessage<?> deactivate(DeactivationMessage message) {
-		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
-				.getClass().getSimpleName()));
 		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
@@ -65,8 +61,6 @@ public class EmptyEventDefinition extends EventDefinition {
 	 */
 	@Override
 	protected CommitMessage<?> trigger(TriggerMessage message) {
-		LOG.debug(String.format("%s received %s", this.getClass().getSimpleName(), message
-				.getClass().getSimpleName()));
 		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
