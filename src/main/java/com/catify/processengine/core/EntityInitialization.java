@@ -276,6 +276,7 @@ public class EntityInitialization {
 	
 	/**
 	 * Creates the running flow node.
+	 * TODO --> what is a running flow node?
 	 *
 	 * @param clientId the client id
 	 * @param processJaxb the process jaxb

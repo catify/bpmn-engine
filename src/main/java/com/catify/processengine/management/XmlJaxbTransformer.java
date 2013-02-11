@@ -155,7 +155,7 @@ public class XmlJaxbTransformer {
 
 			TRootElement rootElement = iterator.next().getValue();
 
-			if (rootElement.getClass().equals(TProcess.class)) {
+			if (rootElement instanceof TProcess) {
 				process_jaxb = (TProcess) rootElement;
 				processList.add(process_jaxb);
 			}
