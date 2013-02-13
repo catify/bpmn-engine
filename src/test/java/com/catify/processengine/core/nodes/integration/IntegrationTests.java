@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -52,7 +53,9 @@ import com.catify.processengine.core.data.services.FlowNodeInstanceRepositorySer
 import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.data.services.ProcessNodeRepositoryService;
 import com.catify.processengine.core.messages.TriggerMessage;
+import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
+import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.management.ProcessManagementService;
 import com.catify.processengine.management.ProcessManagementServiceImpl;
 import com.catify.processengine.management.XmlJaxbTransformer;
@@ -146,9 +149,35 @@ public class IntegrationTests {
 	@Test
 	public void testprocessSubprocessSubprocessTerminate() throws IOException, JAXBException, InterruptedException {
 		TProcess process = simpleProcessTest("testprocess_subprocess_subprocess_terminate.bpmn", 3000, 5000, 6, 11);
-	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
+		
+		Thread.sleep(3000);
+		
+	    Assert.assertFalse(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
+	    
+	    checkNodeInstance(process, "startEvent1", NodeInstaceStates.PASSED_STATE);
+	    checkNodeInstance(process, "subProcess1", NodeInstaceStates.DEACTIVATED_STATE);
+	    checkNodeInstance(process, "endEvent1", NodeInstaceStates.INACTIVE_STATE);
+	    
+	    // checking of sub process nodes still needs to be implemented yet
+	    checkNodeInstance(process, "subSubProcess1", NodeInstaceStates.DEACTIVATED_STATE);
 	}
 	
+	@Test
+	public void testprocessSubprocessTerminate() throws IOException, JAXBException, InterruptedException {
+		TProcess process = simpleProcessTest("testprocess_subprocess_terminate.bpmn", 3000, 5000, 6, 6);
+		
+		Thread.sleep(3000);
+		
+	    Assert.assertFalse(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
+	    
+	    checkNodeInstance(process, "startEvent1", NodeInstaceStates.PASSED_STATE);
+	    checkNodeInstance(process, "subProcess1", NodeInstaceStates.DEACTIVATED_STATE);
+	    checkNodeInstance(process, "endEvent1", NodeInstaceStates.INACTIVE_STATE);
+	    
+	    // checking of sub process nodes still needs to be implemented yet
+	    checkNodeInstance(process, "subThrowEvent1", NodeInstaceStates.PASSED_STATE);
+	}
+
 	@Test
 	public void testprocessCatch() throws IOException, JAXBException, InterruptedException {
 		TProcess process = simpleProcessTestWithTrigger("testprocess_catch.bpmn", catchEvent, 3000, 5000, 5000, 6, 3);		
@@ -239,7 +268,7 @@ public class IntegrationTests {
 	 * @param fileName name of the file without path and slash (must be in /src/test/resources/data/)
 	 * @param firstSleep milliseconds of the first sleep
 	 * @param secondSleep milliseconds of the first sleep
-	 * @param awaitedFlowNodeCount awaited number of flow nodes
+	 * @param awaitedFlowNodeCount awaited number of flow nodes (on top level)
 	 * @param awaitedInstanceNodeCount awaited number of flow node instances
 	 * @return the jaxb process
 	 * @throws FileNotFoundException the file not found exception
@@ -440,17 +469,19 @@ public class IntegrationTests {
 	
 
 	/**
-	 * Check node instance.
+	 * Check node instance of a top level flow node.
 	 *
 	 * @param process the jaxb process
 	 * @param id the id of the flow node to check
 	 * @param state the desired state
 	 */
 	private void checkNodeInstance(TProcess process, String id, String state) {
-		String flowNodeId = IdService.getUniqueFlowNodeId(client, process, null, id); // default throw
+		ArrayList<TSubProcess> subProcessJaxb = IdService.getTSubprocessesById(process, id);
+		String flowNodeId = IdService.getUniqueFlowNodeId(client, process, subProcessJaxb, id); // default throw
 		String processId = IdService.getUniqueProcessId(client, process);
 		FlowNodeInstance nodeInstance = flowNodeInstanceRepo.findFlowNodeInstance(processId, flowNodeId, defaultInstanceId);
 		assertNotNull(nodeInstance);
 		assertEquals(state, nodeInstance.getNodeInstanceState());
 	}
+
 }

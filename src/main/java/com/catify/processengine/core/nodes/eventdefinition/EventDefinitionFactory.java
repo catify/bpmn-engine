@@ -265,43 +265,40 @@ public class EventDefinitionFactory {
 	 */
 	private EventDefinition createTerminateEventDefinition(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, TEventDefinition eventDefinitionJaxb) {
-
+		
 		EventDefinition eventDefinition = new TerminateEventDefinition(
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb),
 				new ActorReferenceService().getActorReference(
 						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 								flowNodeJaxb)),
-				getOtherActorReferences(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb)				
+				getOtherTopLevelActorRefs(clientId, processJaxb, flowNodeJaxb)				
 				);
 		
 		return eventDefinition;
 	}
 	
 	/**
-	 * Gets all actor references of the process (including sub processes) 
-	 * but excluding the actor reference of a given flow node.
+	 * Gets the top level actor refs but removes its own actor ref if part of that set.
 	 *
 	 * @param clientId the client id
 	 * @param processJaxb the process jaxb
-	 * @param subProcessesJaxb the sub processes jaxb
-	 * @param flowNodeJaxb the jaxb flow node to be excluded
-	 * @return the other actor references
+	 * @param flowNodeJaxb the flow node jaxb
+	 * @return the other top level actor refs
 	 */
-	private Set<ActorRef> getOtherActorReferences(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	private Set<ActorRef> getOtherTopLevelActorRefs(String clientId, TProcess processJaxb,
 			TFlowNode flowNodeJaxb) {
-		Set<ActorRef> actorReferences = getAllActorReferences(clientId, processJaxb, subProcessesJaxb, null);
+		Set<ActorRef> actorReferences = getTopLevelActorReferences(clientId, processJaxb);
 		
 		// remove actor reference of given flow node
 		actorReferences.remove(new ActorReferenceService().getActorReference(
-						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+						IdService.getUniqueFlowNodeId(clientId, processJaxb, null,
 								flowNodeJaxb)));
-
 		return actorReferences;
 	}
 	
 	/**
-	 * Gets all actor references of the process (including sub processes).
+	 * Gets the top level actor references of the process (excluding sub processes).
 	 *
 	 * @param clientId the client id
 	 * @param processJaxb the process jaxb
@@ -309,35 +306,83 @@ public class EventDefinitionFactory {
 	 * @param flowNodeJaxb the flow node jaxb
 	 * @return the all actor references
 	 */
-	private Set<ActorRef> getAllActorReferences(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TSubProcess subProcessJaxb) {
+	private Set<ActorRef> getTopLevelActorReferences(String clientId, TProcess processJaxb) {
 		Set<ActorRef> actorReferences = new HashSet<ActorRef>();
-		
 		List<JAXBElement<? extends TFlowElement>> flowElements = new ArrayList<JAXBElement<? extends TFlowElement>>();
-		if (subProcessJaxb == null) {
-			flowElements = processJaxb.getFlowElement();
-		} else {
-			flowElements = subProcessJaxb.getFlowElement();
-		}
+		
+		flowElements = processJaxb.getFlowElement();
 		
 		for (JAXBElement<? extends TFlowElement> flowElement : flowElements) {
 			if (flowElement.getValue() instanceof TFlowNode) {
 				actorReferences.add(new ActorReferenceService().getActorReference(
-						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+						IdService.getUniqueFlowNodeId(clientId, processJaxb, null,
 								(TFlowNode) flowElement.getValue())));
-			}
-			if (flowElement.getValue() instanceof TSubProcess) {
-				// create local copies for recursion
-				ArrayList<TSubProcess> recursiveSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
-				recursiveSubProcessesJaxb.add((TSubProcess) flowElement.getValue());
-				TSubProcess newSubProcessJaxb = (TSubProcess) flowElement.getValue();
-				
-				actorReferences.addAll(getAllActorReferences(clientId, processJaxb, recursiveSubProcessesJaxb, newSubProcessJaxb));
 			}
 		}
 		
 		return actorReferences;
 	}
+	
+//	/**
+//	 * Gets all actor references of the process (including sub processes) 
+//	 * but excluding the actor reference of a given flow node.
+//	 *
+//	 * @param clientId the client id
+//	 * @param processJaxb the process jaxb
+//	 * @param subProcessesJaxb the sub processes jaxb
+//	 * @param flowNodeJaxb the jaxb flow node to be excluded
+//	 * @return the other actor references
+//	 */
+//	private Set<ActorRef> getOtherActorReferences(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+//			TFlowNode flowNodeJaxb) {
+//		Set<ActorRef> actorReferences = getAllActorReferences(clientId, processJaxb, subProcessesJaxb, null);
+//		
+//		// remove actor reference of given flow node
+//		actorReferences.remove(new ActorReferenceService().getActorReference(
+//						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+//								flowNodeJaxb)));
+//		
+//		return actorReferences;
+//	}
+	
+//	/**
+//	 * Gets all actor references of the process (including sub processes).
+//	 *
+//	 * @param clientId the client id
+//	 * @param processJaxb the process jaxb
+//	 * @param subProcessesJaxb the sub processes jaxb
+//	 * @param flowNodeJaxb the flow node jaxb
+//	 * @return the all actor references
+//	 */
+//	private Set<ActorRef> getAllActorReferences(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+//			TSubProcess subProcessJaxb) {
+//		Set<ActorRef> actorReferences = new HashSet<ActorRef>();
+//		
+//		List<JAXBElement<? extends TFlowElement>> flowElements = new ArrayList<JAXBElement<? extends TFlowElement>>();
+//		if (subProcessJaxb == null) {
+//			flowElements = processJaxb.getFlowElement();
+//		} else {
+//			flowElements = subProcessJaxb.getFlowElement();
+//		}
+//		
+//		for (JAXBElement<? extends TFlowElement> flowElement : flowElements) {
+//			if (flowElement.getValue() instanceof TFlowNode) {
+//				actorReferences.add(new ActorReferenceService().getActorReference(
+//						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
+//								(TFlowNode) flowElement.getValue())));
+//			}
+//			if (flowElement.getValue() instanceof TSubProcess) {
+//				// create local copies for recursion
+//				ArrayList<TSubProcess> recursiveSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
+//				recursiveSubProcessesJaxb.add((TSubProcess) flowElement.getValue());
+//				TSubProcess newSubProcessJaxb = (TSubProcess) flowElement.getValue();
+//				
+//				actorReferences.addAll(getAllActorReferences(clientId, processJaxb, recursiveSubProcessesJaxb, newSubProcessJaxb));
+//			}
+//		}
+//		
+//		return actorReferences;
+//	}
 	
 	/**
 	 * Gets the jaxb event definition.

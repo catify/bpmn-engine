@@ -20,6 +20,7 @@ package com.catify.processengine.management;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 
 import javax.xml.bind.JAXBException;
 
@@ -33,6 +34,7 @@ import com.catify.processengine.core.ProcessInitializer;
 import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
+import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.core.services.ActorReferenceService;
 
 /**
@@ -149,6 +151,18 @@ public class ProcessManagementServiceImpl implements ProcessManagementService {
 			String nodeId, TriggerMessage triggerMessage) {
 		
 		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, null, nodeId);
+		
+		sendTriggerMessage(uniqueFlowNodeId, triggerMessage);
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.catify.processengine.management.ProcessManagementService#sendTriggerMessage(java.lang.String, com.catify.processengine.core.processdefinition.jaxb.TProcess, java.lang.String, com.catify.processengine.core.messages.TriggerMessage)
+	 */
+	@Override
+	public void sendTriggerMessage(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, 
+			String nodeId, TriggerMessage triggerMessage) {
+		
+		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, nodeId);
 		
 		sendTriggerMessage(uniqueFlowNodeId, triggerMessage);
 	}

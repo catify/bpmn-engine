@@ -316,13 +316,20 @@ public class NodeInstanceMediatorService {
 							this.nodeInstance.getNodeInstanceState()));
 			return false;
 
-			// transition from INACTIVE_STATE to newState
+			// transition from INACTIVE_STATE to newState 
 		} else if (this.nodeInstance.getNodeInstanceState().equals(
 				NodeInstaceStates.INACTIVE_STATE)) {
 			if (newState.equals(NodeInstaceStates.ACTIVE_STATE)) {
 				return true;
 			} else if (newState.equals(NodeInstaceStates.PASSED_STATE)) {
 				return true;
+			} else if (newState.equals(NodeInstaceStates.DEACTIVATED_STATE)) {
+				LOG.debug(String
+						.format("State of %s was at %s and should be set to %s. Ignoring state change (this is expected behavior).",
+								this.nodeInstance.getGraphId(),
+								this.nodeInstance.getNodeInstanceState(),
+								newState));
+				return false;
 			} else {
 				LOG.warn(String
 						.format("stateTransistionSanityCheck failed. State of %s was at %s and should be set to %s",

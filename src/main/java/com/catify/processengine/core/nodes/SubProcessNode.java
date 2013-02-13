@@ -75,7 +75,8 @@ public class SubProcessNode extends FlowElement {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.sendMessageToNodeActors(message, getSubNodes());
+		// deactivate embedded nodes
+		this.sendMessageToNodeActors(message, getEmbeddedNodes());
 	}
 
 	@Override
@@ -99,11 +100,11 @@ public class SubProcessNode extends FlowElement {
 		this.embeddedStartNodes = startNodes;
 	}
 
-	public List<ActorRef> getSubNodes() {
+	public List<ActorRef> getEmbeddedNodes() {
 		return embeddedNodes;
 	}
 
-	public void setSubNodes(List<ActorRef> subNodes) {
+	public void setEmbeddedNodes(List<ActorRef> subNodes) {
 		this.embeddedNodes = subNodes;
 	}
 

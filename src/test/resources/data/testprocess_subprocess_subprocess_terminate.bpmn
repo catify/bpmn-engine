@@ -67,6 +67,7 @@
 				</intermediateThrowEvent>
 				<endEvent id="subSubEndEvent1" name="End Event">
 					<incoming>subSubSequenceFlow2</incoming>
+					<terminateEventDefinition id="_3_ED_1"/>
 				</endEvent>
 				<sequenceFlow id="subSubSequenceFlow1" sourceRef="subSubStartEvent1"
 					targetRef="subSubThrowEvent1" />
@@ -94,7 +95,6 @@
 		</subProcess>
 
 		<endEvent id="endEvent1" name="End Event">
-			<terminateEventDefinition id="_3_ED_1"/>
     	</endEvent>
 		<sequenceFlow id="sequenceFlow1" sourceRef="startEvent1"
 			targetRef="subProcess1" />

@@ -55,7 +55,7 @@ public class SendTaskNode extends Task {
 	 */
 	public SendTaskNode(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes, String actorRefString,
-			EventDefinitionParameter eventDefinitionParameter, DataObjectService dataObjectHandling, ActorRef boundaryEvent) {
+			EventDefinitionParameter eventDefinitionParameter, DataObjectService dataObjectHandling, List<ActorRef> boundaryEvent) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
@@ -63,7 +63,7 @@ public class SendTaskNode extends Task {
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setEventDefinitionParameter(eventDefinitionParameter);
 		this.setDataObjectHandling(dataObjectHandling);
-		this.setBoundaryEvent(boundaryEvent);
+		this.setBoundaryEvents(boundaryEvent);
 		
 		// create EventDefinition actor
 		this.eventDefinitionActor = EventDefinitionHandling
@@ -78,10 +78,7 @@ public class SendTaskNode extends Task {
 		
 		this.callEventDefinitionActor(message);
 		
-		// activate boundary event
-		this.sendMessageToNodeActor(
-				new ActivationMessage(message.getProcessInstanceId()),
-				this.getBoundaryEvent());
+		this.activateBoundaryEvents(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -90,10 +87,7 @@ public class SendTaskNode extends Task {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		// deactivate boundary event
-		this.sendMessageToNodeActor(
-				new DeactivationMessage(message.getProcessInstanceId()),
-				this.getBoundaryEvent());
+		this.deactivateBoundaryEvents(message);
 		
 		this.sendMessageToNodeActors(
 				new ActivationMessage(message.getProcessInstanceId()),
@@ -105,9 +99,9 @@ public class SendTaskNode extends Task {
 		this.callEventDefinitionActor(message);
 		
 		// deactivate boundary event
-		this.sendMessageToNodeActor(
+		this.sendMessageToNodeActors(
 				new DeactivationMessage(message.getProcessInstanceId()),
-				this.getBoundaryEvent());
+				this.getBoundaryEvents());
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		

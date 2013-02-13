@@ -17,6 +17,8 @@
  */
 package com.catify.processengine.core.nodes;
 
+import java.util.List;
+
 import akka.actor.ActorRef;
 
 /**
@@ -28,24 +30,14 @@ import akka.actor.ActorRef;
 public abstract class Activity extends FlowElement {
 	
 	/** The boundary event connected to this activity. */
-	protected ActorRef boundaryEvent;
+	protected List<ActorRef> boundaryEvents;
 
-	/**
-	 * Gets the boundary event.
-	 *
-	 * @return the boundary event
-	 */
-	public ActorRef getBoundaryEvent() {
-		return boundaryEvent;
+	public List<ActorRef> getBoundaryEvents() {
+		return boundaryEvents;
 	}
 
-	/**
-	 * Sets the boundary event.
-	 *
-	 * @param boundaryEvent the new boundary event
-	 */
-	public void setBoundaryEvent(ActorRef boundaryEvent) {
-		this.boundaryEvent = boundaryEvent;
+	public void setBoundaryEvents(List<ActorRef> boundaryEvents) {
+		this.boundaryEvents = boundaryEvents;
 	}
 	
 }

@@ -45,7 +45,7 @@ public class TerminateEventDefinition extends EventDefinition {
 	private ActorRef actorRef;
 	
 	/** The actor references of all other node services (including sub process nodes). */
-	private Set<ActorRef> otherActorReferences;
+	private Set<ActorRef> topLevelActorRefs;
 	
 	/**
 	 * Instantiates a new terminate event definition.
@@ -55,12 +55,12 @@ public class TerminateEventDefinition extends EventDefinition {
 	 * @param actorRef the actor ref
 	 */
 	public TerminateEventDefinition(
-			String uniqueProcessId, String uniqueFlowNodeId, ActorRef actorRef, Set<ActorRef> otherActorReferences) {
+			String uniqueProcessId, String uniqueFlowNodeId, ActorRef actorRef, Set<ActorRef> topLevelActorRefs) {
 		super();
 		this.uniqueProcessId = uniqueProcessId;
 		this.uniqueFlowNodeId = uniqueFlowNodeId;
 		this.actorRef = actorRef;
-		this.otherActorReferences = otherActorReferences;
+		this.topLevelActorRefs = topLevelActorRefs;
 	}
 	
 	/* (non-Javadoc)
@@ -71,9 +71,9 @@ public class TerminateEventDefinition extends EventDefinition {
 
 		/** The timeout for collecting the deactivation commits (which is slightly shorter than the timeout 
 		 * for this event definition, to be able to handle the timeout exception here) */
-		Timeout deactivationTimeout = new Timeout(Duration.create((long) (timeoutInSeconds * 0.95), "seconds"));
+		Timeout deactivationTimeout = new Timeout(Duration.create((long) (timeoutInSeconds * 0.97), "seconds"));
 		
-		Future<Iterable<Object>> futureSequence = new NodeUtils().deactivateNodes(otherActorReferences, message.getProcessInstanceId(), deactivationTimeout, this.getSender(), this.getSelf());
+		Future<Iterable<Object>> futureSequence = new NodeUtils().deactivateNodes(topLevelActorRefs, message.getProcessInstanceId(), deactivationTimeout, this.getSender(), this.getSelf());
 
 	    // send commit to underlying event
 		return createCommitMessage(futureSequence, message.getProcessInstanceId());

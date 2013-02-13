@@ -42,6 +42,8 @@ public class IntermediateBoundaryEventNode extends CatchEvent {
 
 	/** The activity a boundary event is connected to. */
 	private ActorRef boundaryActivity;
+	
+	private boolean interrupting;
 
 	public IntermediateBoundaryEventNode() {
 	}
@@ -63,7 +65,7 @@ public class IntermediateBoundaryEventNode extends CatchEvent {
 	 */
 	public IntermediateBoundaryEventNode(String uniqueProcessId,
 			String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter,
-			List<ActorRef> outgoingNodes, DataObjectService dataObjectHandling, ActorRef boundaryActivity) {
+			List<ActorRef> outgoingNodes, DataObjectService dataObjectHandling, ActorRef boundaryActivity, boolean interrupting) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setEventDefinitionParameter(eventDefinitionParameter);
@@ -72,6 +74,7 @@ public class IntermediateBoundaryEventNode extends CatchEvent {
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		this.setBoundaryActivity(boundaryActivity);
+		this.setInterrupting(interrupting);
 		
 		// create EventDefinition actor
 		this.eventDefinitionActor = EventDefinitionHandling
@@ -109,13 +112,20 @@ public class IntermediateBoundaryEventNode extends CatchEvent {
 		
 		this.callEventDefinitionActor(message);
 		
+		if (isInterrupting()) {
+			// deactivate the activity this event is bound to
+			this.sendMessageToNodeActor(
+				new DeactivationMessage(message.getProcessInstanceId()),
+				this.getBoundaryActivity());
+		}
+		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
 		this.getNodeInstanceMediatorService().setState(
 				message.getProcessInstanceId(), NodeInstaceStates.PASSED_STATE);
 		
 		this.getNodeInstanceMediatorService().persistChanges();
-		
+
 		this.sendMessageToNodeActors(
 				new ActivationMessage(message.getProcessInstanceId()),
 				this.getOutgoingNodes());
@@ -127,6 +137,14 @@ public class IntermediateBoundaryEventNode extends CatchEvent {
 
 	public void setBoundaryActivity(ActorRef boundaryActivity) {
 		this.boundaryActivity = boundaryActivity;
+	}
+
+	public boolean isInterrupting() {
+		return interrupting;
+	}
+
+	public void setInterrupting(boolean interrupting) {
+		this.interrupting = interrupting;
 	}
 
 }

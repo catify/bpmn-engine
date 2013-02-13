@@ -72,14 +72,14 @@ public class ServiceTaskNode extends Task {
 	 */
 	public ServiceTaskNode(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes,
-			TMessageIntegration messageIntegrationInOut, DataObjectService dataObjectHandling, ActorRef boundaryEvent) {
+			TMessageIntegration messageIntegrationInOut, DataObjectService dataObjectHandling, List<ActorRef> boundaryEvent) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setMessageIntegrationInOut(messageIntegrationInOut);
-		this.setBoundaryEvent(boundaryEvent);
+		this.setBoundaryEvents(boundaryEvent);
 		
 		// all service task instances share this service object, it might therefore need some kind of synchronization
 		this.setDataObjectHandling(dataObjectHandling);
@@ -89,9 +89,7 @@ public class ServiceTaskNode extends Task {
 	protected void activate(ActivationMessage message) {
 
 		// activate boundary event
-		this.sendMessageToNodeActor(
-				new ActivationMessage(message.getProcessInstanceId()),
-				this.getBoundaryEvent());
+		this.activateBoundaryEvents(message);
 		
 		ActorRef serviceTaskInstance = this.getContext().actorOf(new Props(
 				new UntypedActorFactory() {
@@ -101,7 +99,7 @@ public class ServiceTaskNode extends Task {
 					public UntypedActor create() {
 							return new ServiceTaskInstance(getUniqueProcessId(), getUniqueFlowNodeId(), 
 									getOutgoingNodes(), messageIntegrationInOut, getDataObjectService(), 
-									getBoundaryEvent());
+									getBoundaryEvents());
 					}
 				}), ActorReferenceService.getAkkaComplientString(message.getProcessInstanceId()));
 		LOG.debug(String.format("Service task instance craeted %s --> resulting akka object: %s", this.getClass(),

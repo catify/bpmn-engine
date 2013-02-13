@@ -72,7 +72,7 @@
 				<prop key="datastore.implementation">jpa-data-object</prop>
 				<prop key="core.processInstanceCleansingActor">processInstanceCleansingActor</prop>
 				<prop key="core.metaDataActor">metaDataWriter</prop>
-				<prop key="core.eventDefinitionTimeout">60</prop>
+				<prop key="core.eventDefinitionTimeout">180</prop>
 				<prop key="timer.implementation">jpa-timer</prop>
 				<prop key="timer.interval">1000</prop>
 			</props>

@@ -206,18 +206,23 @@ public abstract class FlowElement extends UntypedActor {
 	 */
 	protected void sendMessageToNodeActors(Message message,
 			List<ActorRef> targetNodes) {
-		for (ActorRef actorRef : targetNodes) {
-			LOG.debug(String.format("Sending %s from %s to %s", message
-					.getClass().getSimpleName(), this.getSelf().toString(),
-					actorRef.toString()));
-			
-			// FIXME: this is a bugfix, because messages are not properly sent without
-			// prior calling of the actorSystem
-			String ars = actorRef.path().toString();
-			ActorRef ar = actorSystem.actorFor(ars);
-			ar.tell(message, this.getSelf());
-			
-//			actorRef.tell(message, this.getSelf());
+		
+		if (targetNodes != null) {
+
+			for (ActorRef actorRef : targetNodes) {
+				LOG.debug(String.format("Sending %s from %s to %s", message
+						.getClass().getSimpleName(), this.getSelf().toString(),
+						actorRef.toString()));
+				
+				// FIXME: this is a bugfix, because messages are not properly sent without
+				// prior calling of the actorSystem
+				String ars = actorRef.path().toString();
+				ActorRef ar = actorSystem.actorFor(ars);
+				ar.tell(message, this.getSelf());
+				
+	//			actorRef.tell(message, this.getSelf());
+			}
+		
 		}
 	}
 	

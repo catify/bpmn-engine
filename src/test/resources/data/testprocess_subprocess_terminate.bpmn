@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1360333711834" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http://www.w3.org/1999/XPath" id="_1360333711834" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1360333711834" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
+  <process id="testprocess_subprocess_terminate" isClosed="false" isExecutable="true" processType="None">
+    <startEvent id="startEvent1" isInterrupting="true" name="Start Event" parallelMultiple="false">
+      <outgoing>_7</outgoing>
+    </startEvent>
+    <endEvent id="endEvent1" name="End Event">
+      <incoming>_8</incoming>
+    </endEvent>
+    <subProcess completionQuantity="1" id="subProcess1" isForCompensation="false" name="Sub-Process" startQuantity="1" triggeredByEvent="false">
+      <incoming>_7</incoming>
+      <outgoing>_8</outgoing>
+      <startEvent id="_9" isInterrupting="true" name="Start Event" parallelMultiple="false">
+        <outgoing>_12</outgoing>
+      </startEvent>
+      <intermediateThrowEvent id="subThrowEvent1" name="Intermediate Event">
+        <incoming>_12</incoming>
+        <outgoing>_13</outgoing>
+      </intermediateThrowEvent>
+      <sequenceFlow id="_12" sourceRef="_9" targetRef="subThrowEvent1"/>
+      <sequenceFlow id="_13" sourceRef="subThrowEvent1" targetRef="_11"/>
+      <endEvent id="_11" name="End Event">
+        <terminateEventDefinition id="_11_ED_1"/>
+      </endEvent>
+    </subProcess>
+    <sequenceFlow id="_7" sourceRef="startEvent1" targetRef="subProcess1"/>
+    <sequenceFlow id="_8" sourceRef="subProcess1" targetRef="endEvent1"/>
+  </process>
+</definitions>

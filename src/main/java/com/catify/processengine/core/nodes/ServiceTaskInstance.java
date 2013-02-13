@@ -65,14 +65,14 @@ public class ServiceTaskInstance extends Task {
 	 */
 	public ServiceTaskInstance(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes,
-			TMessageIntegration messageIntegrationInOut, DataObjectService dataObjectHandling, ActorRef boundaryEvent) {
+			TMessageIntegration messageIntegrationInOut, DataObjectService dataObjectHandling, List<ActorRef> boundaryEvent) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
-		this.setBoundaryEvent(boundaryEvent);
+		this.setBoundaryEvents(boundaryEvent);
 		
 		// messages are handled by the integrationSpi
 		if (messageIntegrationInOut != null) {
@@ -104,10 +104,7 @@ public class ServiceTaskInstance extends Task {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		// deactivate boundary event
-		this.sendMessageToNodeActor(
-				new DeactivationMessage(message.getProcessInstanceId()),
-				this.getBoundaryEvent());
+		this.deactivateBoundaryEvents(message);
 		
 		this.sendMessageToNodeActors(
 				new ActivationMessage(message.getProcessInstanceId()),

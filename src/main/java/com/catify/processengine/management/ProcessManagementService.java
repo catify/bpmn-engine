@@ -19,11 +19,13 @@ package com.catify.processengine.management;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 
 import javax.xml.bind.JAXBException;
 
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
+import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 
 /**
  * The Interface ProcessManagementService defines the api to manage processes.
@@ -98,12 +100,25 @@ public interface ProcessManagementService {
 			String nodeId, TriggerMessage triggerMessage);
 
 	/**
-	 * Send trigger message to a given node.
+	 * Send trigger message to a given top level node.
 	 *
 	 * @param uniqueFlowNodeId the unique flow node id
 	 * @param triggerMessage the trigger message
 	 */
 	void sendTriggerMessage(String uniqueFlowNodeId,
+			TriggerMessage triggerMessage);
+
+	/**
+	 * Send trigger message to a given node (including sub process nodes).
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @param nodeId the node id
+	 * @param triggerMessage the trigger message
+	 */
+	void sendTriggerMessage(String clientId, TProcess processJaxb,
+			ArrayList<TSubProcess> subProcessesJaxb, String nodeId,
 			TriggerMessage triggerMessage);
 
 	

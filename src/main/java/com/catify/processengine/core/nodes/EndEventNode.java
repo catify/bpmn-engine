@@ -126,7 +126,8 @@ public class EndEventNode extends ThrowEvent {
 	 * 
 	 * End a process instance, based on a search over all flow node instances of
 	 * the process. In bpmn a process instance can only end, if there are no
-	 * active nodes left in that instance.
+	 * active nodes left in that instance. If this is a sub process end event only 
+	 * that sub process will end.
 	 * 
 	 * @param message
 	 *            the message received
