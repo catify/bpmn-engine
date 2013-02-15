@@ -28,7 +28,7 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
@@ -72,7 +72,7 @@ public class ServiceTaskNode extends Task {
 	 */
 	public ServiceTaskNode(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes,
-			TMessageIntegration messageIntegrationInOut, DataObjectService dataObjectHandling, List<ActorRef> boundaryEvent) {
+			TMessageIntegration messageIntegrationInOut, DataObjectHandling dataObjectHandling, List<ActorRef> boundaryEvent) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);

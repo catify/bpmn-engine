@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Value;
  * 
  */
 @Configurable
-public class DataObjectService {
+public class DataObjectHandling {
 
 	/** The data object implementation id set in the spring context. */
 	@Value("${datastore.implementation}")
@@ -49,7 +49,7 @@ public class DataObjectService {
 	/**
 	 * Instantiates a new uninitialized data object service. Should not be used directly.
 	 */
-	public DataObjectService() {
+	public DataObjectHandling() {
 	}
 	
 	/**
@@ -60,7 +60,7 @@ public class DataObjectService {
 	 * @param dataInputObjectId the data input object id
 	 * @param dataOutputObjectId the data output object id
 	 */
-	public DataObjectService(String dataInputObjectId, String dataOutputObjectId) {
+	public DataObjectHandling(String dataInputObjectId, String dataOutputObjectId) {
 		this.dataInputObjectId = dataInputObjectId;
 		this.dataOutputObjectId = dataOutputObjectId;
 	}
@@ -83,7 +83,7 @@ public class DataObjectService {
 	 *
 	 * @param dataObjectServiceProvider the data object service provider
 	 */
-	public DataObjectService(DataObjectSPI dataObjectServiceProvider) {
+	public DataObjectHandling(DataObjectSPI dataObjectServiceProvider) {
 		this.dataObjectServiceProvider = dataObjectServiceProvider;
 	}
 

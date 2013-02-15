@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
@@ -90,7 +90,7 @@ public class StartEventNode extends CatchEvent {
 	public StartEventNode(String uniqueProcessId, String uniqueFlowNodeId,
 			EventDefinitionParameter eventDefinitionParameter, List<ActorRef> outgoingNodes,
 			List<ActorRef> otherStartNodes, String parentsUniqueFlowNodeId,
-			DataObjectService dataObjectHandling) {
+			DataObjectHandling dataObjectHandling) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setEventDefinitionParameter(eventDefinitionParameter);

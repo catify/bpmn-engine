@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
@@ -66,7 +66,7 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 	/**
 	 * Holds all data objects.
 	 */
-	protected DataObjectService dataObjectHandler;
+	protected DataObjectHandling dataObjectHandler;
 	
 	/**
 	 * Default outgoing sequence, if no expression returns true.
@@ -100,7 +100,7 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 			Set<String> allDataObjectIds,
 			Map<ActorRef, String> conditionalExpressionStrings,
 			ActorRef defaultNode,
-			DataObjectService dataObjectHandler) {
+			DataObjectHandling dataObjectHandler) {
 
 		super.setUniqueProcessId(uniqueProcessId);
 		super.setOutgoingNodes(outgoingNodes);

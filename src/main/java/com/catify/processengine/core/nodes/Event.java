@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
@@ -41,7 +41,7 @@ public abstract class Event extends FlowElement {
 	/** The EventDefinition parameter object of which an EventDefinition actor can be instantiated. */
 	protected EventDefinitionParameter eventDefinitionParameter;
 
-	protected DataObjectService dataObjectHandling;
+	protected DataObjectHandling dataObjectHandling;
 	
 	/** The timeout in seconds. Note: This value is only available after construction is completed. */
 	@Value("${core.eventDefinitionTimeout}")
@@ -63,11 +63,11 @@ public abstract class Event extends FlowElement {
 				this.eventDefinitionParameter);
 	}
 	
-	public DataObjectService getDataObjectService() {
+	public DataObjectHandling getDataObjectService() {
 		return dataObjectHandling;
 	}
 
-	public void setDataObjectHandling(DataObjectService dataObjectHandling) {
+	public void setDataObjectHandling(DataObjectHandling dataObjectHandling) {
 		this.dataObjectHandling = dataObjectHandling;
 	}
 	

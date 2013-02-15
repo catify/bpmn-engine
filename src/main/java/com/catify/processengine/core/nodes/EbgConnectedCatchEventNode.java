@@ -22,7 +22,7 @@ import java.util.List;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
@@ -66,7 +66,7 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 	 */
 	public EbgConnectedCatchEventNode(String uniqueProcessId,
 			String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter,
-			List<ActorRef> outgoingNodes, DataObjectService dataObjectHandling) {
+			List<ActorRef> outgoingNodes, DataObjectHandling dataObjectHandling) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setEventDefinitionParameter(eventDefinitionParameter);

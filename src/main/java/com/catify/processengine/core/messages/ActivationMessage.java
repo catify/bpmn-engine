@@ -29,6 +29,7 @@ public class ActivationMessage extends Message {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 	
+	/** The payload. */
 	private Object payload;
 
 	/**

@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
 import com.catify.processengine.core.messages.ActivationMessage;
@@ -70,7 +70,7 @@ public class EndEventNode extends ThrowEvent {
 	 * @param dataObjectIds the data object ids
 	 */
 	public EndEventNode(String uniqueProcessId, String uniqueFlowNodeId,
-			EventDefinitionParameter eventDefinitionParameter, ActorRef parentSubProcessNode, DataObjectService dataObjectHandling, Set<String> dataObjectIds) {
+			EventDefinitionParameter eventDefinitionParameter, ActorRef parentSubProcessNode, DataObjectHandling dataObjectHandling, Set<String> dataObjectIds) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setEventDefinitionParameter(eventDefinitionParameter);

@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
@@ -47,7 +47,7 @@ public abstract class Task extends Activity {
 	/** The EventDefinition parameter object of which an EventDefinition actor can be instantiated. */
 	protected EventDefinitionParameter eventDefinitionParameter;
 
-	protected DataObjectService dataObjectHandling;
+	protected DataObjectHandling dataObjectHandling;
 	
 	/** The timeout in seconds. Note: This value is only available after construction is completed. */
 	@Value("${core.eventDefinitionTimeout}")
@@ -111,11 +111,11 @@ public abstract class Task extends Activity {
 		return copy;
 	}
 	
-	protected DataObjectService getDataObjectService() {
+	protected DataObjectHandling getDataObjectService() {
 		return dataObjectHandling;
 	}
 
-	protected void setDataObjectHandling(DataObjectService dataObjectHandling) {
+	protected void setDataObjectHandling(DataObjectHandling dataObjectHandling) {
 		this.dataObjectHandling = dataObjectHandling;
 	}
 	

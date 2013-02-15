@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import akka.actor.ActorRef;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectSPI;
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 
 /**
  * 
@@ -189,7 +189,7 @@ public class ExpressionService {
 	 */
 	public static Object evaluate(Expression expression, 
 			Set<String> dataObjectIds, 
-			DataObjectService dataObjectHandler,
+			DataObjectHandling dataObjectHandler,
 			String uniqueProcessId, 
 			String instanceId) {
 		
@@ -202,7 +202,7 @@ public class ExpressionService {
 	}
 	
 	public static JexlContext fillContext(Set<String> dataObjectIds, 
-			DataObjectService dataObjectHandler,
+			DataObjectHandling dataObjectHandler,
 			String uniqueProcessId, 
 			String instanceId) {
 		// create context
@@ -229,7 +229,7 @@ public class ExpressionService {
 	 */
 	public static boolean evaluateToBoolean(Expression expression, 
 			Set<String> dataObjectIds, 
-			DataObjectService dataObjectHandler,
+			DataObjectHandling dataObjectHandler,
 			String uniqueProcessId, 
 			String instanceId) {
 		

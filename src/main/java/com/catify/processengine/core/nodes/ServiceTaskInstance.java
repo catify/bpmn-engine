@@ -22,7 +22,7 @@ import java.util.List;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.integration.IntegrationMessage;
 import com.catify.processengine.core.integration.MessageIntegrationSPI;
@@ -65,7 +65,7 @@ public class ServiceTaskInstance extends Task {
 	 */
 	public ServiceTaskInstance(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes,
-			TMessageIntegration messageIntegrationInOut, DataObjectService dataObjectHandling, List<ActorRef> boundaryEvent) {
+			TMessageIntegration messageIntegrationInOut, DataObjectHandling dataObjectHandling, List<ActorRef> boundaryEvent) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
@@ -90,8 +90,6 @@ public class ServiceTaskInstance extends Task {
 				message.getProcessInstanceId(), NodeInstaceStates.ACTIVE_STATE);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
-		
-		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
 		Object repliedDataObject = this.requestReply(message);
 		

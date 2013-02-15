@@ -22,7 +22,7 @@ import java.util.List;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
@@ -55,7 +55,7 @@ public class SendTaskNode extends Task {
 	 */
 	public SendTaskNode(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes, String actorRefString,
-			EventDefinitionParameter eventDefinitionParameter, DataObjectService dataObjectHandling, List<ActorRef> boundaryEvent) {
+			EventDefinitionParameter eventDefinitionParameter, DataObjectHandling dataObjectHandling, List<ActorRef> boundaryEvent) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
@@ -73,8 +73,6 @@ public class SendTaskNode extends Task {
 	@Override
 	protected void activate(ActivationMessage message) {
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
-		
-		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
 		this.callEventDefinitionActor(message);
 		
