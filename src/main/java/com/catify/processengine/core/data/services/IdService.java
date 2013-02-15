@@ -281,8 +281,7 @@ public final class IdService {
 	 * @return the embedding jaxb subprocesses
 	 */
 	public static ArrayList<TSubProcess> getTSubprocessesById(TProcess processJaxb, String nodeId) {
-		TFlowNode flowNode = null;
-		
+
 		ArrayList<TSubProcess> subProcessesJaxb = new ArrayList<TSubProcess>();
 		
 		for (JAXBElement<? extends TFlowElement> flowElementJaxb : processJaxb
@@ -299,9 +298,6 @@ public final class IdService {
 
 			}
 		}
-		if (flowNode == null) {
-			LOG.error("The node id " + nodeId + " could not be found!");
-		} 
 		
 		return subProcessesJaxb;
 	}
@@ -324,7 +320,7 @@ public final class IdService {
 				.getFlowElement()) {
 			if (flowElementJaxb.getValue() instanceof TFlowNode) {
 			 	if (flowElementJaxb.getValue().getId().equals(nodeId)) {
-					LOG.debug(String.format("Found Flow Node with id %s",
+					LOG.debug(String.format("Found Flow Node with id %s found in subprocess.",
 							flowElementJaxb.getValue().getId()));
 					return embeddingSubProcessesJaxb;
 				} else if (flowElementJaxb.getValue() instanceof TSubProcess) {

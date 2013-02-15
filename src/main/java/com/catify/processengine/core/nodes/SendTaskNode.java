@@ -98,10 +98,7 @@ public class SendTaskNode extends Task {
 	protected void deactivate(DeactivationMessage message) {
 		this.callEventDefinitionActor(message);
 		
-		// deactivate boundary event
-		this.sendMessageToNodeActors(
-				new DeactivationMessage(message.getProcessInstanceId()),
-				this.getBoundaryEvents());
+		this.deactivateBoundaryEvents(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		

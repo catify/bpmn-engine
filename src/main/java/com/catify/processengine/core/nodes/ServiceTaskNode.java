@@ -119,6 +119,8 @@ public class ServiceTaskNode extends Task {
 				message.getProcessInstanceId(),
 				NodeInstaceStates.DEACTIVATED_STATE);
 		
+		this.deactivateBoundaryEvents(message);
+		
 		this.getNodeInstanceMediatorService().persistChanges();
 	}
 

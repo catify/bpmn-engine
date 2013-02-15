@@ -393,6 +393,20 @@
 				</executions>
 			</plugin>
 
+			<!-- create test jar to share tests with other projects -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- spring data neo4j -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>

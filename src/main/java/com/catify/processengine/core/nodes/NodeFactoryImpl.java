@@ -514,7 +514,8 @@ public class NodeFactoryImpl implements NodeFactory {
 				this.getOutgoingActorReferences(clientId, 
 						processJaxb, subProcessesJaxb, subProcessJaxb, sequenceFlowsJaxb),
 				this.getEmbeddedStartNodeActorReferences(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb),
-				this.getEmbeddedNodeActorReferences(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb));
+				this.getEmbeddedNodeActorReferences(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb),
+				this.getBoundaryEvents(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb));
 	}
 
 	/**

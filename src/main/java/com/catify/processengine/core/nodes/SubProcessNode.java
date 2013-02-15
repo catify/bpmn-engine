@@ -36,18 +36,19 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * @author christopher köster
  * 
  */
-public class SubProcessNode extends FlowElement {
+public class SubProcessNode extends Task {
 	
 	private List<ActorRef> embeddedStartNodes;
 	private List<ActorRef> embeddedNodes;
 
 	public SubProcessNode (String uniqueProcessId, String uniqueFlowNodeId, List<ActorRef> outgoingNodes, 
-			List<ActorRef> embeddedStartNodes, List<ActorRef> embeddedNodes) {
+			List<ActorRef> embeddedStartNodes, List<ActorRef> embeddedNodes, List<ActorRef> boundaryEvent) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
+		this.setBoundaryEvents(boundaryEvent);
 		
 		this.embeddedStartNodes = embeddedStartNodes;
 		this.embeddedNodes = embeddedNodes;
@@ -57,6 +58,8 @@ public class SubProcessNode extends FlowElement {
 	protected void activate(ActivationMessage message) {
 		this.getNodeInstanceMediatorService().setState(
 				message.getProcessInstanceId(), NodeInstaceStates.ACTIVE_STATE);
+		
+		this.activateBoundaryEvents(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		
@@ -73,6 +76,8 @@ public class SubProcessNode extends FlowElement {
 		this.getNodeInstanceMediatorService().setState(
 				message.getProcessInstanceId(), NodeInstaceStates.DEACTIVATED_STATE);
 		
+		this.deactivateBoundaryEvents(message);
+		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
 		// deactivate embedded nodes
@@ -85,6 +90,8 @@ public class SubProcessNode extends FlowElement {
 		
 		this.getNodeInstanceMediatorService().setState(
 				message.getProcessInstanceId(), NodeInstaceStates.PASSED_STATE);
+		
+		this.deactivateBoundaryEvents(message);
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 

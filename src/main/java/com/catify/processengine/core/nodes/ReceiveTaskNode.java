@@ -105,6 +105,8 @@ public class ReceiveTaskNode extends Task {
 		
 		this.callEventDefinitionActor(message);
 		
+		this.deactivateBoundaryEvents(message);
+		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
 		this.getNodeInstanceMediatorService().setState(

@@ -86,17 +86,19 @@ public abstract class Task extends Activity {
 	 * @param message the message received
 	 */
 	protected void deactivateBoundaryEvents(Message message) {
+		if (this.getBoundaryEvents() != null) {
 		
-		List<ActorRef> otherBoundaryEvents = this.getCopyOfBoundaryEvents();
-		
-		// if DeactivationMessage originates from an (interrupting) boundary event,
-		// only deactivate the other boundary events
-		if (otherBoundaryEvents.contains(this.getSender())) {
-			otherBoundaryEvents.remove(this.getSender());
-		}
+			List<ActorRef> otherBoundaryEvents = this.getCopyOfBoundaryEvents();
 			
-		this.sendMessageToNodeActors(
-		new DeactivationMessage(message.getProcessInstanceId()), otherBoundaryEvents);
+			// if DeactivationMessage originates from an (interrupting) boundary event,
+			// only deactivate the other boundary events
+			if (otherBoundaryEvents.contains(this.getSender())) {
+				otherBoundaryEvents.remove(this.getSender());
+			}
+				
+			this.sendMessageToNodeActors(
+			new DeactivationMessage(message.getProcessInstanceId()), otherBoundaryEvents);
+		}
 	}
 	
 	/**
