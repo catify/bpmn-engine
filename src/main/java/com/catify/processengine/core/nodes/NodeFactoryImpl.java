@@ -81,68 +81,55 @@ public class NodeFactoryImpl implements NodeFactory {
 	public synchronized FlowElement createServiceNode(String clientId, TProcess processJaxb,  ArrayList<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 		// event nodes
-		if (flowNodeJaxb.getClass().equals(
-				TStartEvent.class)) {
+		if (flowNodeJaxb instanceof TStartEvent) {
 			return this.createStartEventNode(clientId, processJaxb, subProcessesJaxb,
 					flowNodeJaxb, sequenceFlowsJaxb);
-		} else if (flowNodeJaxb.getClass().equals(
-				TIntermediateCatchEvent.class)) {
+		} else if (flowNodeJaxb instanceof TIntermediateCatchEvent) {
 			return this.createIntermediateCatchEventNode(clientId, 
 					processJaxb, subProcessesJaxb, flowNodeJaxb,
 					sequenceFlowsJaxb);
-		} else if (flowNodeJaxb.getClass().equals(
-				TIntermediateThrowEvent.class)) {
+		} else if (flowNodeJaxb instanceof TIntermediateThrowEvent) {
 			return this.createIntermediateThrowEventNode(clientId, 
 					processJaxb, subProcessesJaxb, flowNodeJaxb,
 					sequenceFlowsJaxb);
-		} else if (flowNodeJaxb.getClass().equals(
-				TEndEvent.class)) {
+		} else if (flowNodeJaxb instanceof TEndEvent) {
 			return this.createEndEventNode(clientId, processJaxb, subProcessesJaxb,
 					flowNodeJaxb, sequenceFlowsJaxb);
 			
 		// boundary event nodes
-		} else if (flowNodeJaxb.getClass().equals(
-				TBoundaryEvent.class)) {
+		} else if (flowNodeJaxb instanceof TBoundaryEvent) {
 			return this.createIntermediateBoundaryEventNode(clientId, 
 					processJaxb, subProcessesJaxb, flowNodeJaxb,
 					sequenceFlowsJaxb);
 
 		// gateways
-		} else if (flowNodeJaxb.getClass().equals(
-				TComplexGateway.class)) {
+		} else if (flowNodeJaxb instanceof TComplexGateway) {
 			return this.createComplexGatewayNode(clientId, processJaxb, subProcessesJaxb,
 					flowNodeJaxb, sequenceFlowsJaxb);
-		} else if (flowNodeJaxb.getClass().equals(
-				TEventBasedGateway.class)) {
+		} else if (flowNodeJaxb instanceof TEventBasedGateway) {
 			return this.createEventBasedGatewayNode(clientId, 
 					processJaxb, subProcessesJaxb, flowNodeJaxb,
 					sequenceFlowsJaxb);
-		} else if (flowNodeJaxb.getClass().equals(
-				TParallelGateway.class)) {
+		} else if (flowNodeJaxb instanceof TParallelGateway) {
 			return this.createParallelGatewayNode(clientId, processJaxb, subProcessesJaxb,
 					flowNodeJaxb, sequenceFlowsJaxb);
-		} else if (flowNodeJaxb.getClass().equals(
-				TExclusiveGateway.class)) {
+		} else if (flowNodeJaxb instanceof TExclusiveGateway) {
 			return this.createExclusiveGatewayNode(clientId, processJaxb, subProcessesJaxb,
 					flowNodeJaxb, sequenceFlowsJaxb);
 
 		// activities
-		} else if (flowNodeJaxb.getClass().equals(
-				TReceiveTask.class)) {
+		} else if (flowNodeJaxb instanceof TReceiveTask) {
 			return this.createReceiveTaskNode(clientId, processJaxb, subProcessesJaxb,
 					flowNodeJaxb, sequenceFlowsJaxb);
-		} else if (flowNodeJaxb.getClass().equals(
-				TSendTask.class)) {
+		} else if (flowNodeJaxb instanceof TSendTask) {
 			return this.createSendTaskNode(clientId, processJaxb, subProcessesJaxb,
 					flowNodeJaxb, sequenceFlowsJaxb);
-		} else if (flowNodeJaxb.getClass().equals(
-				TServiceTask.class)) {
+		} else if (flowNodeJaxb instanceof TServiceTask) {
 			return this.createServiceTaskNode(clientId, processJaxb, subProcessesJaxb,
 					flowNodeJaxb, sequenceFlowsJaxb);
 			
 		// sub process nodes (without the included flow nodes)
-		} else if (flowNodeJaxb.getClass().equals(
-				TSubProcess.class)) {
+		} else if (flowNodeJaxb instanceof TSubProcess) {
 			return this.createSubProcessNode(clientId, processJaxb, subProcessesJaxb,
 					flowNodeJaxb, sequenceFlowsJaxb);
 
@@ -155,6 +142,16 @@ public class NodeFactoryImpl implements NodeFactory {
 		}
 	}
 	
+	/**
+	 * TODO --> comment
+	 * 
+	 * @param clientId the client id
+	 * @param processJaxb the jaxb process
+	 * @param subProcessesJaxb the flow nodeJaxb
+	 * @param flowNodeJaxb the list of jaxb sequence flows of that process
+	 * @param sequenceFlowsJaxb
+	 * @return
+	 */
 	private FlowElement createIntermediateBoundaryEventNode(String clientId,
 			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {

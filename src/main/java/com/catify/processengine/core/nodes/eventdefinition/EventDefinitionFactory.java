@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
+import com.catify.processengine.core.processdefinition.jaxb.TLinkEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
@@ -57,6 +59,7 @@ import com.catify.processengine.core.services.ActorReferenceService;
  * A factory for creating EventDefinition objects.
  * 
  * @author christopher köster
+ * @author claus straube
  * 
  */
 @Configurable
@@ -81,31 +84,27 @@ public class EventDefinitionFactory {
 			if (eventDefinitionParameter.flowNodeJaxb instanceof TTask) {
 				TMessageIntegration messageIntegration = ExtensionService.getTMessageIntegration(eventDefinitionParameter.flowNodeJaxb);
 				if (messageIntegration != null) {
-					return createMessageEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb, eventDefinitionParameter.subProcessesJaxb, 
-						eventDefinitionParameter.flowNodeJaxb, messageIntegration);
+					return createMessageEventDefinition(eventDefinitionParameter, messageIntegration);
 				}
 			}
 			return new EmptyEventDefinition();
 			// else create the implementing event definition actor
 		} else {
 			// *** create a message event actor ***
-			if (eventDefinitionJaxb.getClass().equals(
-					TMessageEventDefinition.class)) {
-				return createMessageEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb, eventDefinitionParameter.subProcessesJaxb, 
-						eventDefinitionParameter.flowNodeJaxb, (TMessageEventDefinition) eventDefinitionJaxb);
-		
+			if (eventDefinitionJaxb instanceof TMessageEventDefinition) {
+				return createMessageEventDefinition(eventDefinitionParameter, (TMessageEventDefinition) eventDefinitionJaxb);		
 			// *** create a terminate event actor ***
-			} else if (eventDefinitionJaxb.getClass().equals(
-					TTerminateEventDefinition.class)) {
-				return createTerminateEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb, eventDefinitionParameter.subProcessesJaxb, 
-						eventDefinitionParameter.flowNodeJaxb, eventDefinitionJaxb);
-			} else if (eventDefinitionJaxb.getClass().equals(
-					TTimerEventDefinition.class)) {
-				return createTimerEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb, eventDefinitionParameter.subProcessesJaxb, 
-						eventDefinitionParameter.flowNodeJaxb, eventDefinitionJaxb);
+			} else if (eventDefinitionJaxb instanceof TTerminateEventDefinition) {
+				return createTerminateEventDefinition(eventDefinitionParameter, eventDefinitionJaxb);
+			// *** create a timer event definition ***
+			} else if (eventDefinitionJaxb instanceof TTimerEventDefinition) {
+				return createTimerEventDefinition(eventDefinitionParameter, (TTimerEventDefinition) eventDefinitionJaxb);
 			// *** create a signal event actor ***
 			} else if (eventDefinitionJaxb instanceof TSignalEventDefinition) {
 				return createSignaleventDefinition(eventDefinitionParameter, (TSignalEventDefinition) eventDefinitionJaxb );
+			// *** create a link event actor ***
+			} else if (eventDefinitionJaxb instanceof TLinkEventDefinition) {
+				return createLinkEventDefinition(eventDefinitionParameter, (TLinkEventDefinition) eventDefinitionJaxb );
 			}
 			// return empty event definition for unimplemented event definitions
 			LOG.error(String.format("Unimplemented event definition %s found. Associated events will fail!", getTEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb,
@@ -115,7 +114,7 @@ public class EventDefinitionFactory {
 	}
 
 	/**
-	 * Creates a new signal event definition.
+	 * Creates a new {@link SignalEventDefinition}.
 	 * 
 	 * @param eventDefinitionParameter
 	 * @param eventDefinitionJaxb
@@ -134,38 +133,97 @@ public class EventDefinitionFactory {
 		String signalRef = signal.getSignalRef().getLocalPart();
 		return new SignalEventDefinition(actorRef, isStart, isThrow, signalRef, params);
 	}
+	
+	/**
+	 * Creates a new {@link LinkEventDefinition}.
+	 * 
+	 * @param params
+	 * @param link
+	 * @return
+	 */
+	private EventDefinition createLinkEventDefinition(EventDefinitionParameter params, TLinkEventDefinition link) {
+		ActorRef actorRef = new ActorReferenceService().getActorReference(params.getUniqueFlowNodeId());
+	
+		if(params.flowNodeJaxb instanceof TThrowEvent) {
+			/*
+			 * if it is a throwing event we need the 
+			 * target (where to go). 
+			 */
+			String target = "";
+			if(link.getTarget() != null) {
+				target = link.getTarget().getLocalPart();
+			} else {
+				LOG.warn(String.format("The throwing signal event '%s' has no target element. This will not work.", params.getUniqueFlowNodeId()));
+			}
+			
+			return new LinkEventDefinition(target, params.getUniqueProcessId(), actorRef);
+		} else {
+			/*
+			 * if it is a catching event we need the 
+			 * sources (where the link comes from)
+			 */
+			List<String> sources = new ArrayList<String>();
+			if(link.getSource() != null) {
+				List<QName> source = link.getSource();
+				for (QName qName : source) {
+					sources.add(qName.getLocalPart());
+				}
+			} else {
+				LOG.warn(String.format("The catching signal event '%s' has no source element. This will not work.", params.getUniqueFlowNodeId()));
+			}
+			return new LinkEventDefinition(sources, params.getUniqueProcessId(), actorRef);
+		}
+		
+	}
 
-	private EventDefinition createTimerEventDefinition(String clientId,
-			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, TEventDefinition eventDefinitionJaxb) {
+	/**
+	 * Creates a new {@link TimerEventDefinition}.
+	 * 
+	 * @param params
+	 * @param timer
+	 * @return
+	 */
+	private EventDefinition createTimerEventDefinition(EventDefinitionParameter params, TTimerEventDefinition timer) {
 		
 		return new TimerEventDefinition(
 				new ActorReferenceService().getActorReference(
-						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-								flowNodeJaxb)), 
-				getTimerType((TTimerEventDefinition) eventDefinitionJaxb), 
-				getIsoDate((TTimerEventDefinition) eventDefinitionJaxb));
+						IdService.getUniqueFlowNodeId(params.clientId, params.processJaxb, params.subProcessesJaxb,
+								params.flowNodeJaxb)), 
+				getTimerType(timer), 
+				getIsoDate(timer));
 
 	}
 
-	private TimerTypes getTimerType(TTimerEventDefinition timerEventDefinitionJaxb) {
-		if (timerEventDefinitionJaxb.getTimeDate() != null) {
+	/**
+	 * Get timer type (date, duration or cycle). 
+	 * 
+	 * @param timer
+	 * @return
+	 */
+	private TimerTypes getTimerType(TTimerEventDefinition timer) {
+		if (timer.getTimeDate() != null) {
 			return TimerTypes.TIMEDATE;
-		} else if (timerEventDefinitionJaxb.getTimeDuration() != null) {
+		} else if (timer.getTimeDuration() != null) {
 			return TimerTypes.TIMEDURATION;
-		} else if (timerEventDefinitionJaxb.getTimeCycle() != null) {
+		} else if (timer.getTimeCycle() != null) {
 			return TimerTypes.TIMECYCLE;
 		}
 		return null;
 	}
 
-	private String  getIsoDate(TTimerEventDefinition timerEventDefinitionJaxb) {
-		if (timerEventDefinitionJaxb.getTimeDate() != null) {
-			return timerEventDefinitionJaxb.getTimeDate().getContent().get(0).toString();
-		} else if (timerEventDefinitionJaxb.getTimeDuration() != null) {
-			return timerEventDefinitionJaxb.getTimeDuration().getContent().get(0).toString();
-		} else if (timerEventDefinitionJaxb.getTimeCycle() != null) {
-			return timerEventDefinitionJaxb.getTimeCycle().getContent().get(0).toString();
+	/**
+	 * Gets the ISO 8601 date String from the timer definition.
+	 * 
+	 * @param timer
+	 * @return
+	 */
+	private String  getIsoDate(TTimerEventDefinition timer) {
+		if (timer.getTimeDate() != null) {
+			return timer.getTimeDate().getContent().get(0).toString();
+		} else if (timer.getTimeDuration() != null) {
+			return timer.getTimeDuration().getContent().get(0).toString();
+		} else if (timer.getTimeCycle() != null) {
+			return timer.getTimeCycle().getContent().get(0).toString();
 		}
 		return null;
 	}
@@ -178,13 +236,11 @@ public class EventDefinitionFactory {
 	 * @param messageEventDefinitionJaxb the event definitionJaxb
 	 * @return the event definition
 	 */
-	private EventDefinition createMessageEventDefinition(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, TEventDefinition eventDefinitionJaxb) {
+	private EventDefinition createMessageEventDefinition(EventDefinitionParameter params, TMessageEventDefinition message) {
 		
-		TMessageIntegration messageIntegration = ExtensionService.getTMessageIntegration((TMessageEventDefinition) eventDefinitionJaxb);
+		TMessageIntegration messageIntegration = ExtensionService.getTMessageIntegration((TMessageEventDefinition) message);
 		
-		return getMessageEventDefinition(clientId, processJaxb,
-				subProcessesJaxb, flowNodeJaxb, messageIntegration);
+		return getMessageEventDefinition(params, messageIntegration);
 	}
 	
 	/**
@@ -195,62 +251,65 @@ public class EventDefinitionFactory {
 	 * @param messageEventDefinitionJaxb the event definitionJaxb
 	 * @return the event definition
 	 */
-	private EventDefinition createMessageEventDefinition(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, TMessageIntegration messageIntegration) {
-		return getMessageEventDefinition(clientId, processJaxb,
-				subProcessesJaxb, flowNodeJaxb, messageIntegration);
+	private EventDefinition createMessageEventDefinition(EventDefinitionParameter params, TMessageIntegration messageIntegration) {
+		return getMessageEventDefinition(params, messageIntegration);
 	}
 
-	private EventDefinition getMessageEventDefinition(String clientId,
-			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, TMessageIntegration messageIntegration) {
+	/**
+	 * TODO --> comment
+	 * 
+	 * @param params
+	 * @param messageIntegration
+	 * @return
+	 */
+	private EventDefinition getMessageEventDefinition(EventDefinitionParameter params, TMessageIntegration messageIntegration) {
 		// message event is catching
-		if (flowNodeJaxb.getClass().getSuperclass()
-				.equals(TCatchEvent.class) || flowNodeJaxb instanceof TReceiveTask) {
+		if (params.flowNodeJaxb instanceof TCatchEvent || params.flowNodeJaxb instanceof TReceiveTask) {
 			
 			// create catching message event definition to be used in akka actor	
-			return getMessageEventDefinitionCatch(clientId,
-					processJaxb, subProcessesJaxb, flowNodeJaxb,
-					messageIntegration);
+			return getMessageEventDefinitionCatch(params, messageIntegration);
 	
 		// message event is throwing
-		} else if (flowNodeJaxb.getClass().getSuperclass()
-				.equals(TThrowEvent.class) || flowNodeJaxb instanceof TSendTask) {
+		} else if (params.flowNodeJaxb instanceof TThrowEvent || params.flowNodeJaxb instanceof TSendTask) {
 			
-			return getMessageEventDefinitionThrow(clientId,
-					processJaxb, subProcessesJaxb, flowNodeJaxb,
-					messageIntegration);
+			return getMessageEventDefinitionThrow(params, messageIntegration);
 		}
 		return null;
 	}
 
-	public EventDefinition getMessageEventDefinitionCatch(String clientId,
-			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, TMessageIntegration messageIntegration) {
+	/**
+	 * TODO --> comment
+	 * 
+	 * @param params
+	 * @param messageIntegration
+	 * @return
+	 */
+	public EventDefinition getMessageEventDefinitionCatch(EventDefinitionParameter params, TMessageIntegration messageIntegration) {
 		EventDefinition eventDefinition;
 		eventDefinition = new MessageEventDefinition_Catch(
-				IdService.getUniqueProcessId(clientId, processJaxb),
-				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-						flowNodeJaxb), 
+				IdService.getUniqueProcessId(params),
+				IdService.getUniqueFlowNodeId(params), 
 				ActorReferenceService.getActorReferenceString(
-						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-								flowNodeJaxb)),  
+						IdService.getUniqueFlowNodeId(params)),  
 				messageIntegration);
 		return eventDefinition;
 	}
 
-	public EventDefinition getMessageEventDefinitionThrow(String clientId,
-			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, TMessageIntegration messageIntegration) {
+	/**
+	 * TODO --> comment
+	 * 
+	 * @param params
+	 * @param messageIntegration
+	 * @return
+	 */
+	public EventDefinition getMessageEventDefinitionThrow(EventDefinitionParameter params, TMessageIntegration messageIntegration) {
 		EventDefinition eventDefinition;
 		// create throwing message event definition to be used in akka actor
 		eventDefinition = new MessageEventDefinition_Throw(
-				IdService.getUniqueProcessId(clientId, processJaxb),
-				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-						flowNodeJaxb), 
+				IdService.getUniqueProcessId(params),
+				IdService.getUniqueFlowNodeId(params), 
 				ActorReferenceService.getActorReferenceString(
-						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-								flowNodeJaxb)),  
+						IdService.getUniqueFlowNodeId(params)),  
 				messageIntegration);
 		return eventDefinition;
 	}
@@ -263,42 +322,41 @@ public class EventDefinitionFactory {
 	 * @param terminateEventDefinitionJaxb the event definitionJaxb
 	 * @return the event definition
 	 */
-	private EventDefinition createTerminateEventDefinition(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, TEventDefinition eventDefinitionJaxb) {
-		
+	private EventDefinition createTerminateEventDefinition(EventDefinitionParameter params, TEventDefinition eventDefinitionJaxb) {
+
 		EventDefinition eventDefinition = new TerminateEventDefinition(
-				IdService.getUniqueProcessId(clientId, processJaxb),
-				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb),
+				IdService.getUniqueProcessId(params),
+				IdService.getUniqueFlowNodeId(params),
 				new ActorReferenceService().getActorReference(
-						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-								flowNodeJaxb)),
-				getOtherTopLevelActorRefs(clientId, processJaxb, flowNodeJaxb)				
+						IdService.getUniqueFlowNodeId(params)),
+				getTopLevelActorReferences(params)	
 				);
 		
 		return eventDefinition;
 	}
 	
 	/**
-	 * Gets the top level actor refs but removes its own actor ref if part of that set.
+	 * Gets all actor references of the process (including sub processes) 
+	 * but excluding the actor reference of a given flow node.
 	 *
 	 * @param clientId the client id
 	 * @param processJaxb the process jaxb
-	 * @param flowNodeJaxb the flow node jaxb
-	 * @return the other top level actor refs
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @param flowNodeJaxb the jaxb flow node to be excluded
+	 * @return the other actor references
 	 */
-	private Set<ActorRef> getOtherTopLevelActorRefs(String clientId, TProcess processJaxb,
-			TFlowNode flowNodeJaxb) {
-		Set<ActorRef> actorReferences = getTopLevelActorReferences(clientId, processJaxb);
+	private Set<ActorRef> getTopLevelActorReferences(EventDefinitionParameter params) {
+		Set<ActorRef> actorReferences = getTopLevelActorReferences(params.clientId, params.processJaxb);
 		
 		// remove actor reference of given flow node
 		actorReferences.remove(new ActorReferenceService().getActorReference(
-						IdService.getUniqueFlowNodeId(clientId, processJaxb, null,
-								flowNodeJaxb)));
+						IdService.getUniqueFlowNodeId(params)));
+
 		return actorReferences;
 	}
 	
 	/**
-	 * Gets the top level actor references of the process (excluding sub processes).
+	 * Gets all actor references of the process (including sub processes).
 	 *
 	 * @param clientId the client id
 	 * @param processJaxb the process jaxb
@@ -308,6 +366,7 @@ public class EventDefinitionFactory {
 	 */
 	private Set<ActorRef> getTopLevelActorReferences(String clientId, TProcess processJaxb) {
 		Set<ActorRef> actorReferences = new HashSet<ActorRef>();
+		
 		List<JAXBElement<? extends TFlowElement>> flowElements = new ArrayList<JAXBElement<? extends TFlowElement>>();
 		
 		flowElements = processJaxb.getFlowElement();
@@ -322,67 +381,6 @@ public class EventDefinitionFactory {
 		
 		return actorReferences;
 	}
-	
-//	/**
-//	 * Gets all actor references of the process (including sub processes) 
-//	 * but excluding the actor reference of a given flow node.
-//	 *
-//	 * @param clientId the client id
-//	 * @param processJaxb the process jaxb
-//	 * @param subProcessesJaxb the sub processes jaxb
-//	 * @param flowNodeJaxb the jaxb flow node to be excluded
-//	 * @return the other actor references
-//	 */
-//	private Set<ActorRef> getOtherActorReferences(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-//			TFlowNode flowNodeJaxb) {
-//		Set<ActorRef> actorReferences = getAllActorReferences(clientId, processJaxb, subProcessesJaxb, null);
-//		
-//		// remove actor reference of given flow node
-//		actorReferences.remove(new ActorReferenceService().getActorReference(
-//						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-//								flowNodeJaxb)));
-//		
-//		return actorReferences;
-//	}
-	
-//	/**
-//	 * Gets all actor references of the process (including sub processes).
-//	 *
-//	 * @param clientId the client id
-//	 * @param processJaxb the process jaxb
-//	 * @param subProcessesJaxb the sub processes jaxb
-//	 * @param flowNodeJaxb the flow node jaxb
-//	 * @return the all actor references
-//	 */
-//	private Set<ActorRef> getAllActorReferences(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-//			TSubProcess subProcessJaxb) {
-//		Set<ActorRef> actorReferences = new HashSet<ActorRef>();
-//		
-//		List<JAXBElement<? extends TFlowElement>> flowElements = new ArrayList<JAXBElement<? extends TFlowElement>>();
-//		if (subProcessJaxb == null) {
-//			flowElements = processJaxb.getFlowElement();
-//		} else {
-//			flowElements = subProcessJaxb.getFlowElement();
-//		}
-//		
-//		for (JAXBElement<? extends TFlowElement> flowElement : flowElements) {
-//			if (flowElement.getValue() instanceof TFlowNode) {
-//				actorReferences.add(new ActorReferenceService().getActorReference(
-//						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-//								(TFlowNode) flowElement.getValue())));
-//			}
-//			if (flowElement.getValue() instanceof TSubProcess) {
-//				// create local copies for recursion
-//				ArrayList<TSubProcess> recursiveSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
-//				recursiveSubProcessesJaxb.add((TSubProcess) flowElement.getValue());
-//				TSubProcess newSubProcessJaxb = (TSubProcess) flowElement.getValue();
-//				
-//				actorReferences.addAll(getAllActorReferences(clientId, processJaxb, recursiveSubProcessesJaxb, newSubProcessJaxb));
-//			}
-//		}
-//		
-//		return actorReferences;
-//	}
 	
 	/**
 	 * Gets the jaxb event definition.

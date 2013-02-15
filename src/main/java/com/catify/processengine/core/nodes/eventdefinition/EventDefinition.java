@@ -43,6 +43,7 @@ import com.catify.processengine.core.nodes.NodeUtils;
  * 'strategy pattern'. <br>
  * 
  * @author christopher köster
+ * @author claus straube
  * 
  */
 @Configurable
@@ -59,19 +60,38 @@ public abstract class EventDefinition extends UntypedActor {
 	
 	@Override
 	public void onReceive(Object message) throws Exception {
-		LOG.debug(String.format("%s received %s", this.getSelf(), message
-				.getClass().getSimpleName()));
+		LOG.debug(String.format("%s received %s ('%s' received from '%s')", this.getClass().getSimpleName(), message
+                .getClass().getSimpleName(), this.getSelf(), this.getSender()));
+		
+		// process message and reply with a commit message to the underlying node event
+		if(!this.handle(message)) {
+			unhandled(message);
+		}
+	}
+	
+	/**
+	 * Separated default message handling from 'onReceive', to
+	 * use it in classes that override the onReceive method.
+	 * 
+	 * @param message
+	 * @return
+	 */
+	protected boolean handle(Object message) {
+		boolean handled = Boolean.FALSE;
 		
 		// process message and reply with a commit message to the underlying node event
 		if (message instanceof ActivationMessage) {
-			new NodeUtils().replyCommitMessage(activate((ActivationMessage) message), getSelf(), getSender());
+			handled = Boolean.TRUE;
+			new NodeUtils().replyCommitMessage(activate((ActivationMessage) message), getSelf(),getSender());
 		} else if (message instanceof DeactivationMessage) {
-			new NodeUtils().replyCommitMessage(deactivate((DeactivationMessage) message), getSelf(), getSender());
+			handled = Boolean.TRUE;
+			new NodeUtils().replyCommitMessage(deactivate((DeactivationMessage) message), getSelf(),getSender());
 		} else if (message instanceof TriggerMessage) {
+			handled = Boolean.TRUE;
 			new NodeUtils().replyCommitMessage(trigger((TriggerMessage) message), getSelf(), getSender());
-		} else {
-			unhandled(message);
 		}
+		
+		return handled;
 	}
 
 

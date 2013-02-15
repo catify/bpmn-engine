@@ -68,6 +68,16 @@ public final class IdService {
 	}
 	
 	/**
+	 * Convenient method to get the unique process id.
+	 * 
+	 * @param params in a {@link EventDefinitionParameter} bean.
+	 * @return
+	 */
+	public static String getUniqueProcessId(EventDefinitionParameter params) {
+		return getUniqueProcessId(params.clientId, params.processJaxb);
+	}
+	
+	/**
 	 * Gets the unique process id from a jaxb process, which is built via
 	 * concatenation of the process id, name and version.
 	 * 
