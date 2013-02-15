@@ -145,6 +145,22 @@ public final class IdService {
 				+ flowNodeJaxb.getId() + flowNodeJaxb.getName());
 	}
 	
+	/**
+	 * Gets the unique flow node id of a flow node.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the process jaxb
+	 * @param nodeId the node id
+	 * @return the unique flow node id
+	 */
+	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, String nodeId) {
+		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
+
+		ArrayList<TSubProcess> subProcessesJaxb = getTSubprocessesById(processJaxb, nodeId);
+		
+		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
+		return uniqueFlowNodeId;
+	}
 	
 	/**
 	 * Gets the unique flow node id of a flow node.
@@ -164,70 +180,22 @@ public final class IdService {
 	}
 	
 	/**
-	 * Gets the unique flow node id of a flow node.
+	 * Gets the unique flow node id of an archived flow node.
 	 *
 	 * @param clientId the client id
 	 * @param processJaxb the process jaxb
-	 * @param subProcessesJaxb the sub processes jaxb
 	 * @param nodeId the node id
 	 * @return the unique flow node id
 	 */
-	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, String nodeId) {
+	public static String getArchivedUniqueFlowNodeId(String clientId, TProcess processJaxb, String nodeId) {
 		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
 
 		ArrayList<TSubProcess> subProcessesJaxb = getTSubprocessesById(processJaxb, nodeId);
 		
-		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
+		String uniqueFlowNodeId = IdService.getArchivedUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
 		return uniqueFlowNodeId;
 	}
 	
-	public static ArrayList<TSubProcess> getTSubprocessesById(TProcess processJaxb, String nodeId) {
-		TFlowNode flowNode = null;
-		
-		ArrayList<TSubProcess> subProcessesJaxb = new ArrayList<TSubProcess>();
-		
-		for (JAXBElement<? extends TFlowElement> flowElementJaxb : processJaxb
-				.getFlowElement()) {
-			if (flowElementJaxb.getValue() instanceof TFlowNode) {
-				if (flowElementJaxb.getValue().getId().equals(nodeId)) {
-					LOG.debug(String.format("Found Flow Node with id %s",
-							flowElementJaxb.getValue().getId()));
-					// this is a top level flow node which has no embedding sub processes
-					return null;
-				}  else if (flowElementJaxb.getValue() instanceof TSubProcess) {
-					subProcessesJaxb.addAll(getTSubprocessesByIdFromSubprocesses((TSubProcess) flowElementJaxb.getValue(), nodeId, subProcessesJaxb));
-				}
-
-			}
-		}
-		if (flowNode == null) {
-			LOG.error("The node id " + nodeId + " could not be found!");
-		} 
-		
-		return subProcessesJaxb;
-	}
-	
-	private static ArrayList<TSubProcess> getTSubprocessesByIdFromSubprocesses(TSubProcess subProcessJaxb, String nodeId, ArrayList<TSubProcess> subProcessesJaxb) {
-		
-		ArrayList<TSubProcess> embeddingSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
-		embeddingSubProcessesJaxb.add(subProcessJaxb);
-		
-		for (JAXBElement<? extends TFlowElement> flowElementJaxb : subProcessJaxb
-				.getFlowElement()) {
-			if (flowElementJaxb.getValue() instanceof TFlowNode) {
-			 	if (flowElementJaxb.getValue().getId().equals(nodeId)) {
-					LOG.debug(String.format("Found Flow Node with id %s",
-							flowElementJaxb.getValue().getId()));
-					return embeddingSubProcessesJaxb;
-				} else if (flowElementJaxb.getValue() instanceof TSubProcess) {
-					embeddingSubProcessesJaxb.addAll(getTSubprocessesByIdFromSubprocesses((TSubProcess) flowElementJaxb.getValue(), nodeId, embeddingSubProcessesJaxb));
-				}
-			}
-		}
-		
-		return embeddingSubProcessesJaxb;
-	}
-
 	/**
 	 * Gets the unique flow node id of an archived flow node.
 	 *
@@ -246,25 +214,7 @@ public final class IdService {
 	}
 	
 	/**
-	 * Gets the sub processes string (if any).
-	 *
-	 * @param subProcessesJaxb the sub processes jaxb
-	 * @return the sub processes string
-	 */
-	private static StringBuilder getSubProcessesString(
-			ArrayList<TSubProcess> subProcessesJaxb) {
-		StringBuilder parentSubProcesses = new StringBuilder();
-		
-		if (subProcessesJaxb != null) {
-			for (TSubProcess tSubProcess : subProcessesJaxb) {
-				parentSubProcesses.append(tSubProcess.getId() + tSubProcess.getName());
-			}
-		}
-		return parentSubProcesses;
-	}
-	
-	/**
-	 * Gets the flow node by id.
+	 * Gets the jaxb flow node element by its id.
 	 *
 	 * @param processJaxb the process jaxb
 	 * @param nodeId the node id
@@ -294,6 +244,14 @@ public final class IdService {
 		return flowNode;
 	}
 
+	/**
+	 * Gets the jaxb flow node element by its id from subprocesses.
+	 * Used to recursively search all (nested) subprocesses.
+	 *
+	 * @param subProcessJaxb the sub process jaxb
+	 * @param nodeId the node id
+	 * @return the t flow node by id from subprocess
+	 */
 	private static TFlowNode getTFlowNodeByIdFromSubprocess(TSubProcess subProcessJaxb, String nodeId) {
 		
 		TFlowNode flowNode = null;
@@ -312,6 +270,88 @@ public final class IdService {
 			}
 		}
 		return flowNode;
+	}
+	
+	/**
+	 * Gets the embedding jaxb subprocesses by the id of an embedded flow node. 
+	 * Eg: a sub process has a catch event, we know the id of that catch event and want to find the embedding sub process(es).
+	 *
+	 * @param processJaxb the process jaxb
+	 * @param nodeId the node id
+	 * @return the embedding jaxb subprocesses
+	 */
+	public static ArrayList<TSubProcess> getTSubprocessesById(TProcess processJaxb, String nodeId) {
+		TFlowNode flowNode = null;
+		
+		ArrayList<TSubProcess> subProcessesJaxb = new ArrayList<TSubProcess>();
+		
+		for (JAXBElement<? extends TFlowElement> flowElementJaxb : processJaxb
+				.getFlowElement()) {
+			if (flowElementJaxb.getValue() instanceof TFlowNode) {
+				if (flowElementJaxb.getValue().getId().equals(nodeId)) {
+					LOG.debug(String.format("Found Flow Node with id %s",
+							flowElementJaxb.getValue().getId()));
+					// this is a top level flow node which has no embedding sub processes
+					return null;
+				}  else if (flowElementJaxb.getValue() instanceof TSubProcess) {
+					subProcessesJaxb.addAll(getTSubprocessesByIdFromSubprocesses((TSubProcess) flowElementJaxb.getValue(), nodeId, subProcessesJaxb));
+				}
+
+			}
+		}
+		if (flowNode == null) {
+			LOG.error("The node id " + nodeId + " could not be found!");
+		} 
+		
+		return subProcessesJaxb;
+	}
+	
+	/**
+	 * Gets the embedding jaxb subprocesses by the id of an embedded flow node from subprocesses. 
+	 * Used to recursively search all (nested) subprocesses.
+	 *
+	 * @param subProcessJaxb the sub process jaxb
+	 * @param nodeId the node id
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @return the t subprocesses by id from subprocesses
+	 */
+	private static ArrayList<TSubProcess> getTSubprocessesByIdFromSubprocesses(TSubProcess subProcessJaxb, String nodeId, ArrayList<TSubProcess> subProcessesJaxb) {
+		
+		ArrayList<TSubProcess> embeddingSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
+		embeddingSubProcessesJaxb.add(subProcessJaxb);
+		
+		for (JAXBElement<? extends TFlowElement> flowElementJaxb : subProcessJaxb
+				.getFlowElement()) {
+			if (flowElementJaxb.getValue() instanceof TFlowNode) {
+			 	if (flowElementJaxb.getValue().getId().equals(nodeId)) {
+					LOG.debug(String.format("Found Flow Node with id %s",
+							flowElementJaxb.getValue().getId()));
+					return embeddingSubProcessesJaxb;
+				} else if (flowElementJaxb.getValue() instanceof TSubProcess) {
+					embeddingSubProcessesJaxb.addAll(getTSubprocessesByIdFromSubprocesses((TSubProcess) flowElementJaxb.getValue(), nodeId, embeddingSubProcessesJaxb));
+				}
+			}
+		}
+		
+		return embeddingSubProcessesJaxb;
+	}
+	
+	/**
+	 * Gets the sub processes string (if any). Concatenates the embedding sub processes.
+	 *
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @return the sub processes string
+	 */
+	private static StringBuilder getSubProcessesString(
+			ArrayList<TSubProcess> subProcessesJaxb) {
+		StringBuilder parentSubProcesses = new StringBuilder();
+		
+		if (subProcessesJaxb != null) {
+			for (TSubProcess tSubProcess : subProcessesJaxb) {
+				parentSubProcesses.append(tSubProcess.getId() + tSubProcess.getName());
+			}
+		}
+		return parentSubProcesses;
 	}
 
 }
