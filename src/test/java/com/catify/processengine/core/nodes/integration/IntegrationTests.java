@@ -20,7 +20,11 @@
  */
 package com.catify.processengine.core.nodes.integration;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,17 +33,23 @@ import javax.xml.bind.JAXBException;
 
 import junit.framework.Assert;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.catify.processengine.core.data.model.NodeInstaceStates;
+import com.catify.processengine.core.integration.MessageIntegrationSPI;
+import com.catify.processengine.core.messageintegration.MessageIntegrationSPIMock;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 
 /**
  * @author chris
+ * @author claus straube
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -47,17 +57,20 @@ import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 //@Transactional
 public class IntegrationTests extends IntegrationTestBase {
 	
+	
 	@Test
 	public void testprocessThrow() throws IOException, JAXBException, InterruptedException {
 		TProcess process = simpleProcessTest("testprocess_throw.bpmn", 3000, 5000, 6, 3);
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
 	}
 	
-//	@Test
-//	public void testprocessMessageIntegration() throws IOException, JAXBException, InterruptedException {
-//		TProcess process = simpleProcessTest("testprocess_throw_camel_messageIntegration.bpmn", 3000, 5000, 6, 3);
-//	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
-//	}
+	@Test
+	public void testprocessMessageIntegration() throws IOException, JAXBException, InterruptedException {		
+		TProcess process = simpleProcessTest("testprocess_throw_camel_messageIntegration.bpmn", 3000, 5000, 6, 3);
+	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
+	    MessageIntegrationSPIMock mock = (MessageIntegrationSPIMock) MessageIntegrationSPI.getMessageIntegrationImpl(MessageIntegrationSPIMock.MOCK_PREFIX);
+	    assertEquals(1, mock.sends.size());
+	}
 	
 	@Test
 	public void testprocessThrowThrowComplex() throws IOException, JAXBException, InterruptedException {

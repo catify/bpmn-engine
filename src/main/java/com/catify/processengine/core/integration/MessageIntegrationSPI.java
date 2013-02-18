@@ -40,8 +40,7 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  */
 public abstract class MessageIntegrationSPI {
 	
-	static final Logger LOG = LoggerFactory
-			.getLogger(MessageIntegrationSPI.class);
+	static final Logger LOG = LoggerFactory.getLogger(MessageIntegrationSPI.class);
 
 	 /**
  	 * Gets the message integration implementation.
@@ -51,11 +50,11 @@ public abstract class MessageIntegrationSPI {
  	 */
  	public static MessageIntegrationSPI getMessageIntegrationImpl(String prefix) {
 		 
-	     for (MessageIntegrationSPI integrationProvider : messageIntegrationLoader) {
-	    	 if (integrationProvider.getPrefix().equals(prefix)) {
+		for (MessageIntegrationSPI integrationProvider : messageIntegrationLoader) {
+			if (integrationProvider.getPrefix().equals(prefix)) {
 				return integrationProvider;
-	    	 }
-	     }
+			}
+		}
 	     // return null if prefix could not be matched with implementation
 		LOG.error(String
 				.format("The message integration service provider '%s' could not be found on the classpath. Message integration will fail!",
