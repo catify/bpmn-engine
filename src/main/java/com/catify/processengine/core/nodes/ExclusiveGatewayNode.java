@@ -110,7 +110,9 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 		
 		this.defaultOutgoingSequence = defaultNode;
 		
-		// create all needed object ids
+		// Create all needed object ids. Using the 'createList' method,
+		// the context will be lost. This doesn't matter in this case,
+		// because the goal is to minimize the list of possible objects.
 		this.usedDataObjectIds = ExpressionService.evaluateAllUsedObjects(createList(conditionalExpressionStrings.values()), allDataObjectIds);
 		// create JEXL expressions from strings
 		this.conditionalExpressionStrings = ExpressionService.createJexlExpressions(conditionalExpressionStrings);
@@ -178,6 +180,15 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 		return (this.getNodeInstanceMediatorService().getIncomingFiredFlowsNeeded(iid) == flowsFired);
 	}
 	
+	/**
+	 * Evaluates all expressions (on outgoing sequence flows) until
+	 * one will return 'true'. For the first 'true' the {@link ActorRef}
+	 * will be given back. If no one is evaluated to 'true', the 
+	 * return value is null.
+	 * 
+	 * @param iid instance id as {@link String}
+	 * @return the {@link ActorRef} or null
+	 */
 	public ActorRef evaluateOutGoingSequence(String iid) {
 		Iterator<ActorRef> it = this.conditionalExpressionStrings.keySet().iterator();
 		// fill the context once and use it for every expression
@@ -194,6 +205,12 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 		return null;	
 	}
 	
+	/**
+	 * Creates a {@link List} from the given collection.
+	 * 
+	 * @param values 
+	 * @return
+	 */
 	public List<String> createList(Collection<String> values) {
 		List<String> result = new ArrayList<String>();
 		for (String value: values) {
