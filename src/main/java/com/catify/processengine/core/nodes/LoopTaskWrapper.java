@@ -1,79 +1,80 @@
 package com.catify.processengine.core.nodes;
 
+import java.util.List;
+
+import akka.actor.ActorRef;
+
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.LoopEndMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.loops.LoopTypeStrategy;
+import com.catify.processengine.core.messages.WinningMessage;
+import com.catify.processengine.core.nodes.loops.LoopStrategy;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * The Class LoopTaskWrapper uses a strategy pattern to wrap the looping behavior around the bpmn tasks. 
- * The {@link NodeFactory} will set the context of {@link LoopTypeStrategy} and {@link Task} based on the bpmn process definition.
+ * The {@link NodeFactory} will set the context of {@link LoopType} and {@link Task} based on the bpmn process definition.
  */
 public class LoopTaskWrapper extends Task {
 
-/** The loop type strategy which binds the {@link LoopTypeStrategy}) implementation for {@link ActivationMessage}. */
-private LoopTypeStrategy typeStrategyActivate;
+	private ActorRef loopStrategy;
 
-/** The loop type strategy which binds the {@link LoopTypeStrategy}) implementation for {@link DeactivationMessage}. */
-private LoopTypeStrategy typeStrategyDeactivate;
-
-/** The loop type strategy which binds the {@link LoopTypeStrategy}) implementation for {@link TriggerMessage}. */
-private LoopTypeStrategy typeStrategyTrigger;
-
-/**
- * Instantiates a new loop task wrapper.
- *
- * @param typeStrategyActivate the type strategy for {@link ActivationMessage}
- * @param typeStrategyDeactivate the type strategy for {@link DeactivationMessage}
- * @param typeStrategyTrigger the type strategy for {@link TriggerMessage}
- */
-public LoopTaskWrapper(String uniqueProcessId, String uniqueFlowNodeId, LoopTypeStrategy typeStrategyActivate,
-		LoopTypeStrategy typeStrategyDeactivate,
-		LoopTypeStrategy typeStrategyTrigger) {
-	super();
+	/**
+	 * Instantiates a new loop task wrapper.
+	 *
+	 * @param uniqueProcessId the unique process id
+	 * @param uniqueFlowNodeId the unique flow node id
+	 * @param outgoingNodes the list of outgoing node actorRefs
+	 * @param loopStrategy the strategy
+	 */
+	public LoopTaskWrapper(String uniqueProcessId, String uniqueFlowNodeId, List<ActorRef> outgoingNodes, ActorRef loopStrategy, List<ActorRef> boundaryEvent) {
+		super();
+		
+		this.setUniqueProcessId(uniqueProcessId);
+		this.setUniqueFlowNodeId(uniqueFlowNodeId);
+		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
+				uniqueProcessId, uniqueFlowNodeId));
+		
+		this.setOutgoingNodes(outgoingNodes);
+		this.setBoundaryEvents(boundaryEvent);
+		
+		this.loopStrategy = loopStrategy;
+		
+	}
 	
-	this.setUniqueProcessId(uniqueProcessId);
-	this.setUniqueFlowNodeId(uniqueFlowNodeId);
-	this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-			uniqueProcessId, uniqueFlowNodeId));
+	@Override
+	protected void activate(ActivationMessage message) {
+		loopStrategy.tell(message, getSelf());
+		this.activateBoundaryEvents(message);
+	}
 	
-	this.typeStrategyActivate = typeStrategyActivate;
-	this.typeStrategyDeactivate = typeStrategyDeactivate;
-	this.typeStrategyTrigger = typeStrategyTrigger;
-}
+	@Override
+	protected void deactivate(DeactivationMessage message) {
+		loopStrategy.tell(message, getSelf());
+		this.deactivateBoundaryEvents(message);
+	}
+	
+	@Override
+	protected void trigger(TriggerMessage message) {
+		loopStrategy.tell(message, getSelf());
+		this.deactivateBoundaryEvents(message);
+	}
+	
+	@Override
+	protected void handleNonStandardMessage(Object message) {
+		if (message instanceof LoopEndMessage) {
+			endLoop((LoopEndMessage) message);
+		} else {
+			unhandled(message);
+		}
+	}
 
-@Override
-protected void activate(ActivationMessage message) {
-	typeStrategyActivate.activate(message);
-}
-
-@Override
-protected void deactivate(DeactivationMessage message) {
-	typeStrategyDeactivate.deactivate(message);
-}
-
-@Override
-protected void trigger(TriggerMessage message) {
-	typeStrategyTrigger.trigger(message);
-}
-
-/**
- * Gets the type strategy.
- *
- * @return the type strategy
- */
-public LoopTypeStrategy getTypeStrategy() {
-	return typeStrategyActivate;
-}
-
-/**
- * Sets the type strategy.
- *
- * @param typeStrategy the new type strategy
- */
-public void setTypeStrategy(LoopTypeStrategy typeStrategy) {
-	this.typeStrategyActivate = typeStrategy;
-}
+	private void endLoop(LoopEndMessage message) {
+		this.deactivateBoundaryEvents(message);
+		
+		// send message to following actors (outside the loop)
+		this.sendMessageToNodeActors(new ActivationMessage(message.getProcessInstanceId()), this.getOutgoingNodes());
+	}
 
 }

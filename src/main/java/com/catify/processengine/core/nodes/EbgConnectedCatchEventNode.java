@@ -26,7 +26,6 @@ import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
-import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.messages.WinningMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
@@ -81,24 +80,16 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 	}
 
 	/**
-	 * onReceive method of {@linkplain FLowNode} needs to be overridden because
+	 * onReceive method of {@linkplain FLowNode} needs to be extended because
 	 * we need to implement a winning message reaction not used in any of the
 	 * other event nodes.
 	 */
 	@Override
-	public void onReceive(Object message) {
-		if (this.isProcessableInstance((Message) message)) {
-			if (message instanceof ActivationMessage) {
-				activate((ActivationMessage) message);
-			} else if (message instanceof DeactivationMessage) {
-				deactivate((DeactivationMessage) message);
-			} else if (message instanceof TriggerMessage) {
-				trigger((TriggerMessage) message);
-			} else if (message instanceof WinningMessage) {
-				winning((WinningMessage) message);
-			} else {
-				unhandled(message);
-			}
+	protected void handleNonStandardMessage(Object message) {
+		if (message instanceof WinningMessage) {
+			winning((WinningMessage) message);
+		} else {
+			unhandled(message);
 		}
 	}
 

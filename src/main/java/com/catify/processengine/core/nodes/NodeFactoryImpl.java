@@ -47,8 +47,8 @@ import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.dataobjects.NoDataObjectSP;
 import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.nodes.loops.LoopTypeStrategy;
-import com.catify.processengine.core.nodes.loops.NonLoop;
+import com.catify.processengine.core.nodes.loops.LoopStrategy;
+import com.catify.processengine.core.nodes.loops.LoopStrategyFactory;
 import com.catify.processengine.core.processdefinition.jaxb.TBoundaryEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TComplexGateway;
@@ -319,7 +319,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param subProcessesJaxb the list of parent jaxb sub processes
 	 * @return the data object ids
 	 */
-	private Set<String> getAllDataObjectIds(TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb) {
+	protected Set<String> getAllDataObjectIds(TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb) {
 		
 		// only top level end processes need info about the data objects, 
 		// because only they will be allowed to delete them
@@ -426,7 +426,7 @@ public class NodeFactoryImpl implements NodeFactory {
 		
 		final TExclusiveGateway exclusiveGatewayJaxb = (TExclusiveGateway) flowNodeJaxb;
 		
-		this.getConditionalExpressionStrings(sequenceFlowsJaxb);
+//		this.getConditionalExpressionStrings(sequenceFlowsJaxb);
 		
 		return new ExclusiveGatewayNode(
 				IdService.getUniqueProcessId(clientId, processJaxb), //process id
@@ -543,16 +543,18 @@ public class NodeFactoryImpl implements NodeFactory {
 			final TFlowNode flowNodeJaxb, final List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TSendTask sendTaskJaxb = (TSendTask) flowNodeJaxb;
+
+		final String uniqueProcessId = IdService.getUniqueProcessId(clientId, processJaxb);
+		final String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, sendTaskJaxb);
 		
 		// create the task action actor
-		ActorRef sendTaskAction = this.actorSystem.actorOf(new Props(new UntypedActorFactory() {
+		final ActorRef sendTaskAction = this.actorSystem.actorOf(new Props(new UntypedActorFactory() {
 			private static final long serialVersionUID = 1L;
 
 			public UntypedActor create() {				
 				return new SendTaskNode(
-						IdService.getUniqueProcessId(clientId, processJaxb),
-						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-								sendTaskJaxb), 
+						uniqueProcessId,
+						uniqueFlowNodeId, 
 						getOutgoingActorReferences(clientId, 
 								processJaxb, subProcessesJaxb, sendTaskJaxb, sequenceFlowsJaxb),
 						ActorReferenceService.getActorReferenceString(
@@ -564,32 +566,39 @@ public class NodeFactoryImpl implements NodeFactory {
 				}
 			}).withDispatcher("file-mailbox-dispatcher"), ActorReferenceService.getActorReferenceString(
 						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb))
-						+ "-action");
+						+ "-taskAction");
 		
 		LOG.debug(String.format("%s --> resulting akka object: %s", flowNodeJaxb,
 				sendTaskAction.toString()));
 		
-		// create the loop strategy implementation which holds the task action actor
-		// TODO: extract to method and implement logic to decide loop strategies
-		LoopTypeStrategy strategy = new NonLoop(
-				IdService.getUniqueProcessId(clientId, processJaxb), 
-				new ActorReferenceService().getActorReference(IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, sendTaskJaxb)), 
-				sendTaskAction,
-				this.getDataObjectHandling(flowNodeJaxb));
+		// create the loop strategy actor which itself holds the task action actor
+		ActorRef strategy = this.actorSystem.actorOf(new Props(new UntypedActorFactory() {
+			private static final long serialVersionUID = 1L;
+
+			public UntypedActor create() {				
+				return new LoopStrategyFactory().createLoopStrategy(
+						new ActorReferenceService().getActorReference(uniqueFlowNodeId), // task wrapper actor Ref
+						sendTaskAction, clientId,
+						processJaxb, subProcessesJaxb, sendTaskJaxb);
+				}
+			}).withDispatcher("file-mailbox-dispatcher"), ActorReferenceService.getActorReferenceString(
+						IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb))
+						+ "-taskAction");
+		
+		LOG.debug(String.format("%s --> resulting akka object: %s", flowNodeJaxb,
+				sendTaskAction.toString()));
 		
 		// TODO: decide:
-		// 	-	whether boundary events should be handled by the wrapper or by the task action 
+		// 	-	whether boundary events should be handled by the wrapper or by the task action (now: task wrapper)
 		//	-	which data should be saved by the wrapper and strategy
-		//	-	whether strategy should be an actor, too
+		//	-	whether strategy should be an actor, too (now: actor)
 		
 		// return the LoopTaskWrapper which holds the LoopTypeStrategy
-		LoopTaskWrapper wrapper = new LoopTaskWrapper(
-				IdService.getUniqueProcessId(clientId, processJaxb),
-				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-						sendTaskJaxb),
-				strategy, strategy, strategy);
-		
-		return wrapper;
+		return new LoopTaskWrapper(uniqueProcessId, uniqueFlowNodeId, 
+				getOutgoingActorReferences(clientId, 
+				processJaxb, subProcessesJaxb, sendTaskJaxb, sequenceFlowsJaxb),
+				strategy,
+				getBoundaryEvents(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb));
 	}
 
 	/**
@@ -1057,7 +1066,7 @@ public class NodeFactoryImpl implements NodeFactory {
 		}
 	}
 	
-	protected DataObjectHandling getDataObjectHandling(TFlowNode flowNodeJaxb) {
+	public DataObjectHandling getDataObjectHandling(TFlowNode flowNodeJaxb) {
 
 		Map<String, String> dataObjectIds = DataObjectIdService.getDataObjectIds(flowNodeJaxb);
 		

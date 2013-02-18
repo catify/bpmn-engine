@@ -84,7 +84,7 @@ public abstract class FlowElement extends UntypedActor {
 	 * 
 	 * @param message the message
 	 */
-	public void onReceive(Object message) {
+	public final void onReceive(Object message) {
 		LOG.debug(String.format("%s received %s", this.getSelf(), message
 				.getClass().getSimpleName()));
 		
@@ -98,7 +98,7 @@ public abstract class FlowElement extends UntypedActor {
 				// commit message after deactivation
 				new NodeUtils().replySuccessfulCommit(((DeactivationMessage) message).getProcessInstanceId(), this.getSelf(), this.getSender());
 			} else {
-				unhandled(message);
+				handleNonStandardMessage(message);
 			}
 		} else {
 			if (message instanceof DeactivationMessage) {
@@ -106,6 +106,15 @@ public abstract class FlowElement extends UntypedActor {
 				new NodeUtils().replySuccessfulCommit(((DeactivationMessage) message).getProcessInstanceId(), this.getSelf(), this.getSender());
 			}
 		}
+	}
+	
+	/**
+	 * Implements reaction to an {@link ActivationMessage}.
+	 *
+	 * @param message the message
+	 */
+	protected void handleNonStandardMessage(Object message) {
+		unhandled(message);
 	}
 
 	/**

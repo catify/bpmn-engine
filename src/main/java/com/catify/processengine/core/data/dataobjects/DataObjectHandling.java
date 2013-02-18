@@ -96,8 +96,10 @@ public class DataObjectHandling {
 	 */
 	public void saveObject(String uniqueProcessId, String instanceId,
 			Object dataObject) {
-		this.dataObjectServiceProvider.saveObject(uniqueProcessId,
-				this.dataOutputObjectId, instanceId, dataObject);
+		if (this.dataOutputObjectId != null) {
+			this.dataObjectServiceProvider.saveObject(uniqueProcessId,
+					this.dataOutputObjectId, instanceId, dataObject);
+		}
 	}
 
 	/**
@@ -121,7 +123,11 @@ public class DataObjectHandling {
 	 * @return the data object loaded
 	 */
 	public Object loadObject(String uniqueProcessId, String instanceId,String dataObjectId) {
-		return this.dataObjectServiceProvider.loadObject(uniqueProcessId, dataObjectId, instanceId);
+		if (dataObjectId != null) {
+			return this.dataObjectServiceProvider.loadObject(uniqueProcessId, dataObjectId, instanceId);
+		} else {
+			return null;
+		}
 	}
 	
 	/**

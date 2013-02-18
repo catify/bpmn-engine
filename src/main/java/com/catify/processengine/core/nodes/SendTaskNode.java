@@ -58,7 +58,7 @@ public class SendTaskNode extends Task {
 			EventDefinitionParameter eventDefinitionParameter, DataObjectHandling dataObjectHandling, List<ActorRef> boundaryEvent) {
 		this.setUniqueProcessId(uniqueProcessId);
 		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setOutgoingNodes(outgoingNodes);
+//		this.setOutgoingNodes(outgoingNodes);
 		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
 				uniqueProcessId, uniqueFlowNodeId));
 		this.setEventDefinitionParameter(eventDefinitionParameter);
@@ -76,7 +76,7 @@ public class SendTaskNode extends Task {
 		
 		this.callEventDefinitionActor(message);
 		
-		this.activateBoundaryEvents(message);
+//		this.activateBoundaryEvents(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -85,18 +85,18 @@ public class SendTaskNode extends Task {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.deactivateBoundaryEvents(message);
+//		this.deactivateBoundaryEvents(message);
 		
-		this.sendMessageToNodeActors(
+		this.sendMessageToNodeActor(
 				new ActivationMessage(message.getProcessInstanceId()),
-				this.getOutgoingNodes());
+				this.getSender());
 	}
 
 	@Override
 	protected void deactivate(DeactivationMessage message) {
 		this.callEventDefinitionActor(message);
 		
-		this.deactivateBoundaryEvents(message);
+//		this.deactivateBoundaryEvents(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
