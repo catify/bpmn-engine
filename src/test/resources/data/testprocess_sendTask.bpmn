@@ -33,7 +33,7 @@
 			implementation="##WebService" isForCompensation="false" name="Send Task"
 			startQuantity="1">
 			<extensionElements>
-				<catify:messageIntegration prefix="camel"
+				<catify:messageIntegration prefix="integration_mock"
 					integrationstring="file:data/integrationOutput" />
 			</extensionElements>
 		</sendTask>

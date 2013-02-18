@@ -7,6 +7,7 @@ import java.util.Map;
 import com.catify.processengine.core.integration.IntegrationMessage;
 import com.catify.processengine.core.integration.MessageIntegrationSPI;
 import com.catify.processengine.core.processdefinition.jaxb.TMetaData;
+import com.catify.processengine.core.services.MessageDispatcherService;
 
 /**
  * Mock implementation of integration spi.
@@ -26,11 +27,13 @@ public class MessageIntegrationSPIMock extends MessageIntegrationSPI {
 	public List<IntegrationMessage> sends = new ArrayList<IntegrationMessage>();
 	public List<IntegrationMessage> receives = new ArrayList<IntegrationMessage>();
 	public List<IntegrationMessage> requestReplys = new ArrayList<IntegrationMessage>();
+	private MessageDispatcherService messageDispatcherService;
 	
 	public static final String MOCK_PREFIX = "integration_mock";
 	
 	public MessageIntegrationSPIMock() {
 		this.prefix = MOCK_PREFIX;
+		this.messageDispatcherService = new MessageDispatcherService(this);
 	}
 	
 	@Override
@@ -69,7 +72,7 @@ public class MessageIntegrationSPIMock extends MessageIntegrationSPI {
 	public void receive(IntegrationMessage integrationMessage,
 			Map<String, Object> metaData) {
 		this.receives.add(integrationMessage);
-
+		this.messageDispatcherService.dispatchToEngine(integrationMessage, metaData);
 	}
 
 	@Override
