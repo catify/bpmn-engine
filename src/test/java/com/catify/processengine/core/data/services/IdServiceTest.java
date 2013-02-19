@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
+import com.catify.processengine.core.processdefinition.jaxb.ObjectFactory;
 import com.catify.processengine.core.processdefinition.jaxb.TExtensionElements;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TVersion;
@@ -88,10 +89,15 @@ public class IdServiceTest {
 		TProcess process = new TProcess();
 		process.setId(PID);
 		process.setName(PNAME);
+		
 		process.setExtensionElements(new TExtensionElements());
 		List<Object> elements = process.getExtensionElements().getAny();
-		TVersion version = new TVersion();
-		version.setVersion(PVERSION);
+		
+		TVersion tVersion = new ObjectFactory().createTVersion();
+		tVersion.setVersion(PVERSION);
+		
+		JAXBElement<TVersion> version = new ObjectFactory().createVersion(tVersion);
+
 		elements.add(version);
 		
 		return process;

@@ -39,8 +39,9 @@ public class ExtensionService {
 		if (processJaxb.getExtensionElements() != null) {
 			for (Object extensionElement : processJaxb.getExtensionElements().getAny()) {
 				if (extensionElement instanceof JAXBElement && (((JAXBElement<?>) extensionElement).getValue() instanceof TVersion) ) {
-	
+					
 					JAXBElement<?> jaxbElement = (JAXBElement<?>) extensionElement;
+					System.out.println("#### DeclaredType: " +jaxbElement.getDeclaredType() + "#### QNAME: " + jaxbElement.getName() + "#### Scope: " + jaxbElement.getScope());
 					TVersion versionJaxb = (TVersion) ((JAXBElement<?>) jaxbElement).getValue();
 	
 					return versionJaxb;
