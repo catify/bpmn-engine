@@ -49,7 +49,7 @@ public class IdParams {
 	 * @param processJaxb
 	 */
 	public IdParams(String clientId, TProcess processJaxb) {
-		this.setProcessParams(clientId, processJaxb.getName(), ExtensionService.getTVersion(processJaxb).getVersion(), processJaxb.getId());
+		this.setProcessParams(clientId, processJaxb.getName(), this.extractProcessVersion(processJaxb), processJaxb.getId());
 	}
 	
 	/**
@@ -58,7 +58,7 @@ public class IdParams {
 	 * @param params
 	 */
 	public IdParams(EventDefinitionParameter params) {
-		this.setProcessParams(params.clientId,  params.processJaxb.getName(), ExtensionService.getTVersion(params.processJaxb).getVersion(), params.processJaxb.getId());
+		this.setProcessParams(params.clientId,  params.processJaxb.getName(), this.extractProcessVersion(params.processJaxb), params.processJaxb.getId());
 	}
 	
 	/**
@@ -86,7 +86,7 @@ public class IdParams {
 	 * @param flowNodeJaxb
 	 */
 	public IdParams(String clientId, TProcess processJaxb, String subProcesses, TFlowNode flowNodeJaxb) {
-		this.setProcessParams(clientId, processJaxb.getName(), ExtensionService.getTVersion(processJaxb).getVersion(), processJaxb.getId());
+		this.setProcessParams(clientId, processJaxb.getName(), this.extractProcessVersion(processJaxb), processJaxb.getId());
 		this.setNodeParams(flowNodeJaxb.getId(), flowNodeJaxb.getName(), subProcesses);
 	}
 	
@@ -175,6 +175,14 @@ public class IdParams {
 	 */
 	public String getUniqueFlowNodeId(String prefix) {
 		return prefix + this.getUniqueFlowNodeId();
+	}
+	
+	public String extractProcessVersion(TProcess processJaxb) {
+		if(ExtensionService.getTVersion(processJaxb).getVersion() == null) {
+			return "";
+		} else {
+			return ExtensionService.getTVersion(processJaxb).getVersion();
+		}
 	}
 	
 }
