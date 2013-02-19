@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 
+import com.catify.processengine.core.processdefinition.jaxb.ObjectFactory;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
@@ -41,7 +42,6 @@ public class ExtensionService {
 				if (extensionElement instanceof JAXBElement && (((JAXBElement<?>) extensionElement).getValue() instanceof TVersion) ) {
 					
 					JAXBElement<?> jaxbElement = (JAXBElement<?>) extensionElement;
-					System.out.println("#### DeclaredType: " +jaxbElement.getDeclaredType() + "#### QNAME: " + jaxbElement.getName() + "#### Scope: " + jaxbElement.getScope());
 					TVersion versionJaxb = (TVersion) ((JAXBElement<?>) jaxbElement).getValue();
 	
 					return versionJaxb;
@@ -49,7 +49,10 @@ public class ExtensionService {
 			}
 		}
 		// if user has not defined a process version create empty version
-		return new TVersion(); 
+		TVersion tVersion = new ObjectFactory().createTVersion();
+		tVersion.setVersion("");
+
+		return tVersion; 
 	}
 	
 	public static TMessageIntegration getTMessageIntegration(TFlowNode flowNodeJaxb) {
