@@ -29,7 +29,6 @@ import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
-import com.catify.processengine.core.processdefinition.jaxb.services.ExtensionService;
 
 /**
  * The Class IdService generates unique ids for processes and flow nodes.
@@ -37,17 +36,26 @@ import com.catify.processengine.core.processdefinition.jaxb.services.ExtensionSe
  * understanding of these ids, this is managed in a central service.
  * 
  * @author christopher köster
+ * @author claus straube
  * 
  */
 public final class IdService {
 	
 	static final Logger LOG = LoggerFactory.getLogger(IdService.class);
 	
-	private IdService() {
-		
-	}
+	private IdService() {}
 	
 	public final static String ARCHIVEPREFIX = "Archive:";
+	
+	/**
+	 * Gets a unique process id from the given parameters.
+	 * 
+	 * @param params the filled {@link IdParams} bean
+	 * @return
+	 */
+	public static String getUniqueProcessId(IdParams params) {
+		return params.getUniqueProcessId();
+	}
 	
 	/**
 	 * Gets the unique process id from a jaxb process, which is built via
@@ -58,23 +66,17 @@ public final class IdService {
 	 * @return the unique process id
 	 */
 	public static String getUniqueProcessId(String clientId, TProcess processJaxb) {
-//		String processVersion = "defaultVersion";
-//		if (ExtensionService.getTVersion(processJaxb) != null) {
-//			processVersion = ExtensionService.getTVersion(processJaxb).getVersion();
-//		}
-
-		return new String(clientId + processJaxb.getName() + processJaxb.getId()
-				+ ExtensionService.getTVersion(processJaxb).getVersion());
+		return getUniqueProcessId(new IdParams(clientId, processJaxb));
 	}
 	
 	/**
 	 * Convenient method to get the unique process id.
 	 * 
 	 * @param params in a {@link EventDefinitionParameter} bean.
-	 * @return
+	 * @return the unique process id
 	 */
 	public static String getUniqueProcessId(EventDefinitionParameter params) {
-		return getUniqueProcessId(params.clientId, params.processJaxb);
+		return getUniqueProcessId(new IdParams(params));
 	}
 	
 	/**
@@ -86,13 +88,7 @@ public final class IdService {
 	 * @return the unique process id
 	 */
 	public static String getArchivedUniqueProcessId(String clientId, TProcess processJaxb) {
-//		String processVersion = "defaultVersion";
-//		if (ExtensionService.getTVersion(processJaxb) != null) {
-//			processVersion = ExtensionService.getTVersion(processJaxb).getVersion();
-//		}
-
-		return new String(ARCHIVEPREFIX + clientId + processJaxb.getName() + processJaxb.getId()
-				+ ExtensionService.getTVersion(processJaxb).getVersion());
+		return new IdParams(clientId, processJaxb).getUniqueProcessId(ARCHIVEPREFIX);
 	}
 	
 	/**
@@ -108,11 +104,7 @@ public final class IdService {
 	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb) {
 		StringBuilder parentSubProcesses = getSubProcessesString(subProcessesJaxb);
-
-		return new String(clientId 
-				+ processJaxb.getId() + processJaxb.getName() + ExtensionService.getTVersion(processJaxb).getVersion() 
-				+ parentSubProcesses
-				+ flowNodeJaxb.getId() + flowNodeJaxb.getName());
+		return new IdParams(clientId, processJaxb, parentSubProcesses.toString(), flowNodeJaxb).getUniqueFlowNodeId();
 	}
 	
 	/**
@@ -138,11 +130,7 @@ public final class IdService {
 	public static String getArchivedUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb) {
 		StringBuilder parentSubProcesses = getSubProcessesString(subProcessesJaxb);
-		
-		return new String(ARCHIVEPREFIX + clientId 
-				+ processJaxb.getId() + processJaxb.getName() + ExtensionService.getTVersion(processJaxb).getVersion() 
-				+ parentSubProcesses
-				+ flowNodeJaxb.getId() + flowNodeJaxb.getName());
+		return new IdParams(clientId, processJaxb, parentSubProcesses.toString(), flowNodeJaxb).getUniqueFlowNodeId(ARCHIVEPREFIX);
 	}
 	
 	/**
@@ -155,11 +143,8 @@ public final class IdService {
 	 */
 	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, String nodeId) {
 		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
-
-		ArrayList<TSubProcess> subProcessesJaxb = getTSubprocessesById(processJaxb, nodeId);
-		
-		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
-		return uniqueFlowNodeId;
+		ArrayList<TSubProcess> subProcessesJaxb = getTSubprocessesById(processJaxb, nodeId);		
+		return getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
 	}
 	
 	/**
@@ -174,9 +159,7 @@ public final class IdService {
 	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
 			String nodeId) {
 		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
-
-		String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
-		return uniqueFlowNodeId;
+		return getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
 	}
 	
 	/**
@@ -189,11 +172,8 @@ public final class IdService {
 	 */
 	public static String getArchivedUniqueFlowNodeId(String clientId, TProcess processJaxb, String nodeId) {
 		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
-
 		ArrayList<TSubProcess> subProcessesJaxb = getTSubprocessesById(processJaxb, nodeId);
-		
-		String uniqueFlowNodeId = IdService.getArchivedUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
-		return uniqueFlowNodeId;
+		return getArchivedUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
 	}
 	
 	/**
@@ -208,9 +188,7 @@ public final class IdService {
 	public static String getArchivedUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
 			String nodeId) {
 		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
-
-		String uniqueFlowNodeId = IdService.getArchivedUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
-		return uniqueFlowNodeId;
+		return getArchivedUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
 	}
 	
 	/**
