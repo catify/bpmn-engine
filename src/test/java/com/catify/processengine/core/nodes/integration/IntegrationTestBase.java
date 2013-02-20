@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -278,7 +277,7 @@ public class IntegrationTestBase {
 	 * @param state the desired state
 	 */
 	protected void checkNodeInstance(TProcess process, String id, String state) {
-		ArrayList<TSubProcess> subProcessJaxb = IdService.getTSubprocessesById(process, id);
+		List<TSubProcess> subProcessJaxb = IdService.getTSubprocessesById(process, id);
 		String flowNodeId = IdService.getUniqueFlowNodeId(client, process, subProcessJaxb, id); // default throw
 		String processId = IdService.getUniqueProcessId(client, process);
 		FlowNodeInstance nodeInstance = flowNodeInstanceRepo.findFlowNodeInstance(processId, flowNodeId, defaultInstanceId);

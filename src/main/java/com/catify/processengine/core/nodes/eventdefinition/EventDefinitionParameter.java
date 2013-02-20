@@ -1,6 +1,7 @@
 package com.catify.processengine.core.nodes.eventdefinition;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
@@ -17,13 +18,13 @@ import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 public class EventDefinitionParameter {
 	public String clientId;
 	public TProcess processJaxb;
-	public ArrayList<TSubProcess> subProcessesJaxb;
+	public List<TSubProcess> subProcessesJaxb;
 	public TFlowNode flowNodeJaxb;
 	private String uniqueFlowNodeId;
 	private String uniqueProcessId;
 
 	public EventDefinitionParameter(String clientId, TProcess processJaxb,
-			ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb) {
+			List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb) {
 		this.clientId = clientId;
 		this.processJaxb = processJaxb;
 		this.subProcessesJaxb = subProcessesJaxb;

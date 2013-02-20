@@ -392,7 +392,7 @@ public class EventDefinitionFactory {
 	 * @return the jaxb event definition or null if none is found
 	 */
 	private TEventDefinition getTEventDefinition(String clientId,
-			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb) {
 		if (flowNodeJaxb instanceof TCatchEvent) {
 			if (((TCatchEvent) flowNodeJaxb).getEventDefinition().size() > 0) {
