@@ -18,6 +18,7 @@
 package com.catify.processengine.core.data.services;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 
@@ -101,7 +102,7 @@ public final class IdService {
 	 * @param flowNodeJaxb the jaxb flow node that the unique id is searched for
 	 * @return the unique flow node id
 	 */
-	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb) {
 		StringBuilder parentSubProcesses = getSubProcessesString(subProcessesJaxb);
 		return new IdParams(clientId, processJaxb, parentSubProcesses.toString(), flowNodeJaxb).getUniqueFlowNodeId();
@@ -127,7 +128,7 @@ public final class IdService {
 	 * @param flowNodeJaxb the jaxb flow node that the unique id is searched for
 	 * @return the unique flow node id
 	 */
-	public static String getArchivedUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	public static String getArchivedUniqueFlowNodeId(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb) {
 		StringBuilder parentSubProcesses = getSubProcessesString(subProcessesJaxb);
 		return new IdParams(clientId, processJaxb, parentSubProcesses.toString(), flowNodeJaxb).getUniqueFlowNodeId(ARCHIVEPREFIX);
@@ -143,7 +144,7 @@ public final class IdService {
 	 */
 	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, String nodeId) {
 		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
-		ArrayList<TSubProcess> subProcessesJaxb = getTSubprocessesById(processJaxb, nodeId);		
+		List<TSubProcess> subProcessesJaxb = getTSubprocessesById(processJaxb, nodeId);		
 		return getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
 	}
 	
@@ -156,7 +157,7 @@ public final class IdService {
 	 * @param nodeId the node id
 	 * @return the unique flow node id
 	 */
-	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			String nodeId) {
 		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
 		return getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
@@ -172,7 +173,7 @@ public final class IdService {
 	 */
 	public static String getArchivedUniqueFlowNodeId(String clientId, TProcess processJaxb, String nodeId) {
 		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
-		ArrayList<TSubProcess> subProcessesJaxb = getTSubprocessesById(processJaxb, nodeId);
+		List<TSubProcess> subProcessesJaxb = getTSubprocessesById(processJaxb, nodeId);
 		return getArchivedUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
 	}
 	
@@ -185,7 +186,7 @@ public final class IdService {
 	 * @param nodeId the node id
 	 * @return the unique flow node id
 	 */
-	public static String getArchivedUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	public static String getArchivedUniqueFlowNodeId(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			String nodeId) {
 		TFlowNode flowNode = getTFlowNodeById(processJaxb, nodeId);
 		return getArchivedUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNode);
@@ -258,9 +259,9 @@ public final class IdService {
 	 * @param nodeId the node id
 	 * @return the embedding jaxb subprocesses
 	 */
-	public static ArrayList<TSubProcess> getTSubprocessesById(TProcess processJaxb, String nodeId) {
+	public static List<TSubProcess> getTSubprocessesById(TProcess processJaxb, String nodeId) {
 
-		ArrayList<TSubProcess> subProcessesJaxb = new ArrayList<TSubProcess>();
+		List<TSubProcess> subProcessesJaxb = new ArrayList<TSubProcess>();
 		
 		for (JAXBElement<? extends TFlowElement> flowElementJaxb : processJaxb
 				.getFlowElement()) {
@@ -289,9 +290,9 @@ public final class IdService {
 	 * @param subProcessesJaxb the sub processes jaxb
 	 * @return the t subprocesses by id from subprocesses
 	 */
-	private static ArrayList<TSubProcess> getTSubprocessesByIdFromSubprocesses(TSubProcess subProcessJaxb, String nodeId, ArrayList<TSubProcess> subProcessesJaxb) {
+	private static List<TSubProcess> getTSubprocessesByIdFromSubprocesses(TSubProcess subProcessJaxb, String nodeId, List<TSubProcess> subProcessesJaxb) {
 		
-		ArrayList<TSubProcess> embeddingSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
+		List<TSubProcess> embeddingSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
 		embeddingSubProcessesJaxb.add(subProcessJaxb);
 		
 		for (JAXBElement<? extends TFlowElement> flowElementJaxb : subProcessJaxb
@@ -317,7 +318,7 @@ public final class IdService {
 	 * @return the sub processes string
 	 */
 	private static StringBuilder getSubProcessesString(
-			ArrayList<TSubProcess> subProcessesJaxb) {
+			List<TSubProcess> subProcessesJaxb) {
 		StringBuilder parentSubProcesses = new StringBuilder();
 		
 		if (subProcessesJaxb != null) {
