@@ -1,21 +1,15 @@
 package com.catify.processengine.core.nodes.loops;
 
-import java.util.ArrayList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.nodes.NodeFactoryImpl;
-import com.catify.processengine.core.processdefinition.jaxb.TLoopCharacteristics;
+import com.catify.processengine.core.nodes.NodeParameter;
 import com.catify.processengine.core.processdefinition.jaxb.TMultiInstanceLoopCharacteristics;
-import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TStandardLoopCharacteristics;
-import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TTask;
-import com.catify.processengine.core.services.ActorReferenceService;
 
 /**
  * A factory for creating {@link LoopStrategy} objects.
@@ -35,15 +29,16 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 	 * @param taskAction the task action actorRef
 	 * @return the loop strategy
 	 */
-	public LoopStrategy createLoopStrategy(ActorRef taskWrapper, ActorRef taskAction, String clientId, TProcess processJaxb,
-			ArrayList<TSubProcess> subProcessesJaxb, TTask taskJaxb) {
+	public LoopStrategy createLoopStrategy(ActorRef taskWrapper, NodeParameter nodeParameter) {
+		
+		TTask taskJaxb = (TTask) nodeParameter.flowNodeJaxb;
 
-		if (taskJaxb.getLoopCharacteristics().isNil()) {
-			return this.getNonLoopStrategy(taskWrapper, taskAction, clientId, processJaxb, subProcessesJaxb, taskJaxb);
+		if (taskJaxb.getLoopCharacteristics() == null || taskJaxb.getLoopCharacteristics().isNil()) {
+			return this.getNonLoopStrategy(taskWrapper, nodeParameter);
 		} else if (taskJaxb.getLoopCharacteristics().getValue() instanceof TStandardLoopCharacteristics) {
-			return this.getStandardLoopCharacteristicsStrategy(taskWrapper, taskAction, clientId, processJaxb, subProcessesJaxb, taskJaxb);
+			return this.getStandardLoopCharacteristicsStrategy(taskWrapper, nodeParameter);
 		} else if (taskJaxb.getLoopCharacteristics().getValue() instanceof TMultiInstanceLoopCharacteristics) {
-			return this.getMultiInstanceLoopCharacteristicsStrategy(taskWrapper, taskAction, clientId, processJaxb, subProcessesJaxb, taskJaxb);
+			return this.getMultiInstanceLoopCharacteristicsStrategy(taskWrapper, nodeParameter);
 		}
 		
 		else {
@@ -51,68 +46,47 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 			return null;
 		}
 	}
-	
-	/**
-	 * Gets the non loop strategy.
-	 *
-	 * @param taskWrapper the task wrapper actorRef
-	 * @param taskAction the task action actorRef
-	 * @param clientId the client id
-	 * @param processJaxb the jaxb process
-	 * @param subProcessesJaxb the jaxb sub processes
-	 * @param taskJaxb the jaxb task
-	 * @return the non loop strategy
-	 */
-	private LoopStrategy getNonLoopStrategy(ActorRef taskWrapper, ActorRef taskAction, String clientId, TProcess processJaxb,
-			ArrayList<TSubProcess> subProcessesJaxb, TTask taskJaxb) {
+
+	private LoopStrategy getNonLoopStrategy(ActorRef taskWrapper,
+			NodeParameter nodeParameter) {
+		
 		return new NonLoopStrategy(
 				taskWrapper, 
-				taskAction, 
-				IdService.getUniqueProcessId(clientId, processJaxb), 
-				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, taskJaxb),
-				getDataObjectHandling(taskJaxb));
-
+				nodeParameter,
+				getDataObjectHandling(nodeParameter.flowNodeJaxb));
 	}
 	
-	/**
-	 * Gets the standard loop characteristics strategy.
-	 *
-	 * @param clientId the client id
-	 * @param processJaxb the jaxb process 
-	 * @param subProcessesJaxb the jaxb sub processes 
-	 * @param taskJaxb the jaxb task 
-	 * @param taskAction the task action actorRef
-	 * @return the standard loop characteristics strategy
-	 */
-	private LoopStrategy getStandardLoopCharacteristicsStrategy(ActorRef taskWrapper, ActorRef taskAction, String clientId, TProcess processJaxb,
-			ArrayList<TSubProcess> subProcessesJaxb, TTask taskJaxb) {
-
+	private LoopStrategy getStandardLoopCharacteristicsStrategy(
+			ActorRef taskWrapper, NodeParameter nodeParameter) {
+		
+		TTask taskJaxb = (TTask) nodeParameter.flowNodeJaxb;
 		TStandardLoopCharacteristics loopCharacteristics = (TStandardLoopCharacteristics) taskJaxb.getLoopCharacteristics().getValue();
-
+		
 		return new StandardLoopCharacteristicsStrategy(
 				taskWrapper, 
-				taskAction, 
-				IdService.getUniqueProcessId(clientId, processJaxb), 
-				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, taskJaxb),
+				nodeParameter,
 				getDataObjectHandling(taskJaxb),
 				loopCharacteristics.isTestBefore(), 
 				loopCharacteristics.getLoopMaximum(), 
 				loopCharacteristics.getLoopCondition().getContent().get(0).toString(), 
-				super.getAllDataObjectIds(processJaxb, subProcessesJaxb));
+				super.getAllDataObjectIds(nodeParameter.processJaxb, nodeParameter.subProcessesJaxb));
 	}
 	
-	/**
-	 * Gets the multi instance loop characteristics strategy.
-	 *
-	 * @param clientId the client id
-	 * @param processJaxb the jaxb process 
-	 * @param subProcessesJaxb the jaxb sub processes 
-	 * @param taskJaxb the jaxb task 
-	 * @param taskAction the task action actorRef
-	 * @return the multi instance loop characteristics strategy
-	 */
-	private LoopStrategy getMultiInstanceLoopCharacteristicsStrategy(ActorRef taskWrapper, ActorRef taskAction, String clientId, TProcess processJaxb,
-			ArrayList<TSubProcess> subProcessesJaxb, TTask taskJaxb) {
-		return null;
+	private LoopStrategy getMultiInstanceLoopCharacteristicsStrategy(
+			ActorRef taskWrapper, NodeParameter nodeParameter) {
+		
+		TTask taskJaxb = (TTask) nodeParameter.flowNodeJaxb;
+		TMultiInstanceLoopCharacteristics loopCharacteristics = (TMultiInstanceLoopCharacteristics) taskJaxb.getLoopCharacteristics().getValue();
+		
+		return new MultiInstanceLoopCharacteristicsStrategy(
+				taskWrapper,
+				nodeParameter,
+				getDataObjectHandling(taskJaxb),
+				loopCharacteristics.isIsSequential(),
+				loopCharacteristics.getLoopCardinality().getContent().get(0).toString(),
+				loopCharacteristics.getCompletionCondition().getContent().get(0).toString(), 
+				super.getAllDataObjectIds(nodeParameter.processJaxb, nodeParameter.subProcessesJaxb));
 	}
+
+
 }

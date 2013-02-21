@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectSPI;
 import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
+import com.catify.processengine.core.data.dataobjects.DataObjectSPI;
 
 /**
  * 
@@ -194,6 +194,23 @@ public class ExpressionService {
 			String instanceId) {
 		
 		JexlContext jc = fillContext(dataObjectIds, dataObjectHandler, uniqueProcessId, instanceId);
+		
+		// evaluate the expression
+		Object result = expression.evaluate(jc);
+        
+		return result;
+	}
+	
+	/**
+	 * Evaluates a given JEXL {@link Expression} and returns it result.
+	 *
+	 * @param expression a JEXL {@link Expression}
+	 * @return the result of the JEXL evaluation
+	 */
+	public static Object evaluate(Expression expression) {
+		
+		JexlContext jc = new MapContext();
+		jc.set("cardinality", expression);
 		
 		// evaluate the expression
 		Object result = expression.evaluate(jc);

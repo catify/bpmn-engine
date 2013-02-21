@@ -29,7 +29,6 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * An intermediate throw event can send (and load) messages outside of the
@@ -40,8 +39,9 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  */
 public class IntermediateThrowEventNode extends ThrowEvent {
 
-	public IntermediateThrowEventNode() {
-	}
+//	public IntermediateThrowEventNode() {
+//		super(null, null);
+//	}
 
 	/**
 	 * Instantiates a new start event node.
@@ -60,12 +60,8 @@ public class IntermediateThrowEventNode extends ThrowEvent {
 	public IntermediateThrowEventNode(String uniqueProcessId,
 			String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter,
 			List<ActorRef> outgoingNodes, DataObjectHandling dataObjectHandling) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinitionParameter(eventDefinitionParameter);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		
 		// create EventDefinition actor

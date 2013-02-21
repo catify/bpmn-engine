@@ -35,7 +35,6 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.services.ProcessInstanceMediatorService;
 
 /**
@@ -68,9 +67,6 @@ public class StartEventNode extends CatchEvent {
 	/** The uniqueFlowNodeId of the parent sub process node of this start event (if any). */
 	private String parentsUniqueFlowNodeId;
 
-	public StartEventNode() {
-	}
-
 	/**
 	 * Instantiates a new start event node.
 	 * 
@@ -91,12 +87,8 @@ public class StartEventNode extends CatchEvent {
 			EventDefinitionParameter eventDefinitionParameter, List<ActorRef> outgoingNodes,
 			List<ActorRef> otherStartNodes, String parentsUniqueFlowNodeId,
 			DataObjectHandling dataObjectHandling) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinitionParameter(eventDefinitionParameter);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setOtherStartNodes(otherStartNodes);
 		this.setParentsUniqueFlowNodeId(parentsUniqueFlowNodeId);
 		this.setDataObjectHandling(dataObjectHandling);

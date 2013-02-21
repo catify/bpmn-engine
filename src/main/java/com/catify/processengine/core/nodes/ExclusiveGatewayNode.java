@@ -38,7 +38,6 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.ExpressionService;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.util.GatewayUtil;
 
 /**
@@ -102,11 +101,8 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 			ActorRef defaultNode,
 			DataObjectHandling dataObjectHandler) {
 
-		super.setUniqueProcessId(uniqueProcessId);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		super.setOutgoingNodes(outgoingNodes);
-		super.setUniqueFlowNodeId(uniqueFlowNodeId);
-		super.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		
 		this.defaultOutgoingSequence = defaultNode;
 		

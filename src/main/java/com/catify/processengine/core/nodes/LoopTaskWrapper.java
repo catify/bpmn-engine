@@ -8,9 +8,6 @@ import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.LoopEndMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.messages.WinningMessage;
-import com.catify.processengine.core.nodes.loops.LoopStrategy;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * The Class LoopTaskWrapper uses a strategy pattern to wrap the looping behavior around the bpmn tasks. 
@@ -29,36 +26,30 @@ public class LoopTaskWrapper extends Task {
 	 * @param loopStrategy the strategy
 	 */
 	public LoopTaskWrapper(String uniqueProcessId, String uniqueFlowNodeId, List<ActorRef> outgoingNodes, ActorRef loopStrategy, List<ActorRef> boundaryEvent) {
-		super();
-		
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
-		
+		super(uniqueProcessId, uniqueFlowNodeId);
+
 		this.setOutgoingNodes(outgoingNodes);
 		this.setBoundaryEvents(boundaryEvent);
 		
 		this.loopStrategy = loopStrategy;
-		
 	}
 	
 	@Override
 	protected void activate(ActivationMessage message) {
-		loopStrategy.tell(message, getSelf());
 		this.activateBoundaryEvents(message);
+		loopStrategy.tell(message, getSelf());
 	}
 	
 	@Override
 	protected void deactivate(DeactivationMessage message) {
-		loopStrategy.tell(message, getSelf());
 		this.deactivateBoundaryEvents(message);
+		loopStrategy.tell(message, getSelf());
 	}
 	
 	@Override
 	protected void trigger(TriggerMessage message) {
-		loopStrategy.tell(message, getSelf());
 		this.deactivateBoundaryEvents(message);
+		loopStrategy.tell(message, getSelf());
 	}
 	
 	@Override

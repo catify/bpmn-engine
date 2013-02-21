@@ -35,7 +35,6 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.services.ActorReferenceService;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * The ServiceTaskNode is the supervisor for the {@link ServiceTaskInstance}, which implements the actual bpmn service task. 
@@ -55,13 +54,6 @@ public class ServiceTaskNode extends Task {
 	private TMessageIntegration messageIntegrationInOut;
 	
 	/**
-	 * Instantiates a new service task.
-	 */
-	public ServiceTaskNode() {
-
-	}
-
-	/**
 	 * Instantiates a new service task node.
 	 *
 	 * @param uniqueProcessId the process id
@@ -73,11 +65,8 @@ public class ServiceTaskNode extends Task {
 	public ServiceTaskNode(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes,
 			TMessageIntegration messageIntegrationInOut, DataObjectHandling dataObjectHandling, List<ActorRef> boundaryEvent) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setMessageIntegrationInOut(messageIntegrationInOut);
 		this.setBoundaryEvents(boundaryEvent);
 		

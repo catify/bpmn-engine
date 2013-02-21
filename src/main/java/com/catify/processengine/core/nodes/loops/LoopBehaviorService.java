@@ -3,16 +3,7 @@ package com.catify.processengine.core.nodes.loops;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import scala.runtime.StringFormat;
-
-import akka.actor.ActorRef;
-
 import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
-import com.catify.processengine.core.messages.ActivationMessage;
-import com.catify.processengine.core.messages.DeactivationMessage;
-import com.catify.processengine.core.messages.Message;
-import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.NodeFactoryImpl;
 
 /**
  * The Class NonLoop implements the basic task behavior when no looping is specified in the bpmn process.

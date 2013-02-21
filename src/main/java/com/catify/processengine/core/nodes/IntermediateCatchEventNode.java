@@ -29,7 +29,6 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * An intermediate catch event can receive (and save) messages sent from outside
@@ -39,9 +38,6 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * 
  */
 public class IntermediateCatchEventNode extends CatchEvent {
-
-	public IntermediateCatchEventNode() {
-	}
 
 	/**
 	 * Instantiates a new catch event node.
@@ -60,12 +56,8 @@ public class IntermediateCatchEventNode extends CatchEvent {
 	public IntermediateCatchEventNode(String uniqueProcessId,
 			String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter,
 			List<ActorRef> outgoingNodes, DataObjectHandling dataObjectHandling) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinitionParameter(eventDefinitionParameter);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		
 		// create EventDefinition actor

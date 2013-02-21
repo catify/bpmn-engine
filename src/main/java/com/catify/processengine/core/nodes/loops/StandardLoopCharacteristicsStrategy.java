@@ -6,14 +6,15 @@ import java.util.Set;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 
+import akka.actor.ActorRef;
+
 import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.LoopEndMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
+import com.catify.processengine.core.nodes.NodeParameter;
 import com.catify.processengine.core.services.ExpressionService;
-
-import akka.actor.ActorRef;
 
 public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 	
@@ -22,7 +23,7 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 	private Long loopMaximum;
 	
 	private Expression loopCondition;
-	
+
 	/**
 	 * We need the data object ids, to feed the JEXL context with object
 	 * instances.
@@ -31,10 +32,10 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 
 	private boolean catching;
 	
-	public StandardLoopCharacteristicsStrategy(ActorRef taskWrapper, ActorRef taskAction, String uniqueProcessId,
-			String uniqueFlowNodeId, DataObjectHandling dataObjectHandling, boolean testBefore, BigInteger loopMaximum, String loopCondition, Set<String> allDataObjectIds) {
+	public StandardLoopCharacteristicsStrategy(ActorRef taskWrapper, NodeParameter nodeParameter,
+			DataObjectHandling dataObjectHandling, boolean testBefore, BigInteger loopMaximum, String loopCondition, Set<String> allDataObjectIds) {	
 		// FIXME: taskWrapper might be redundant because it should be the sender anyway
-		super(taskWrapper, taskAction, uniqueProcessId, uniqueFlowNodeId, dataObjectHandling);
+		super(taskWrapper, nodeParameter.getUniqueProcessId(), nodeParameter.getUniqueFlowNodeId(), dataObjectHandling);
 		
 		this.testBefore = testBefore; 
 		this.loopMaximum = loopMaximum.longValue();
@@ -44,6 +45,8 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 		
 		// create JEXL expressions from strings
 		this.loopCondition = ExpressionService.createJexlExpression(loopCondition);
+		
+		this.taskAction = super.createTaskActionActor(this.getContext(), nodeParameter);
 	}
 
 	@Override
@@ -52,34 +55,26 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 		Long loopCounter = new Long(42); // FIXME: provide method for loop counter retrieval from db
 		
 		if (testBefore) {
-
 			// true if loop should continue
 			if (this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
-
 				message.setPayload(LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling));
-				
 				taskAction.tell(message, this.getSelf());
 			// else end loop and activate next nodes via the taskWrapper
 			} else {
-				
-				if (catching) {
-					// this is a sending task, ending the loop will only be done for trigger or deactivation messages
-				} else {
-					// this is a receiving task, end the loop to go on end the process
+				if (!catching) {
+					// this is a throwing task: end the loop to go on end the process
+					// (for catching tasks, ending the loop will only be done for trigger or deactivation messages)
 					taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
 				}
 			}
-			
 		} else {
 			message.setPayload(LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling));
-			
 			taskAction.tell(message, this.getSelf());
 			
 			if (!this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
-				if (catching) {
-					// this is a sending task, ending the loop will only be done for trigger or deactivation messages
-				} else {
-					// this is a receiving task, end the loop
+				if (!catching) {
+					// this is a throwing task: end the loop to go on end the process
+					// (for catching tasks, ending the loop will only be done for trigger or deactivation messages)
 					taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
 				}
 			}
@@ -88,9 +83,7 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 
 	@Override
 	public void deactivate(DeactivationMessage message) {
-		// FIXME: synchronous invocation might be safer
 		taskAction.tell(message, this.getSelf());
-		taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
 	}
 
 	@Override
@@ -99,21 +92,18 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 		Long loopCounter = new Long(42); // FIXME: provide method for loop counter retrieval from db
 		
 		if (testBefore) {
-
 			// true if loop should continue
 			if (this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
-
 				LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
-				
 				taskAction.tell(message, this.getSelf());
 			// else end loop and activate next nodes via the taskWrapper
 			} else {
 				LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
+				taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
 			}
 			
 		} else {
 			LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
-			
 			taskAction.tell(message, this.getSelf());
 			
 			if (!this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {

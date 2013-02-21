@@ -29,6 +29,10 @@ import akka.actor.ActorRef;
  */
 public abstract class Activity extends FlowElement {
 	
+	public Activity(String uniqueProcessId, String uniqueFlowNodeId) {
+		super(uniqueProcessId, uniqueFlowNodeId);
+	}
+
 	/** The boundary event connected to this activity. */
 	protected List<ActorRef> boundaryEvents;
 

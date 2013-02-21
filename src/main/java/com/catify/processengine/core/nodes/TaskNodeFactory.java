@@ -1,6 +1,5 @@
 package com.catify.processengine.core.nodes;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.catify.processengine.core.data.services.IdService;
@@ -10,7 +9,6 @@ import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TSendTask;
 import com.catify.processengine.core.processdefinition.jaxb.TSequenceFlow;
 import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
-import com.catify.processengine.core.services.ActorReferenceService;
 
 /**
  * The TaskNodeFactory extends the {@link NodeFactoryImpl} to override
@@ -30,7 +28,7 @@ public class TaskNodeFactory extends NodeFactoryImpl {
 	 * @return the send task node
 	 */
 	@Override
-	protected FlowElement createSendTaskNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	protected FlowElement createSendTaskNode(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TSendTask sendTaskJaxb = (TSendTask) flowNodeJaxb;
@@ -39,14 +37,7 @@ public class TaskNodeFactory extends NodeFactoryImpl {
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 						sendTaskJaxb), 
-				this.getOutgoingActorReferences(clientId, 
-						processJaxb, subProcessesJaxb, sendTaskJaxb, sequenceFlowsJaxb),
-				ActorReferenceService.getActorReferenceString(
-								IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-										flowNodeJaxb)),  
-				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb), 
-				this.getDataObjectHandling(flowNodeJaxb),
-				this.getBoundaryEvents(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb));
+				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb));
 	}
 
 }

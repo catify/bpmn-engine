@@ -34,7 +34,7 @@ public class EventDefinitionHandling {
 	 * @param timeoutInSeconds the timeout in seconds
 	 * @param eventDefinitionParameter the event definition parameter to instantiate the EventDefinition actor
 	 */
-	public static void callEventDefinitionActor(ActorRef eventDefinitionActor, String uniqueFlowNodeId, Message message, long timeoutInSeconds, EventDefinitionParameter eventDefinitionParameter) {
+	public static void callEventDefinitionActor(ActorRef eventDefinitionActor, String uniqueFlowNodeId, Message message, long timeoutInSeconds) {
 		
 		final Timeout eventDefinitionTimeout = new Timeout(Duration.create(timeoutInSeconds, "seconds"));
 		

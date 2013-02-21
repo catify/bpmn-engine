@@ -26,7 +26,6 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * The SubProcessNode can embed other FlowElements. To implement this it triggers the embedded start event.
@@ -43,11 +42,8 @@ public class SubProcessNode extends Task {
 
 	public SubProcessNode (String uniqueProcessId, String uniqueFlowNodeId, List<ActorRef> outgoingNodes, 
 			List<ActorRef> embeddedStartNodes, List<ActorRef> embeddedNodes, List<ActorRef> boundaryEvent) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setBoundaryEvents(boundaryEvent);
 		
 		this.embeddedStartNodes = embeddedStartNodes;

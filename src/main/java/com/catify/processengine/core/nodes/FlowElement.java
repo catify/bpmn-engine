@@ -77,6 +77,13 @@ public abstract class FlowElement extends UntypedActor {
 	/** The node instance mediator service. */
 	protected NodeInstanceMediatorService nodeInstanceMediatorService;
 	
+	public FlowElement(String uniqueProcessId, String uniqueFlowNodeId) {
+		this.setUniqueProcessId(uniqueProcessId);
+		this.setUniqueFlowNodeId(uniqueFlowNodeId);
+		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
+				uniqueProcessId, uniqueFlowNodeId));
+	}
+	
 	/**
 	 * Template method for reacting to the possible message types.
 	 * This method should not be overridden by

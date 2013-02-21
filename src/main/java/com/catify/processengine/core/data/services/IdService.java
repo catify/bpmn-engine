@@ -18,6 +18,7 @@
 package com.catify.processengine.core.data.services;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 
@@ -101,7 +102,7 @@ public final class IdService {
 	 * @param flowNodeJaxb the jaxb flow node that the unique id is searched for
 	 * @return the unique flow node id
 	 */
-	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	public static String getUniqueFlowNodeId(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb) {
 		StringBuilder parentSubProcesses = getSubProcessesString(subProcessesJaxb);
 		return new IdParams(clientId, processJaxb, parentSubProcesses.toString(), flowNodeJaxb).getUniqueFlowNodeId();
@@ -317,7 +318,7 @@ public final class IdService {
 	 * @return the sub processes string
 	 */
 	private static StringBuilder getSubProcessesString(
-			ArrayList<TSubProcess> subProcessesJaxb) {
+			List<TSubProcess> subProcessesJaxb) {
 		StringBuilder parentSubProcesses = new StringBuilder();
 		
 		if (subProcessesJaxb != null) {

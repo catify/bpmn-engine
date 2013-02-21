@@ -31,7 +31,6 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.services.MessageDispatcherService;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * The ServiceTaskInstance is a synchronous node. It will load a value from a data object (if specified), 
@@ -45,10 +44,6 @@ public class ServiceTaskInstance extends Task {
 	
 	private MessageIntegrationSPI integrationSPI;
 	private MessageDispatcherService messageDispatcherService = null;
-	
-	public ServiceTaskInstance() {
-
-	}
 
 	/**
 	 * Instantiates a new service task node.
@@ -66,11 +61,8 @@ public class ServiceTaskInstance extends Task {
 	public ServiceTaskInstance(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes,
 			TMessageIntegration messageIntegrationInOut, DataObjectHandling dataObjectHandling, List<ActorRef> boundaryEvent) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		this.setBoundaryEvents(boundaryEvent);
 		

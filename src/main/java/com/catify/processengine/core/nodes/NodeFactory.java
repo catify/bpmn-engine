@@ -20,7 +20,6 @@
  */
 package com.catify.processengine.core.nodes;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
@@ -47,6 +46,6 @@ public interface NodeFactory {
 	 * @param sequenceFlowsJaxb the list of jaxb sequence flows of that process
 	 * @return the start event node
 	 */
-	FlowElement createServiceNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	FlowElement createServiceNode(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb);
 }

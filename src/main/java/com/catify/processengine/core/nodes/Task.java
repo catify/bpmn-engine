@@ -31,7 +31,6 @@ import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 
 
 /**
@@ -41,11 +40,12 @@ import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParame
  * 
  */
 public abstract class Task extends Activity {
-	
+
+	public Task(String uniqueProcessId, String uniqueFlowNodeId) {
+		super(uniqueProcessId, uniqueFlowNodeId);
+	}
+
 	static final Logger LOG = LoggerFactory.getLogger(Task.class);
-	
-	/** The EventDefinition parameter object of which an EventDefinition actor can be instantiated. */
-	protected EventDefinitionParameter eventDefinitionParameter;
 
 	protected DataObjectHandling dataObjectHandling;
 	
@@ -65,8 +65,7 @@ public abstract class Task extends Activity {
 	protected void callEventDefinitionActor(Message message) {
 		EventDefinitionHandling.callEventDefinitionActor(
 				this.eventDefinitionActor,
-				this.uniqueFlowNodeId, message, this.timeoutInSeconds,
-				this.eventDefinitionParameter);
+				this.uniqueFlowNodeId, message, this.timeoutInSeconds);
 	}
 	
 	/**
@@ -117,15 +116,6 @@ public abstract class Task extends Activity {
 
 	protected void setDataObjectHandling(DataObjectHandling dataObjectHandling) {
 		this.dataObjectHandling = dataObjectHandling;
-	}
-	
-	protected EventDefinitionParameter getEventDefinitionParameter() {
-		return eventDefinitionParameter;
-	}
-
-	protected void setEventDefinitionParameter(
-			EventDefinitionParameter eventDefinitionParameter) {
-		this.eventDefinitionParameter = eventDefinitionParameter;
 	}
 
 }

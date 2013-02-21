@@ -17,8 +17,8 @@
  */
 package com.catify.processengine.core.messages;
 
-import akka.event.EventBus;
 import scala.concurrent.duration.DurationConversions.Classifier;
+import akka.event.EventBus;
 
 /**
  * {@link Classifier} for the akka {@link EventBus}.

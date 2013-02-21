@@ -30,7 +30,6 @@ import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.messages.WinningMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * An EbgConnectedCatchEvent is a specialization of the standard catch event
@@ -48,9 +47,6 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 
 	private ActorRef activatingGatewayNode;
 
-	public EbgConnectedCatchEventNode() {
-	}
-
 	/**
 	 * Instantiates a new catch event node.
 	 * 
@@ -66,12 +62,8 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 	public EbgConnectedCatchEventNode(String uniqueProcessId,
 			String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter,
 			List<ActorRef> outgoingNodes, DataObjectHandling dataObjectHandling) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinitionParameter(eventDefinitionParameter);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		
 		// create EventDefinition actor

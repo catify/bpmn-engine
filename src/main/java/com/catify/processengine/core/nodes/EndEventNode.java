@@ -33,7 +33,6 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.services.ProcessInstanceMediatorService;
 
 /**
@@ -56,9 +55,6 @@ public class EndEventNode extends ThrowEvent {
 	/** The data object ids of the whole process. Will be null if this is not a top level end event. */
 	private Set<String> dataObjectIds;
 
-	public EndEventNode() {
-	}
-
 	/**
 	 * Instantiates a new end event node.
 	 *
@@ -71,12 +67,8 @@ public class EndEventNode extends ThrowEvent {
 	 */
 	public EndEventNode(String uniqueProcessId, String uniqueFlowNodeId,
 			EventDefinitionParameter eventDefinitionParameter, ActorRef parentSubProcessNode, DataObjectHandling dataObjectHandling, Set<String> dataObjectIds) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinitionParameter(eventDefinitionParameter);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.parentSubProcessNode = parentSubProcessNode;
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		this.dataObjectIds = dataObjectIds;
 		

@@ -34,7 +34,6 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.ActorReferenceService;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.services.ProcessInstanceMediatorService;
 
 /**
@@ -53,9 +52,6 @@ public class ComplexGatewayNode extends FlowElement implements NOfMService {
 	@Autowired
 	private ProcessInstanceMediatorService processInstanceMediatorService;
 
-	public ComplexGatewayNode() {
-	}
-
 	/**
 	 * Instantiates a new complex gateway node.
 	 * 
@@ -72,11 +68,8 @@ public class ComplexGatewayNode extends FlowElement implements NOfMService {
 	 */
 	public ComplexGatewayNode(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 	}
 
 	@Override
