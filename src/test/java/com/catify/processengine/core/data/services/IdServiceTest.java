@@ -22,6 +22,8 @@ import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TVersion;
 
 public class IdServiceTest {
+	
+	private ObjectFactory factory = new ObjectFactory();
 
 	private static final String PID = "4711";
 	private static final String PNAME = "FOO";
@@ -29,6 +31,8 @@ public class IdServiceTest {
 	private static final String CLIENT = "BAR";
 	private static final String NID = "0815";
 	private static final String NNAME = "NODE1";
+	private static final String SUBPID = "4712";
+	private static final String SUBPNAME = "P01";
 	private static final String SUBP = "4712P014713P02";
 	
 	private static final String UPID = "BARFOO47111.2.1";
@@ -75,9 +79,12 @@ public class IdServiceTest {
 	@Test
 	public void testGetUniqueFlowNodeIdStringTProcessString() {
 		// TODO --> Chris
-		fail("chris will implement");
-//		TProcess process = this.createProcessWithFlowNode();
-//		this.addSubProcesses(process);
+//		fail("chris will implement");
+		TProcess process = this.createProcess();
+		TSubProcess subProcess = this.createSubProcess(SUBPID, SUBPNAME);
+		this.addFlowNodeToSubProcess(NID, NNAME, subProcess);
+		process.getFlowElement().add(factory.createSubProcess(subProcess));
+		System.out.println(IdService.getUniqueFlowNodeId(CLIENT, process, NID));
 //		assertEquals(UNID, IdService.getUniqueFlowNodeId(CLIENT, process, NID));
 	}
 
@@ -108,7 +115,6 @@ public class IdServiceTest {
 	}
 	
 	private TProcess createProcess(String id, String name, String version) {
-		ObjectFactory factory = new ObjectFactory();
 		TProcess process = factory.createTProcess();
 		process.setId(id);
 		process.setName(name);
@@ -125,7 +131,6 @@ public class IdServiceTest {
 	}
 	
 	private TFlowNode createFlowNode(String id, String name) {
-		ObjectFactory factory = new ObjectFactory();
 		TIntermediateCatchEvent tNode = factory.createTIntermediateCatchEvent();
 		tNode.setId(id);
 		tNode.setName(name);
@@ -136,8 +141,7 @@ public class IdServiceTest {
 		return this.createFlowNode(NID, NNAME);
 	}
 	
-	private void addFlowNode(String id, String name, TProcess process) {
-		ObjectFactory factory = new ObjectFactory();		
+	private void addFlowNode(String id, String name, TProcess process) {		
 		JAXBElement<TFlowNode> node = factory.createFlowNode(this.createFlowNode(id, name));
 		process.getFlowElement().add(node);
 	}
@@ -146,8 +150,12 @@ public class IdServiceTest {
 		this.addFlowNode(NID, NNAME, process);
 	}
 	
+	private void addFlowNodeToSubProcess(String id, String name, TSubProcess process) {
+		JAXBElement<TFlowNode> node = factory.createFlowNode(this.createFlowNode(id, name));
+		process.getFlowElement().add(node);
+	}
+	
 	private TSubProcess createSubProcess(String id, String name) {
-		ObjectFactory factory = new ObjectFactory();
 		TSubProcess subProcess = factory.createTSubProcess();
 		subProcess.setId(id);
 		subProcess.setName(name);
@@ -162,7 +170,6 @@ public class IdServiceTest {
 	}
 	
 	private void addSubProcesses(TProcess process) {
-		ObjectFactory factory = new ObjectFactory();
 		process.getFlowElement().add(factory.createSubProcess(this.createSubProcess("4712", "P01")));
 		process.getFlowElement().add(factory.createSubProcess(this.createSubProcess("4713", "P02")));
 	}
