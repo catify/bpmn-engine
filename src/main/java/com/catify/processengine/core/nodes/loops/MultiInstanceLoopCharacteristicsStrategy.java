@@ -33,14 +33,12 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 	 * instances.
 	 */
 	protected Set<String> usedDataObjectIds;
-
-	private boolean catching;
 	
 	public MultiInstanceLoopCharacteristicsStrategy(ActorRef taskWrapper, NodeParameter nodeParameter,
 			DataObjectHandling dataObjectHandling, boolean isSequential, String loopCardinality,
-			String completionCondition, Set<String> allDataObjectIds) {
+			String completionCondition, Set<String> allDataObjectIds, boolean catching) {
 		// FIXME: taskWrapper might be redundant because it should be the sender anyway
-		super(taskWrapper, nodeParameter.getUniqueProcessId(), nodeParameter.getUniqueFlowNodeId(), dataObjectHandling);
+		super(taskWrapper, nodeParameter.getUniqueProcessId(), nodeParameter.getUniqueFlowNodeId(), dataObjectHandling, catching);
 		
 		this.isSequential = isSequential;
 		
@@ -79,7 +77,7 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 			
 		// else end loop and activate next nodes via the taskWrapper
 		} else {
-			if (!catching) {
+			if (this.catching) {
 				taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
 			}
 		}

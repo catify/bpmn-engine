@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- ******************************************************* Copyright (C) 
+	2013 catify <info@catify.com> ******************************************************* 
+	Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+	use this file except in compliance with the License. You may obtain a copy 
+	of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+	xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1340971831366"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+	xmlns:catify="http://www.catify.com/processengine/core/processdefinition"
+
+	exporter="Yaoqiang BPMN Editor" exporterVersion="2.0"
+	expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366"
+	name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366"
+	typeLanguage="http://www.w3.org/2001/XMLSchema"
+	xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
+
+	<process id="testprocess_sendTask_messageIntegration_camel" isClosed="false" isExecutable="true"
+		processType="Private">
+		<extensionElements>
+			<catify:version id="VERSION_ID" version="testProcessVersion1" />
+		</extensionElements>
+		<startEvent id="startEvent1" isInterrupting="true" name="Start Event"
+			parallelMultiple="false">
+		</startEvent>
+		<receiveTask completionQuantity="1" id="receiveTask1"
+			implementation="##WebService" isForCompensation="false" name="Receive Task"
+			startQuantity="1">
+			<extensionElements>
+				<catify:messageIntegration prefix="integration_mock"
+					integrationstring="file:data/integrationInput" />
+			</extensionElements>
+		</receiveTask>
+		<endEvent id="endEvent1" name="End Event">
+		</endEvent>
+		<sequenceFlow id="sequenceFlow1" sourceRef="startEvent1"
+			targetRef="receiveTask1" />
+		<sequenceFlow id="sequenceFlow2" sourceRef="receiveTask1"
+			targetRef="endEvent1" />
+	</process>
+
+</definitions>

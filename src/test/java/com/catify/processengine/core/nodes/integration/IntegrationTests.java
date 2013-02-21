@@ -155,6 +155,16 @@ public class IntegrationTests extends IntegrationTestBase {
 	}
 	
 	@Test
+	public void testprocessReceiveTask() throws FileNotFoundException, JAXBException, InterruptedException {
+	    MessageIntegrationSPIMock mock = (MessageIntegrationSPIMock) MessageIntegrationSPI.getMessageIntegrationImpl(MessageIntegrationSPIMock.MOCK_PREFIX);
+	    
+		TProcess process = simpleProcessTestWithIntegration("testprocess_receiveTask.bpmn", "receiveTask1", mock, 3000, 5000, 5000, 6, 3);
+		Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
+	    
+	    assertEquals(1, mock.receives.size());
+	}
+	
+	@Test
 	public void testprocessCatchThrowComplex() throws IOException, JAXBException, InterruptedException {
 		TProcess process = simpleProcessTest("testprocess_catch_throw_complex.bpmn", 3000, 5000, 10, 5);	
 	    Assert.assertEquals(4, countFlowNodeInstanceWithState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));

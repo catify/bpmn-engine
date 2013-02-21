@@ -7,7 +7,9 @@ import akka.actor.ActorRef;
 
 import com.catify.processengine.core.nodes.NodeFactoryImpl;
 import com.catify.processengine.core.nodes.NodeParameter;
+import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TMultiInstanceLoopCharacteristics;
+import com.catify.processengine.core.processdefinition.jaxb.TReceiveTask;
 import com.catify.processengine.core.processdefinition.jaxb.TStandardLoopCharacteristics;
 import com.catify.processengine.core.processdefinition.jaxb.TTask;
 
@@ -53,7 +55,8 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 		return new NonLoopStrategy(
 				taskWrapper, 
 				nodeParameter,
-				getDataObjectHandling(nodeParameter.flowNodeJaxb));
+				getDataObjectHandling(nodeParameter.flowNodeJaxb),
+				checkCatching(nodeParameter.flowNodeJaxb));
 	}
 	
 	private LoopStrategy getStandardLoopCharacteristicsStrategy(
@@ -69,7 +72,8 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 				loopCharacteristics.isTestBefore(), 
 				loopCharacteristics.getLoopMaximum(), 
 				loopCharacteristics.getLoopCondition().getContent().get(0).toString(), 
-				super.getAllDataObjectIds(nodeParameter.processJaxb, nodeParameter.subProcessesJaxb));
+				super.getAllDataObjectIds(nodeParameter.processJaxb, nodeParameter.subProcessesJaxb),
+				checkCatching(nodeParameter.flowNodeJaxb));
 	}
 	
 	private LoopStrategy getMultiInstanceLoopCharacteristicsStrategy(
@@ -85,8 +89,21 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 				loopCharacteristics.isIsSequential(),
 				loopCharacteristics.getLoopCardinality().getContent().get(0).toString(),
 				loopCharacteristics.getCompletionCondition().getContent().get(0).toString(), 
-				super.getAllDataObjectIds(nodeParameter.processJaxb, nodeParameter.subProcessesJaxb));
+				super.getAllDataObjectIds(nodeParameter.processJaxb, nodeParameter.subProcessesJaxb),
+				checkCatching(nodeParameter.flowNodeJaxb));
 	}
 
-
+	/**
+	 * Check if the task action is catching/receiving. 
+	 *
+	 * @param flowNodeJaxb the flow node jaxb
+	 * @return true, if task action is catching
+	 */
+	private boolean checkCatching(TFlowNode flowNodeJaxb) {
+		if (flowNodeJaxb instanceof TReceiveTask) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

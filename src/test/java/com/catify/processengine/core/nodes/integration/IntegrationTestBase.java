@@ -25,6 +25,8 @@ import com.catify.processengine.core.data.model.entities.ProcessNode;
 import com.catify.processengine.core.data.services.FlowNodeInstanceRepositoryService;
 import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.data.services.ProcessNodeRepositoryService;
+import com.catify.processengine.core.integration.IntegrationMessage;
+import com.catify.processengine.core.integration.MessageIntegrationSPI;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
@@ -139,6 +141,45 @@ public class IntegrationTestBase {
 				
 			    // trigger the waiting catch event
 			    pm.sendTriggerMessage(client, process, flowNodeIdToTrigger, new TriggerMessage(defaultInstanceId, null));
+			    
+			    // wait for the process instance to end
+			    Thread.sleep(thirdSleep);
+			
+				// check results
+				this.checkProcess(process, awaitedFlowNodeCount, awaitedInstanceNodeCount);
+				
+				return process;
+			}
+	
+	/**
+	 * Helper method to test standard scenarios with a node to trigger.
+	 *
+	 * @param fileName name of the file without path and slash (must be in /src/test/resources/data/)
+	 * @param flowNodeIdToTrigger the flow node id to trigger
+	 * @param firstSleep milliseconds of the first sleep
+	 * @param secondSleep milliseconds of the first sleep
+	 * @param thirdSleep milliseconds of the third sleep
+	 * @param awaitedFlowNodeCount awaited number of flow nodes
+	 * @param awaitedInstanceNodeCount awaited number of flow node instances
+	 * @return the jaxb process
+	 * @throws FileNotFoundException the file not found exception
+	 * @throws JAXBException the jAXB exception
+	 * @throws InterruptedException the interrupted exception
+	 */
+	protected TProcess simpleProcessTestWithIntegration(String fileName, String flowNodeIdToTrigger, MessageIntegrationSPI messageIntegrationSP,
+			int firstSleep, int secondSleep, int thirdSleep, int awaitedFlowNodeCount, int awaitedInstanceNodeCount)
+			throws FileNotFoundException, JAXBException, InterruptedException {
+				TProcess process = startProcess(fileName, firstSleep);
+				pm.createProcessInstance(client, process, startEvent, new TriggerMessage(defaultInstanceId, null));
+			
+				// wait for the process instance to start up
+				Thread.sleep(secondSleep);
+				
+				String uniqueProcessId = IdService.getUniqueProcessId(client, process);
+				String uniqueFlowNodeId = IdService.getUniqueFlowNodeId(client, process, flowNodeIdToTrigger);
+				
+			    // trigger the waiting event via the message integration
+				messageIntegrationSP.receive(new IntegrationMessage(uniqueProcessId, uniqueFlowNodeId, defaultInstanceId, null), null);
 			    
 			    // wait for the process instance to end
 			    Thread.sleep(thirdSleep);

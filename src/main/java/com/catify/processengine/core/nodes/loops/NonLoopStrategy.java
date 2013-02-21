@@ -14,12 +14,10 @@ public class NonLoopStrategy extends LoopStrategy {
 	/** The task action actor reference to the task that implements
 	 * the bpmn task behavior (service task, receive task etc.). */
 	protected ActorRef taskAction;
-	
-	private boolean catching;
 
 	public NonLoopStrategy(ActorRef taskWrapper, NodeParameter nodeParameter,
-			DataObjectHandling dataObjectHandling) {
-		super(taskWrapper, nodeParameter.getUniqueProcessId(), nodeParameter.getUniqueFlowNodeId(), dataObjectHandling);
+			DataObjectHandling dataObjectHandling, boolean catching) {
+		super(taskWrapper, nodeParameter.getUniqueProcessId(), nodeParameter.getUniqueFlowNodeId(), dataObjectHandling, catching);
 		this.taskAction = super.createTaskActionActor(this.getContext(), nodeParameter);
 	}
 

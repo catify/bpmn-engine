@@ -315,19 +315,21 @@ public class ProcessInstanceMediatorService {
 	 */
 	@Transactional
 	public void setMetaDataProperties(String uniqueProcessId, String processInstanceId, Map<String, Object> metaData) {
-		ProcessInstanceNode processInstanceNode = loadProcessInstanceNode(uniqueProcessId, processInstanceId);
-
-		// the instance node could have been moved to the archive (because archiving and writing of meta data happens asynchronously) 
-		if (processInstanceNode == null) {
-			processInstanceNode = processInstanceNodeRepositoryService.findArchivedProcessInstanceNode(uniqueProcessId, processInstanceId);
+		if (metaData != null) {
+			ProcessInstanceNode processInstanceNode = loadProcessInstanceNode(uniqueProcessId, processInstanceId);
+	
+			// the instance node could have been moved to the archive (because archiving and writing of meta data happens asynchronously) 
+			if (processInstanceNode == null) {
+				processInstanceNode = processInstanceNodeRepositoryService.findArchivedProcessInstanceNode(uniqueProcessId, processInstanceId);
+			}
+	
+			processInstanceNode.setMetaDataProperties(processInstanceNode
+					.getMetaDataProperties().createFrom(metaData));
+			
+			LOG.debug("Setting meta data properties on node " + processInstanceNode.getGraphId());
+	
+			processInstanceNodeRepositoryService.save(processInstanceNode);
 		}
-
-		processInstanceNode.setMetaDataProperties(processInstanceNode
-				.getMetaDataProperties().createFrom(metaData));
-		
-		LOG.debug("Setting meta data properties on node " + processInstanceNode.getGraphId());
-
-		processInstanceNodeRepositoryService.save(processInstanceNode);
 	}
 
 	/**

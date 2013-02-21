@@ -38,17 +38,21 @@ public abstract class LoopStrategy extends UntypedActor {
 	/** The data object handling wraps the {@link DataObjectHandling}. */
 	protected DataObjectHandling dataObjectHandling;
 	
+	/** True for catching/receiving nodes. */
+	protected boolean catching;
+	
 	/**
 	 * Instantiates a new loop strategy.
 	 *
 	 */
 	public LoopStrategy(ActorRef taskWrapper, String uniqueProcessId, String uniqueFlowNodeId,
-			DataObjectHandling dataObjectHandling) {
+			DataObjectHandling dataObjectHandling, boolean catching) {
 		super();
 		this.taskWrapper = taskWrapper;
 		this.uniqueProcessId = uniqueProcessId;
 		this.uniqueFlowNodeId = uniqueFlowNodeId;
 		this.dataObjectHandling = dataObjectHandling;
+		this.catching = catching;
 	}
 	
 	public final void onReceive(Object message) {

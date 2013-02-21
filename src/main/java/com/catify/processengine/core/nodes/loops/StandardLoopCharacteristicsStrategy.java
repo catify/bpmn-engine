@@ -29,13 +29,11 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 	 * instances.
 	 */
 	protected Set<String> usedDataObjectIds;
-
-	private boolean catching;
 	
 	public StandardLoopCharacteristicsStrategy(ActorRef taskWrapper, NodeParameter nodeParameter,
-			DataObjectHandling dataObjectHandling, boolean testBefore, BigInteger loopMaximum, String loopCondition, Set<String> allDataObjectIds) {	
+			DataObjectHandling dataObjectHandling, boolean testBefore, BigInteger loopMaximum, String loopCondition, Set<String> allDataObjectIds, boolean catching) {	
 		// FIXME: taskWrapper might be redundant because it should be the sender anyway
-		super(taskWrapper, nodeParameter.getUniqueProcessId(), nodeParameter.getUniqueFlowNodeId(), dataObjectHandling);
+		super(taskWrapper, nodeParameter.getUniqueProcessId(), nodeParameter.getUniqueFlowNodeId(), dataObjectHandling, catching);
 		
 		this.testBefore = testBefore; 
 		this.loopMaximum = loopMaximum.longValue();
@@ -61,7 +59,7 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 				taskAction.tell(message, this.getSelf());
 			// else end loop and activate next nodes via the taskWrapper
 			} else {
-				if (!catching) {
+				if (!this.catching) {
 					// this is a throwing task: end the loop to go on end the process
 					// (for catching tasks, ending the loop will only be done for trigger or deactivation messages)
 					taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
@@ -72,7 +70,7 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 			taskAction.tell(message, this.getSelf());
 			
 			if (!this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
-				if (!catching) {
+				if (!this.catching) {
 					// this is a throwing task: end the loop to go on end the process
 					// (for catching tasks, ending the loop will only be done for trigger or deactivation messages)
 					taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
