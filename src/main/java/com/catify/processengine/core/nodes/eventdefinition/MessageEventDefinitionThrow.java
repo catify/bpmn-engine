@@ -20,6 +20,7 @@ package com.catify.processengine.core.nodes.eventdefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.catify.processengine.core.integration.IntegrationMessage;
 import com.catify.processengine.core.integration.MessageIntegrationSPI;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.CommitMessage;
@@ -30,25 +31,30 @@ import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.services.MessageDispatcherService;
 
 /**
- * Each (akka) node that has a catching message event definition instantiates
- * and binds an object of the MessageEventDefinition_Catch class. This class
- * implements the messaging part of the catching message event node. Each time
- * the node gets a trigger message its trigger method saves the payload to the
- * object defined in the process.xml. For instantiation of this node see {@link NodeFactory}.
+ * Each (akka) node that has a throwing message event definition instantiates
+ * and binds an object of the MessageEventDefinition_Throw class. This class
+ * implements the messaging part of the throwing message event node. Each time
+ * the node gets an activation message its activation method is triggered, which
+ * dispatches a message via a message integration SPI implementation. The
+ * message can have a payload object, which is defined in the process.xml and
+ * loaded from the data store. For instantiation of this node see {@link NodeFactory}.
  * 
  * @author christopher köster
  * 
  */
-public class MessageEventDefinition_Catch extends EventDefinition {
-	
+public class MessageEventDefinitionThrow extends EventDefinition {
+
 	static final Logger LOG = LoggerFactory
-			.getLogger(MessageEventDefinition_Catch.class);
+			.getLogger(MessageEventDefinitionThrow.class);
 
 	private final String uniqueProcessId;
 	private final String uniqueFlowNodeId;
+
+	/** The actor ref string of the actor that holds this event definition. */
 	private final String actorRefString;
 
 	private MessageIntegrationSPI integrationSPI;
+	private MessageDispatcherService messageDispatcherService = null;
 
 	/**
 	 * Instantiates a new throwing message event definition.
@@ -62,8 +68,9 @@ public class MessageEventDefinition_Catch extends EventDefinition {
 	 * @param messageIntegration
 	 *            the message event definition
 	 */
-	public MessageEventDefinition_Catch(String uniqueProcessId, String uniqueFlowNodeId,
-			String actorRefString, TMessageIntegration messageIntegration) {
+	public MessageEventDefinitionThrow(String uniqueProcessId,
+			String uniqueFlowNodeId, String actorRefString,
+			TMessageIntegration messageIntegration) {
 
 		this.uniqueProcessId = uniqueProcessId;
 		this.uniqueFlowNodeId = uniqueFlowNodeId;
@@ -71,15 +78,33 @@ public class MessageEventDefinition_Catch extends EventDefinition {
 
 		if (messageIntegration != null) {
 			this.integrationSPI = MessageIntegrationSPI
-					.getMessageIntegrationImpl(messageIntegration.getPrefix());		
-			registerMessageEventDefinition_catch(messageIntegration);
+					.getMessageIntegrationImpl(messageIntegration.getPrefix());
+			registerMessageEventDefinition_throw(messageIntegration);
+			this.messageDispatcherService = new MessageDispatcherService(
+					this.integrationSPI);
 		}
 	}
 
 	@Override
 	protected CommitMessage<?> activate(ActivationMessage message) {
-		// activation has already been done at process level (in the
-		// constructor)
+
+		// get the data from the data store that is associated with this node
+		Object data;
+		if (message.getPayload() != null) {
+			data = message.getPayload();
+		} else {
+			data = "no payload";
+		}
+
+		// create an IntegrationMessage to be send to the message dispatcher
+		IntegrationMessage integrationMessage = new IntegrationMessage(
+				this.uniqueProcessId, this.uniqueFlowNodeId,
+				message.getProcessInstanceId(), data);
+
+		// dispatch that message via the integration spi
+		messageDispatcherService.dispatchViaIntegrationSPI(
+				this.uniqueFlowNodeId, integrationMessage);
+		
 		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
@@ -91,7 +116,9 @@ public class MessageEventDefinition_Catch extends EventDefinition {
 
 	@Override
 	protected CommitMessage<?> trigger(TriggerMessage message) {
-		// messages are dispatched by MessageDispatcherService (so there is nothing to do)
+		LOG.warn(
+				"WARNING %s sent to throwing node. By definition this is not allowed to happen and is most likely an error",
+				message);
 		return createSuccessfullCommitMessage(message.getProcessInstanceId());
 	}
 
@@ -101,21 +128,17 @@ public class MessageEventDefinition_Catch extends EventDefinition {
 	 * @param messageIntegration
 	 *            the jaxb message integration
 	 */
-	private final void registerMessageEventDefinition_catch(
+	private final void registerMessageEventDefinition_throw(
 			TMessageIntegration messageIntegration) {
 		// start the message integration implementation for this flow node (like
 		// routes etc.)
-		integrationSPI.startReceive(
+		integrationSPI.startSend(
 				this.uniqueFlowNodeId,
-				messageIntegration.getIntegrationstring(),
-				messageIntegration.getMetaData());
+				messageIntegration.getIntegrationstring());
 
 		// add it to the message dispatchers mapping table
 		MessageDispatcherService.uniqueFlowNodeIdToActorRefMap.put(
 				this.uniqueFlowNodeId, this.actorRefString);
 	}
 
-	public String getUniqueProcessId() {
-		return uniqueProcessId;
-	}
 }

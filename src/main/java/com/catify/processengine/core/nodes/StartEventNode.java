@@ -33,7 +33,6 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.services.ProcessInstanceMediatorService;
 
@@ -94,8 +93,7 @@ public class StartEventNode extends CatchEvent {
 		this.setDataObjectHandling(dataObjectHandling);
 		
 		// create EventDefinition actor
-		this.eventDefinitionActor = EventDefinitionHandling
-				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
+		this.eventDefinitionActor = this.createEventDefinitionActor(eventDefinitionParameter);
 	}
 	
 	
@@ -157,7 +155,7 @@ public class StartEventNode extends CatchEvent {
 			this.getNodeInstanceMediatorService().setNodeInstanceStartTime(processInstanceId, new Date());
 		}
 		
-		this.getDataObjectService().saveObject(this.getUniqueProcessId(),
+		this.getDataObjectHandling().saveObject(this.getUniqueProcessId(),
 				processInstanceId, message.getPayload());
 
 		this.callEventDefinitionActor(message);

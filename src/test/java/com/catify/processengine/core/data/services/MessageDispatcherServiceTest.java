@@ -19,7 +19,6 @@ package com.catify.processengine.core.data.services;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,11 +30,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import akka.actor.ActorRef;
-
 import com.catify.processengine.core.integration.IntegrationMessage;
 import com.catify.processengine.core.integration.MessageIntegrationSPI;
-import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.MessageDispatcherService;
 
 @RunWith(SpringJUnit4ClassRunner.class)

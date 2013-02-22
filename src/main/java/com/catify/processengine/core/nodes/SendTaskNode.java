@@ -22,9 +22,9 @@ import java.util.Date;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinition;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 
 /**
@@ -46,8 +46,7 @@ public class SendTaskNode extends Task {
 		super(uniqueProcessId, uniqueFlowNodeId);
 		
 		// create EventDefinition actor
-		this.eventDefinitionActor = EventDefinitionHandling
-				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
+		this.eventDefinitionActor = this.createEventDefinitionActor(eventDefinitionParameter);
 	}
 
 	@Override
@@ -62,6 +61,8 @@ public class SendTaskNode extends Task {
 				message.getProcessInstanceId(), NodeInstaceStates.PASSED_STATE);
 		
 		this.getNodeInstanceMediatorService().persistChanges();
+		
+		this.getSender().tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 	}
 
 	@Override

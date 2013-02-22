@@ -54,11 +54,12 @@ public class DataObjectHandling {
 	
 	/**
 	 * Instantiates a new data object service that saves data via the user configured
-	 * data object service provider. The service provider will be loaded from the 
+	 * data object service provider. The service provider will be loaded from the
 	 * classpath or the java extension directory.
 	 *
 	 * @param dataInputObjectId the data input object id
 	 * @param dataOutputObjectId the data output object id
+	 * @param isCollection true if data object is a collection
 	 */
 	public DataObjectHandling(String dataInputObjectId, String dataOutputObjectId) {
 		this.dataInputObjectId = dataInputObjectId;

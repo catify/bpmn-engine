@@ -1,15 +1,20 @@
 package com.catify.processengine.core.nodes.loops;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import akka.actor.ActorRef;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
-import com.catify.processengine.core.messages.LoopEndMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.NodeParameter;
 
 public class NonLoopStrategy extends LoopStrategy {
+	
+	static final Logger LOG = LoggerFactory.getLogger(NonLoopStrategy.class);
 	
 	/** The task action actor reference to the task that implements
 	 * the bpmn task behavior (service task, receive task etc.). */
@@ -28,7 +33,7 @@ public class NonLoopStrategy extends LoopStrategy {
 		taskAction.tell(message, taskWrapper);
 		
 		if (!catching) {
-			taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
+			taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 		}
 	}
 
@@ -43,7 +48,12 @@ public class NonLoopStrategy extends LoopStrategy {
 		
 		taskAction.tell(message, taskWrapper);
 		
-		taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
+		taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+	}
+
+	@Override
+	protected void loop(LoopMessage message) {
+		LOG.warn(String.format("Unexpected %s received by %s", message.getClass(), this.getSelf()));
 	}
 
 }

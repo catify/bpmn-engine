@@ -38,7 +38,7 @@ public abstract class Event extends Task {
 
 	protected DataObjectHandling dataObjectHandling;
 	
-	public DataObjectHandling getDataObjectService() {
+	public DataObjectHandling getDataObjectHandling() {
 		return dataObjectHandling;
 	}
 

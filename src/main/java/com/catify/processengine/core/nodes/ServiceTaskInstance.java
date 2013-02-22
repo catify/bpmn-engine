@@ -18,19 +18,18 @@
 package com.catify.processengine.core.nodes;
 
 import java.util.Date;
-import java.util.List;
 
+import scala.concurrent.Future;
 import akka.actor.ActorRef;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
-import com.catify.processengine.core.integration.IntegrationMessage;
-import com.catify.processengine.core.integration.MessageIntegrationSPI;
 import com.catify.processengine.core.messages.ActivationMessage;
+import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
-import com.catify.processengine.core.services.MessageDispatcherService;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 
 /**
  * The ServiceTaskInstance is a synchronous node. It will load a value from a data object (if specified), 
@@ -41,39 +40,24 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  * 
  */
 public class ServiceTaskInstance extends Task {
-	
-	private MessageIntegrationSPI integrationSPI;
-	private MessageDispatcherService messageDispatcherService = null;
 
+	private ActorRef taskWrapper;
+	
 	/**
 	 * Instantiates a new service task node.
-	 * 
-	 * @param uniqueProcessId
-	 *            the process id
-	 * @param uniqueFlowNodeId
-	 *            the unique flow node id
-	 * @param outgoingNodes
-	 *            the outgoing nodes
-	 * @param actorRef 
-	 * @param nodeInstanceMediatorService
-	 *            the node instance service
-	 */
+	 *
+	 * @param uniqueProcessId the process id
+	 * @param uniqueFlowNodeId the unique flow node id
+	 * @param eventDefinitionParameter the event definition parameter
+	 * @param dataObjectHandling the data object handling
+	 */	
 	public ServiceTaskInstance(String uniqueProcessId, String uniqueFlowNodeId,
-			List<ActorRef> outgoingNodes,
-			TMessageIntegration messageIntegrationInOut, DataObjectHandling dataObjectHandling, List<ActorRef> boundaryEvent) {
+			EventDefinitionParameter eventDefinitionParameter, DataObjectHandling dataObjectHandling, ActorRef taskWrapper) {
 		super(uniqueProcessId, uniqueFlowNodeId);
-		this.setOutgoingNodes(outgoingNodes);
 		this.setDataObjectHandling(dataObjectHandling);
-		this.setBoundaryEvents(boundaryEvent);
 		
-		// messages are handled by the integrationSpi
-		if (messageIntegrationInOut != null) {
-			this.integrationSPI = MessageIntegrationSPI
-					.getMessageIntegrationImpl(messageIntegrationInOut.getPrefix());
-			this.messageDispatcherService = new MessageDispatcherService(
-					this.integrationSPI);
-			registerRequestReply(messageIntegrationInOut);
-		}
+		this.eventDefinitionActor = this.createEventDefinitionActor(eventDefinitionParameter);
+		this.taskWrapper = taskWrapper;
 	}
 	
 	@Override
@@ -83,9 +67,11 @@ public class ServiceTaskInstance extends Task {
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		
-		Object repliedDataObject = this.requestReply(message);
+		Future<Object> repliedFuture = this.callEventDefinitionActor(message);
 		
-		this.getDataObjectService().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), repliedDataObject);
+		Object repliedPayload = this.getPayload(repliedFuture);
+		
+		this.getDataObjectHandling().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), repliedPayload);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -94,54 +80,27 @@ public class ServiceTaskInstance extends Task {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.deactivateBoundaryEvents(message);
-		
-		this.sendMessageToNodeActors(
-				new ActivationMessage(message.getProcessInstanceId()),
-				this.getOutgoingNodes());
+		this.taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 		
 		// stop this instance node
 		this.getContext().stop(this.getSelf());
 	}
-	
+
 	/**
-	 * Request reply operation via the integration spi.
+	 * Gets the payload from a future which holds a CommitMessage.
 	 *
-	 * @param message the message to send
-	 * @return the object returned by the spi
+	 * @param repliedFuture the replied future
+	 * @return the payload
 	 */
-	private Object requestReply(ActivationMessage message) {
-		// get the data from the data store that is associated with this node
-		Object data;
-		if (message.getPayload() != null) {
-			data = message.getPayload();
+	@SuppressWarnings("unchecked")
+	private Object getPayload(Future<Object> repliedFuture) {
+		Object repliedCommitMessage = repliedFuture.value().get().get();
+		if (repliedCommitMessage instanceof CommitMessage) {
+			return ((CommitMessage<Object>) repliedCommitMessage).getPayload();
 		} else {
-			data = "no payload";
+			LOG.error(String.format("Unexpected message type received: expected %s, but was %s", CommitMessage.class, repliedCommitMessage.getClass()));
+			return null;
 		}
-		
-		// create an IntegrationMessage to be send to the message dispatcher
-		IntegrationMessage integrationMessage = new IntegrationMessage(
-				this.uniqueProcessId, this.uniqueFlowNodeId,
-						message.getProcessInstanceId(), data);
-		
-		// dispatch that message via the integration spi and return the response
-		return messageDispatcherService.requestReplyViaIntegrationSPI(
-				this.uniqueFlowNodeId, integrationMessage);
-	}
-	
-	/**
-	 * Register throwing message event definition.
-	 * 
-	 * @param messageIntegration
-	 *            the jaxb message integration
-	 */
-	public final void registerRequestReply(
-			TMessageIntegration messageIntegration) {
-		// start the message integration implementation for this flow node (like
-		// routes etc.)
-		integrationSPI.startRequestReply(
-				this.uniqueFlowNodeId,
-				messageIntegration.getIntegrationstring());
 	}
 
 	@Override

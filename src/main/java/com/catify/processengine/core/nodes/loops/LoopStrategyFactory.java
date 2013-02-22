@@ -7,6 +7,7 @@ import akka.actor.ActorRef;
 
 import com.catify.processengine.core.nodes.NodeFactoryImpl;
 import com.catify.processengine.core.nodes.NodeParameter;
+import com.catify.processengine.core.processdefinition.jaxb.TActivity;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TMultiInstanceLoopCharacteristics;
 import com.catify.processengine.core.processdefinition.jaxb.TReceiveTask;
@@ -33,7 +34,7 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 	 */
 	public LoopStrategy createLoopStrategy(ActorRef taskWrapper, NodeParameter nodeParameter) {
 		
-		TTask taskJaxb = (TTask) nodeParameter.flowNodeJaxb;
+		TActivity taskJaxb = (TActivity) nodeParameter.flowNodeJaxb;
 
 		if (taskJaxb.getLoopCharacteristics() == null || taskJaxb.getLoopCharacteristics().isNil()) {
 			return this.getNonLoopStrategy(taskWrapper, nodeParameter);

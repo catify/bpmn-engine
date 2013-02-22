@@ -28,6 +28,7 @@ import javax.xml.bind.JAXBException;
 
 import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,9 +49,15 @@ import com.catify.processengine.core.processdefinition.jaxb.TProcess;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:META-INF/spring/spring-context.xml" })
-//@Transactional
 public class IntegrationTests extends IntegrationTestBase {
 	
+	@Before
+	public void preTest() {
+		MessageIntegrationSPIMock mock = (MessageIntegrationSPIMock) MessageIntegrationSPI.getMessageIntegrationImpl(MessageIntegrationSPIMock.MOCK_PREFIX);
+		mock.sends.clear();
+		mock.receives.clear();
+		mock.requestReplys.clear();
+	}
 	
 	@Test
 	public void testprocessThrow() throws IOException, JAXBException, InterruptedException {

@@ -41,6 +41,8 @@ public class CommitMessage<T> extends Message {
 	/** The future. */
 	private Future<T> future;
 	
+	private Object payload;
+	
 	
 	/**
 	 * Instantiates a new commit message.
@@ -55,6 +57,22 @@ public class CommitMessage<T> extends Message {
 		this.processInstanceId = processInstanceId;
 		this.selfActorRef = selfActorRef;
 		this.sendingActorRef = sendingActorRef;
+	}
+	
+	/**
+	 * Instantiates a new commit message.
+	 *
+	 * @param future the future
+	 * @param processInstanceId the process instance id
+	 * @param selfActorRef the self actor ref
+	 * @param sendingActorRef the sending actor ref
+	 */
+	public CommitMessage(Future<T> future, String processInstanceId, String selfActorRef, String sendingActorRef, Object payload) {
+//		this.future = future; // FIXME: saving the futures throws java.io.NotSerializableException: scala.concurrent.impl.Promise$KeptPromise
+		this.processInstanceId = processInstanceId;
+		this.selfActorRef = selfActorRef;
+		this.sendingActorRef = sendingActorRef;
+		this.payload = payload;
 	}
 
 	/**
@@ -109,6 +127,14 @@ public class CommitMessage<T> extends Message {
 	 */
 	public void setFuture(Future<T> future) {
 		this.future = future;
+	}
+
+	public Object getPayload() {
+		return payload;
+	}
+
+	public void setPayload(Object payload) {
+		this.payload = payload;
 	}
 	
 }

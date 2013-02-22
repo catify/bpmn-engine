@@ -9,10 +9,11 @@ import akka.actor.UntypedActorFactory;
 import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
+import com.catify.processengine.core.nodes.ActivityActionFactory;
 import com.catify.processengine.core.nodes.NodeParameter;
 import com.catify.processengine.core.nodes.NodeUtils;
-import com.catify.processengine.core.nodes.TaskActionFactory;
 import com.catify.processengine.core.services.ActorReferenceService;
 
 /**
@@ -64,6 +65,11 @@ public abstract class LoopStrategy extends UntypedActor {
 			deactivate((DeactivationMessage) message);
 			// commit message after deactivation
 			new NodeUtils().replySuccessfulCommit(((DeactivationMessage) message).getProcessInstanceId(), this.getSelf(), this.getSender());
+		} else if (message instanceof LoopMessage) {
+			loop((LoopMessage) message);
+		} else if (message instanceof DeactivationMessage) {
+			// commit message for already passed nodes (which do not need deactivation)
+			new NodeUtils().replySuccessfulCommit(((DeactivationMessage) message).getProcessInstanceId(), this.getSelf(), this.getSender());
 		}
 	}
 	
@@ -81,7 +87,7 @@ public abstract class LoopStrategy extends UntypedActor {
 			private static final long serialVersionUID = 1L;
 
 			public UntypedActor create() {
-					return new TaskActionFactory().createServiceNode(nodeParameter.clientId, nodeParameter.processJaxb, nodeParameter.subProcessesJaxb, nodeParameter.flowNodeJaxb, nodeParameter.sequenceFlowsJaxb);
+					return new ActivityActionFactory().createServiceNode(nodeParameter.clientId, nodeParameter.processJaxb, nodeParameter.subProcessesJaxb, nodeParameter.flowNodeJaxb, nodeParameter.sequenceFlowsJaxb);
 				}
 		}), ActorReferenceService.getActorReferenceString(nodeParameter.getUniqueFlowNodeId() + "-taskAction-"));
 		return eventDefinitionActor;
@@ -107,5 +113,14 @@ public abstract class LoopStrategy extends UntypedActor {
 	 * @param message the message
 	 */
 	protected abstract void trigger(TriggerMessage message); 
+	
+	/**
+	 * Reaction to {@link LoopMessage} originated by a task action actor. This method inits another loop instance.
+	 *
+	 * @param message the message
+	 */
+	protected void loop(LoopMessage message) {
+		this.getSelf().tell(new ActivationMessage(message.getProcessInstanceId()), this.getSelf());
+	}
 	
 }

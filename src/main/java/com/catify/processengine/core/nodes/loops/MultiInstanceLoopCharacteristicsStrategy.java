@@ -1,8 +1,6 @@
 package com.catify.processengine.core.nodes.loops;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.jexl2.Expression;
@@ -13,7 +11,7 @@ import akka.actor.ActorRef;
 import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
-import com.catify.processengine.core.messages.LoopEndMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.NodeParameter;
 import com.catify.processengine.core.services.ExpressionService;
@@ -78,7 +76,7 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 		// else end loop and activate next nodes via the taskWrapper
 		} else {
 			if (this.catching) {
-				taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
+				taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 			}
 		}
 
@@ -93,20 +91,26 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 	public void trigger(TriggerMessage message) {
 		
 		Integer loopCounter = new Integer(42); // FIXME: provide method for loop counter retrieval from db
+		
 		loopCounter++;
 		
 		// true if loop should continue
 		if (!this.evaluateCompletionCondition(message.getProcessInstanceId())) {
 			
+			if (loopCounter == 0) {
+				
+			}
+			
 			Object dataObject = LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling);
 			
-			if (dataObject instanceof Collection<?>) {
+			
+			
+			if (dataObject instanceof Collection) {
 				// create collection from data object
-				Collection<?> dataCollection = (Collection<?>) dataObject;
-				List<Object> data = new ArrayList<Object>(dataCollection);
-				
-				// set the payload to the index of the message in process
-				data.set(loopCounter, message.getPayload());
+				@SuppressWarnings("unchecked")
+				Collection<Object> dataCollection = (Collection<Object>) dataObject;
+
+				dataCollection.add(message.getPayload());
 			}
 			
 			// persist changes to the data object
@@ -116,12 +120,12 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 			// FIXME: check if this message is the last awaited message for this instance (and its loop)
 			// if so, trigger loop end in taskWrapper
 			if (loopCounter >= _awaitedMessageCount_) {
-				taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
+				taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 			}
 
 		// else end loop and activate next nodes via the taskWrapper
 		} else {
-			taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
+			taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 		}
 	}
 	

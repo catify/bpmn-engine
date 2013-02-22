@@ -6,14 +6,15 @@ import akka.actor.ActorRef;
 
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
-import com.catify.processengine.core.messages.LoopEndMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
+import com.catify.processengine.core.nodes.loops.LoopStrategy;
 
 /**
  * The Class LoopTaskWrapper uses a strategy pattern to wrap the looping behavior around the bpmn tasks. 
  * The {@link NodeFactory} will set the context of {@link LoopType} and {@link Task} based on the bpmn process definition.
  */
-public class LoopTaskWrapper extends Task {
+public class ActivityLoopWrapper extends Activity {
 
 	private ActorRef loopStrategy;
 
@@ -25,7 +26,7 @@ public class LoopTaskWrapper extends Task {
 	 * @param outgoingNodes the list of outgoing node actorRefs
 	 * @param loopStrategy the strategy
 	 */
-	public LoopTaskWrapper(String uniqueProcessId, String uniqueFlowNodeId, List<ActorRef> outgoingNodes, ActorRef loopStrategy, List<ActorRef> boundaryEvent) {
+	public ActivityLoopWrapper(String uniqueProcessId, String uniqueFlowNodeId, List<ActorRef> outgoingNodes, ActorRef loopStrategy, List<ActorRef> boundaryEvent) {
 		super(uniqueProcessId, uniqueFlowNodeId);
 
 		this.setOutgoingNodes(outgoingNodes);
@@ -54,14 +55,19 @@ public class LoopTaskWrapper extends Task {
 	
 	@Override
 	protected void handleNonStandardMessage(Object message) {
-		if (message instanceof LoopEndMessage) {
-			endLoop((LoopEndMessage) message);
+		if (message instanceof LoopMessage) {
+			endLoop((LoopMessage) message);
 		} else {
 			unhandled(message);
 		}
 	}
 
-	private void endLoop(LoopEndMessage message) {
+	/**
+	 * When a loop message arrives (from the {@link LoopStrategy}) end the loop and go on in the process.
+	 *
+	 * @param message the message
+	 */
+	private void endLoop(LoopMessage message) {
 		this.deactivateBoundaryEvents(message);
 		
 		// send message to following actors (outside the loop)

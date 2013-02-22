@@ -11,7 +11,7 @@ import akka.actor.ActorRef;
 import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
-import com.catify.processengine.core.messages.LoopEndMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.NodeParameter;
 import com.catify.processengine.core.services.ExpressionService;
@@ -51,7 +51,7 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 	public void activate(ActivationMessage message) {
 		
 		Long loopCounter = new Long(42); // FIXME: provide method for loop counter retrieval from db
-		
+
 		if (testBefore) {
 			// true if loop should continue
 			if (this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
@@ -62,21 +62,22 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 				if (!this.catching) {
 					// this is a throwing task: end the loop to go on end the process
 					// (for catching tasks, ending the loop will only be done for trigger or deactivation messages)
-					taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
+					taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 				}
 			}
 		} else {
 			message.setPayload(LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling));
 			taskAction.tell(message, this.getSelf());
-			
+
 			if (!this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
 				if (!this.catching) {
 					// this is a throwing task: end the loop to go on end the process
 					// (for catching tasks, ending the loop will only be done for trigger or deactivation messages)
-					taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
+					taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 				}
 			}
 		}
+
 	}
 
 	@Override
@@ -97,7 +98,7 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 			// else end loop and activate next nodes via the taskWrapper
 			} else {
 				LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
-				taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
+				taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 			}
 			
 		} else {
@@ -105,7 +106,7 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 			taskAction.tell(message, this.getSelf());
 			
 			if (!this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
-				taskWrapper.tell(new LoopEndMessage(message.getProcessInstanceId()), this.getSelf());
+				taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 			}
 		}
 	}
