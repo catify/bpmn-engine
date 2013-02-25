@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.catify.processengine.core.data.model.NodeInstaceStates;
@@ -45,6 +46,9 @@ public class NodeInstanceMediatorService {
 
 	static final Logger LOG = LoggerFactory
 			.getLogger(NodeInstanceMediatorService.class);
+	
+	@Autowired 
+	private Neo4jTemplate neo4jTemplate;
 
 	/** The flow node instance is cached to reduce the need for querying and act as a local cache. */
 	private FlowNodeInstance nodeInstance;
@@ -141,9 +145,8 @@ public class NodeInstanceMediatorService {
 
 	/**
 	 * Gets the state of a flow node instance.
-	 * 
-	 * @param instanceId
-	 *            the instance id
+	 *
+	 * @param processInstanceId the process instance id
 	 * @return the state
 	 */
 	public String getNodeInstanceState(String processInstanceId) {
@@ -310,9 +313,10 @@ public class NodeInstanceMediatorService {
 	 */
 	private boolean stateTransistionSanityCheck(String newState) {
 		if (this.nodeInstance.getNodeInstanceState().equals(newState)) {
-			LOG.info(String
-					.format("Cannot set node instance state. State of %s is already at %s",
+			LOG.warn(String
+					.format("Cannot set node instance state. State of %s (%s) is already at %s",
 							this.nodeInstance.getGraphId(),
+							neo4jTemplate.fetch(this.nodeInstance.getFlowNode()).getUniqueFlowNodeId(),
 							this.nodeInstance.getNodeInstanceState()));
 			return false;
 
@@ -325,17 +329,14 @@ public class NodeInstanceMediatorService {
 				return true;
 			} else if (newState.equals(NodeInstaceStates.DEACTIVATED_STATE)) {
 				LOG.debug(String
-						.format("State of %s was at %s and should be set to %s. Ignoring state change (this is expected behavior).",
+						.format("State of graphId %s (%s) was at %s and should be set to %s. Ignoring state change (this is expected behavior).",
 								this.nodeInstance.getGraphId(),
+								neo4jTemplate.fetch(this.nodeInstance.getFlowNode()).getUniqueFlowNodeId(),
 								this.nodeInstance.getNodeInstanceState(),
 								newState));
 				return false;
 			} else {
-				LOG.warn(String
-						.format("stateTransistionSanityCheck failed. State of %s was at %s and should be set to %s",
-								this.nodeInstance.getGraphId(),
-								this.nodeInstance.getNodeInstanceState(),
-								newState));
+				createSanityCheckFailedLog(newState);
 				return false;
 			}
 
@@ -347,41 +348,41 @@ public class NodeInstanceMediatorService {
 			} else if (newState.equals(NodeInstaceStates.DEACTIVATED_STATE)) {
 				return true;
 			} else {
-				LOG.warn(String
-						.format("stateTransistionSanityCheck failed. State of %s was at %s and should be set to %s",
-								this.nodeInstance.getGraphId(),
-								this.nodeInstance.getNodeInstanceState(),
-								newState));
+				createSanityCheckFailedLog(newState);
 				return false;
 			}
 
 			// transition from PASSED_STATE to newState
 		} else if (this.nodeInstance.getNodeInstanceState().equals(
 				NodeInstaceStates.PASSED_STATE)) {
-			LOG.warn(String
-					.format("stateTransistionSanityCheck failed. State of %s was at %s and should be set to %s",
-							this.nodeInstance.getGraphId(),
-							this.nodeInstance.getNodeInstanceState(), newState));
+			createSanityCheckFailedLog(newState);
 			return false;
 
 			// transition from DEACTIVATED_STATE to newState
 		} else if (this.nodeInstance.getNodeInstanceState().equals(
 				NodeInstaceStates.DEACTIVATED_STATE)) {
-			LOG.warn(String
-					.format("stateTransistionSanityCheck failed. State of %s was at %s and should be set to %s",
-							this.nodeInstance.getGraphId(),
-							this.nodeInstance.getNodeInstanceState(), newState));
+			createSanityCheckFailedLog(newState);
 			return false;
 
 			// unhandled transitions
 		} else {
-			LOG.warn(String
-					.format("stateTransistionSanityCheck failed. State of %s was at %s and should be set to %s",
-							this.nodeInstance.getGraphId(),
-							this.nodeInstance.getNodeInstanceState(), newState));
+			createSanityCheckFailedLog(newState);
 			return false;
 		}
 
+	}
+
+	/**
+	 * Creates a warn log if the sanity check failed.
+	 *
+	 * @param newState the new state
+	 */
+	private void createSanityCheckFailedLog(String newState) {
+		LOG.warn(String
+				.format("stateTransistionSanityCheck failed. State of graphId %s (%s) was at %s and should be set to %s",
+						this.nodeInstance.getGraphId(),
+						neo4jTemplate.fetch(this.nodeInstance.getFlowNode()).getUniqueFlowNodeId(),
+						this.nodeInstance.getNodeInstanceState(), newState));
 	}
 
 	/**
@@ -422,7 +423,7 @@ public class NodeInstanceMediatorService {
 
 	
 	/**
-	 * Checks if the node instance has been initialized.
+	 * Checks if the node instance has been initialized (is != null).
 	 *
 	 * @return true, if is initialized
 	 */

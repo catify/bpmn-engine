@@ -30,25 +30,25 @@ public class NonLoopStrategy extends LoopStrategy {
 	public void activate(ActivationMessage message) {
 		message.setPayload(LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling));
 				
-		taskAction.tell(message, taskWrapper);
+		this.sendMessageToNodeActor(message, this.taskAction);
 		
 		if (!catching) {
-			taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+			this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
 		}
 	}
 
 	@Override
 	public void deactivate(DeactivationMessage message) {
-		taskAction.tell(message, taskWrapper);
+		this.sendMessageToNodeActor(message, this.taskAction);
 	}
 
 	@Override
 	public void trigger(TriggerMessage message) {
 		LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
 		
-		taskAction.tell(message, taskWrapper);
+		this.sendMessageToNodeActor(message, this.taskAction);
 		
-		taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
 	}
 
 	@Override

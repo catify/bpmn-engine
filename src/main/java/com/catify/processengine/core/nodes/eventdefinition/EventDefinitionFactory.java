@@ -48,7 +48,6 @@ import com.catify.processengine.core.processdefinition.jaxb.TSendTask;
 import com.catify.processengine.core.processdefinition.jaxb.TServiceTask;
 import com.catify.processengine.core.processdefinition.jaxb.TSignalEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TStartEvent;
-import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TTask;
 import com.catify.processengine.core.processdefinition.jaxb.TTerminateEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TThrowEvent;
@@ -75,8 +74,7 @@ public class EventDefinitionFactory {
 	
 	public EventDefinition getEventDefinition(EventDefinitionParameter eventDefinitionParameter) {
 		// get the event definition (if any)
-		TEventDefinition eventDefinitionJaxb = getTEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb,
-				eventDefinitionParameter.subProcessesJaxb, eventDefinitionParameter.flowNodeJaxb);
+		TEventDefinition eventDefinitionJaxb = getTEventDefinition(eventDefinitionParameter.flowNodeJaxb);
 	
 		// if there is no event definition, create an EmptyEventDefinition actor
 		if (eventDefinitionJaxb == null) {
@@ -108,8 +106,7 @@ public class EventDefinitionFactory {
 				return createLinkEventDefinition(eventDefinitionParameter, (TLinkEventDefinition) eventDefinitionJaxb );
 			}
 			// return empty event definition for unimplemented event definitions
-			LOG.error(String.format("Unimplemented event definition %s found. Associated events will fail!", getTEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb,
-					eventDefinitionParameter.subProcessesJaxb, eventDefinitionParameter.flowNodeJaxb)));
+			LOG.error(String.format("Unimplemented event definition %s found. Associated events will fail!", getTEventDefinition(eventDefinitionParameter.flowNodeJaxb)));
 			return null;
 		}
 	}
@@ -412,9 +409,7 @@ public class EventDefinitionFactory {
 	 * @param flowNodeJaxb the jaxb flow node 
 	 * @return the jaxb event definition or null if none is found
 	 */
-	private TEventDefinition getTEventDefinition(String clientId,
-			TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb) {
+	public TEventDefinition getTEventDefinition(TFlowNode flowNodeJaxb) {
 		if (flowNodeJaxb instanceof TCatchEvent) {
 			if (((TCatchEvent) flowNodeJaxb).getEventDefinition().size() > 0) {
 				return ((TCatchEvent) flowNodeJaxb).getEventDefinition().get(0).getValue();

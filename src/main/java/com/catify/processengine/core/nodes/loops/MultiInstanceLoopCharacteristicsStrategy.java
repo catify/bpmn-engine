@@ -57,7 +57,7 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 		// true if loop should continue
 		if (!this.evaluateCompletionCondition(message.getProcessInstanceId())) {
 			
-			Object dataObject = LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling);
+			Object dataObject = LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), this.uniqueProcessId, this.dataObjectHandling);
 			
 			if (dataObject instanceof Collection<?>) {
 				Collection<?> collection = (Collection<?>) dataObject;
@@ -65,7 +65,7 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 				for (Object object : collection) {
 					// for each do something
 					message.setPayload(object);
-					taskAction.tell(message, this.getSelf());
+					this.sendMessageToNodeActor(message, this.taskAction);
 					i++;
 				}
 				// FIXME: provide implementation to save awaited message count in db
@@ -76,7 +76,7 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 		// else end loop and activate next nodes via the taskWrapper
 		} else {
 			if (this.catching) {
-				taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
 			}
 		}
 
@@ -84,7 +84,7 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 
 	@Override
 	public void deactivate(DeactivationMessage message) {
-		taskAction.tell(message, this.getSelf());
+		this.sendMessageToNodeActor(message, this.taskAction);
 	}
 
 	@Override
@@ -101,9 +101,7 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 				
 			}
 			
-			Object dataObject = LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling);
-			
-			
+			Object dataObject = LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), this.uniqueProcessId, this.dataObjectHandling);
 			
 			if (dataObject instanceof Collection) {
 				// create collection from data object
@@ -114,18 +112,18 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 			}
 			
 			// persist changes to the data object
-			LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
-			taskAction.tell(message, this.getSelf());
+			LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), this.uniqueProcessId, this.dataObjectHandling);
+			this.sendMessageToNodeActor(message, this.taskAction);
 			
 			// FIXME: check if this message is the last awaited message for this instance (and its loop)
 			// if so, trigger loop end in taskWrapper
 			if (loopCounter >= _awaitedMessageCount_) {
-				taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
 			}
 
 		// else end loop and activate next nodes via the taskWrapper
 		} else {
-			taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+			this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
 		}
 	}
 	

@@ -56,24 +56,24 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 			// true if loop should continue
 			if (this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
 				message.setPayload(LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling));
-				taskAction.tell(message, this.getSelf());
+				this.sendMessageToNodeActor(message, this.taskAction);
 			// else end loop and activate next nodes via the taskWrapper
 			} else {
 				if (!this.catching) {
 					// this is a throwing task: end the loop to go on end the process
 					// (for catching tasks, ending the loop will only be done for trigger or deactivation messages)
-					taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+					this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
 				}
 			}
 		} else {
 			message.setPayload(LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling));
-			taskAction.tell(message, this.getSelf());
+			this.sendMessageToNodeActor(message, this.taskAction);
 
 			if (!this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
 				if (!this.catching) {
 					// this is a throwing task: end the loop to go on end the process
 					// (for catching tasks, ending the loop will only be done for trigger or deactivation messages)
-					taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+					this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
 				}
 			}
 		}
@@ -82,7 +82,7 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 
 	@Override
 	public void deactivate(DeactivationMessage message) {
-		taskAction.tell(message, this.getSelf());
+		this.sendMessageToNodeActor(message, this.taskAction);
 	}
 
 	@Override
@@ -94,19 +94,19 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 			// true if loop should continue
 			if (this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
 				LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
-				taskAction.tell(message, this.getSelf());
+				this.sendMessageToNodeActor(message, this.taskAction);
 			// else end loop and activate next nodes via the taskWrapper
 			} else {
 				LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
-				taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
 			}
 			
 		} else {
 			LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
-			taskAction.tell(message, this.getSelf());
+			this.sendMessageToNodeActor(message, this.taskAction);
 			
 			if (!this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
-				taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
 			}
 		}
 	}

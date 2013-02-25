@@ -85,8 +85,8 @@ public class SubProcessNode extends Task {
 				message.getProcessInstanceId(), NodeInstaceStates.PASSED_STATE);
 		
 		this.getNodeInstanceMediatorService().persistChanges();
-
-		this.getSender().tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+		
+		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 	}
 
 	

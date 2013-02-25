@@ -1,5 +1,8 @@
 package com.catify.processengine.core.nodes.loops;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -10,6 +13,7 @@ import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.LoopMessage;
+import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.ActivityActionFactory;
 import com.catify.processengine.core.nodes.NodeParameter;
@@ -21,6 +25,8 @@ import com.catify.processengine.core.services.ActorReferenceService;
  * {@link TriggerMessage}).
  */
 public abstract class LoopStrategy extends UntypedActor {
+	
+	static final Logger LOG = LoggerFactory.getLogger(LoopStrategy.class);
 	
 	/** The task wrapper actor reference to the loop type strategy
 	 * which binds the {@link LoopType}) implementation. */
@@ -57,6 +63,9 @@ public abstract class LoopStrategy extends UntypedActor {
 	}
 	
 	public final void onReceive(Object message) {
+		LOG.debug(String.format("%s received %s", this.getSelf(), message
+				.getClass().getSimpleName()));
+		
 		if (message instanceof ActivationMessage) {
 			activate((ActivationMessage) message);
 		} else if (message instanceof TriggerMessage) {
@@ -120,7 +129,27 @@ public abstract class LoopStrategy extends UntypedActor {
 	 * @param message the message
 	 */
 	protected void loop(LoopMessage message) {
-		this.getSelf().tell(new ActivationMessage(message.getProcessInstanceId()), this.getSelf());
+		this.sendMessageToNodeActor(new ActivationMessage(message.getProcessInstanceId()), this.getSelf());
+	}
+	
+	/**
+	 * Send a message object to a node actor with getSelf()-sender.
+	 * 
+	 * @param message
+	 *            the message to send
+	 * @param targetNode
+	 *            the target nodes actor reference
+	 */
+	protected void sendMessageToNodeActor(Message message, ActorRef targetNode) {
+		if (targetNode != null) {
+			LOG.debug(String.format("Sending %s from %s to %s", message.getClass()
+					.getSimpleName(), this.getSelf().toString(), targetNode
+					.toString()));
+			
+			targetNode.tell(message, this.getSelf());
+		} else {
+			LOG.error(String.format("Target actor was NULL (sender: %s, message: %s)", this.getSender(), message));
+		}
 	}
 	
 }

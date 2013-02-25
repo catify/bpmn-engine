@@ -68,6 +68,7 @@ import com.catify.processengine.core.processdefinition.jaxb.TSequenceFlow;
 import com.catify.processengine.core.processdefinition.jaxb.TServiceTask;
 import com.catify.processengine.core.processdefinition.jaxb.TStartEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
+import com.catify.processengine.core.processdefinition.jaxb.TTerminateEventDefinition;
 import com.catify.processengine.core.services.ActorReferenceService;
 
 /**
@@ -299,17 +300,32 @@ public class NodeFactoryImpl implements NodeFactory {
 
 		TEndEvent endEventJaxb = (TEndEvent) flowNodeJaxb;
 		
+		boolean isTerminate = checkIfTerminateEvent(endEventJaxb);
+		
 		return new EndEventNode(
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 						endEventJaxb),
 				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
+				isTerminate,
 				this.getParentSubProcessActorReference(clientId, 
 						processJaxb, subProcessesJaxb, endEventJaxb, sequenceFlowsJaxb),
 				this.getDataObjectHandling(flowNodeJaxb),
 				this.getAllDataObjectIds(processJaxb, subProcessesJaxb));
 	}
 	
+	private boolean checkIfTerminateEvent(TEndEvent endEventJaxb) {
+		if (endEventJaxb.getEventDefinition().size() > 0) {
+			if (endEventJaxb.getEventDefinition().get(0).getValue() instanceof TTerminateEventDefinition) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * Gets all data object ids of a process (including sub process object ids).
 	 *
@@ -553,7 +569,7 @@ public class NodeFactoryImpl implements NodeFactory {
 		final String uniqueFlowNodeId = nodeParameter.getUniqueFlowNodeId();
 		
 		// create the loop strategy actor which itself creates the task action actor
-		ActorRef strategy = createLoopStrategy(flowNodeJaxb, nodeParameter, uniqueFlowNodeId);
+		ActorRef strategy = this.createLoopStrategy(flowNodeJaxb, nodeParameter, uniqueFlowNodeId);
 		
 		// return the LoopTaskWrapper which holds the LoopTypeStrategy
 		return new ActivityLoopWrapper(nodeParameter.getUniqueProcessId(), uniqueFlowNodeId, 

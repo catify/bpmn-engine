@@ -88,6 +88,6 @@ public class ReceiveTaskNode extends Task {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.getSender().tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 	}
 }

@@ -154,30 +154,26 @@ public abstract class FlowElement extends UntypedActor {
 	 * {@link NodeInstaceStates.ACTIVE_STATE} can not be altered afterwards.
 	 */
 	protected boolean isProcessableInstance(Message message) {
-		// if the node checked is an uninitialized (start) node, consider it processable (as it has no saved state yet)
-		if (!this.nodeInstanceMediatorService.isInitialized() || message.getProcessInstanceId()==null
+		// if the node checked is an uninitialized node, consider it processable (as it has no saved state yet)
+		if (!this.nodeInstanceMediatorService.isInitialized() || message.getProcessInstanceId() == null
 				// if this is a start event it might have been initialized, but has not created instances yet
-				|| this.nodeInstanceMediatorService.getNodeInstanceState(message.getProcessInstanceId())==null) {
+				|| this.nodeInstanceMediatorService.getNodeInstanceState(message.getProcessInstanceId()) == null) {
 				return true;
 			} 
 		else {
-			String nodeInstanceState = this.nodeInstanceMediatorService
-					.getNodeInstanceState(message.getProcessInstanceId());
+			String nodeInstanceState = this.nodeInstanceMediatorService.getNodeInstanceState(message.getProcessInstanceId());
 			
-			// if the node checked is in an inactive or active state consider it processable
-			if (nodeInstanceState.equals(NodeInstaceStates.INACTIVE_STATE)
-					|| nodeInstanceState.equals(NodeInstaceStates.ACTIVE_STATE)) {
+			if (nodeInstanceState.equals(NodeInstaceStates.INACTIVE_STATE) || nodeInstanceState.equals(NodeInstaceStates.ACTIVE_STATE)) {
 				return true;
 			} 
-			// if the node checked is in any other state (like deactivated or passed) but this is a DeactivationMessage or CommitMessage consider it done and print appropriate debug log.
+			
 			else if (message instanceof DeactivationMessage || message instanceof CommitMessage) {
-				LOG.debug(String
-						.format("Message received by already finished node instance. This is expected behaviour. (%s with instance id %s is already at state %s, not processing %s)",
-								this.getClass().getSimpleName(), message.getProcessInstanceId(),
-								nodeInstanceState, message.getClass().getSimpleName()));
+				LOG.debug(String.format("Message received by already finished node instance. " +
+						"This is expected behaviour. (%s with instance id %s is already at state %s, not processing %s)",
+								this.getClass().getSimpleName(), message.getProcessInstanceId(), nodeInstanceState, message.getClass().getSimpleName()));
 				return false;
 			}
-			// if the node checked is in any other state (like deactivated or passed) consider it done.
+			
 			else {
 				LOG.debug(String
 						.format("isActiveInstance-sanity-check failed: %s with instance id %s is already at state %s, not processing %s",

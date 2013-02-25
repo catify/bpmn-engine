@@ -135,7 +135,6 @@ public class IntegrationTests extends IntegrationTestBase {
 	    checkNodeInstance(process, "subProcess1", NodeInstaceStates.DEACTIVATED_STATE);
 	    checkNodeInstance(process, "endEvent1", NodeInstaceStates.INACTIVE_STATE);
 	    
-	    // checking of sub process nodes still needs to be implemented yet
 	    checkNodeInstance(process, "subSubProcess1", NodeInstaceStates.DEACTIVATED_STATE);
 	}
 	
@@ -151,7 +150,6 @@ public class IntegrationTests extends IntegrationTestBase {
 	    checkNodeInstance(process, "subProcess1", NodeInstaceStates.DEACTIVATED_STATE);
 	    checkNodeInstance(process, "endEvent1", NodeInstaceStates.INACTIVE_STATE);
 	    
-	    // checking of sub process nodes still needs to be implemented yet
 	    checkNodeInstance(process, "subThrowEvent1", NodeInstaceStates.PASSED_STATE);
 	}
 

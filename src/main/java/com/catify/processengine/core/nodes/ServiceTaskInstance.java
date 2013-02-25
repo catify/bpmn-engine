@@ -80,7 +80,7 @@ public class ServiceTaskInstance extends Task {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.taskWrapper.tell(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
 		
 		// stop this instance node
 		this.getContext().stop(this.getSelf());

@@ -38,19 +38,19 @@ public class ActivityLoopWrapper extends Activity {
 	@Override
 	protected void activate(ActivationMessage message) {
 		this.activateBoundaryEvents(message);
-		loopStrategy.tell(message, getSelf());
+		this.sendMessageToNodeActor(message, this.loopStrategy);
 	}
 	
 	@Override
 	protected void deactivate(DeactivationMessage message) {
 		this.deactivateBoundaryEvents(message);
-		loopStrategy.tell(message, getSelf());
+		this.sendMessageToNodeActor(message, this.loopStrategy);
 	}
 	
 	@Override
 	protected void trigger(TriggerMessage message) {
 		this.deactivateBoundaryEvents(message);
-		loopStrategy.tell(message, getSelf());
+		this.sendMessageToNodeActor(message, this.loopStrategy);
 	}
 	
 	@Override

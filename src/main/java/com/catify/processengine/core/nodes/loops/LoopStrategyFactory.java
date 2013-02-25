@@ -12,6 +12,7 @@ import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TMultiInstanceLoopCharacteristics;
 import com.catify.processengine.core.processdefinition.jaxb.TReceiveTask;
 import com.catify.processengine.core.processdefinition.jaxb.TStandardLoopCharacteristics;
+import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TTask;
 
 /**
@@ -57,7 +58,7 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 				taskWrapper, 
 				nodeParameter,
 				getDataObjectHandling(nodeParameter.flowNodeJaxb),
-				checkCatching(nodeParameter.flowNodeJaxb));
+				this.checkCatching(nodeParameter.flowNodeJaxb));
 	}
 	
 	private LoopStrategy getStandardLoopCharacteristicsStrategy(
@@ -74,7 +75,7 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 				loopCharacteristics.getLoopMaximum(), 
 				loopCharacteristics.getLoopCondition().getContent().get(0).toString(), 
 				super.getAllDataObjectIds(nodeParameter.processJaxb, nodeParameter.subProcessesJaxb),
-				checkCatching(nodeParameter.flowNodeJaxb));
+				this.checkCatching(nodeParameter.flowNodeJaxb));
 	}
 	
 	private LoopStrategy getMultiInstanceLoopCharacteristicsStrategy(
@@ -91,7 +92,7 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 				loopCharacteristics.getLoopCardinality().getContent().get(0).toString(),
 				loopCharacteristics.getCompletionCondition().getContent().get(0).toString(), 
 				super.getAllDataObjectIds(nodeParameter.processJaxb, nodeParameter.subProcessesJaxb),
-				checkCatching(nodeParameter.flowNodeJaxb));
+				this.checkCatching(nodeParameter.flowNodeJaxb));
 	}
 
 	/**
@@ -101,7 +102,7 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 	 * @return true, if task action is catching
 	 */
 	private boolean checkCatching(TFlowNode flowNodeJaxb) {
-		if (flowNodeJaxb instanceof TReceiveTask) {
+		if (flowNodeJaxb instanceof TReceiveTask || flowNodeJaxb instanceof TSubProcess) {
 			return true;
 		} else {
 			return false;
