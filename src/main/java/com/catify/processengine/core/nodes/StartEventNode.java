@@ -100,14 +100,26 @@ public class StartEventNode extends CatchEvent {
 
 	@Override
 	protected void activate(ActivationMessage message) {
-		this.getNodeInstanceMediatorService().setState(
-				message.getProcessInstanceId(), NodeInstaceStates.ACTIVE_STATE);
 		
-		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
+		String instanceId = message.getProcessInstanceId();
 		
-		this.getNodeInstanceMediatorService().persistChanges();
-		
-		this.callEventDefinitionActor(message);
+		if (instanceId != null && this.getNodeInstanceMediatorService().getNodeInstanceState(instanceId).equals(NodeInstaceStates.PASSED_STATE)) {
+			LOG.debug("Start Event received Activiation Message. Assuming loop.");
+			this.sendMessageToNodeActor(new TriggerMessage(instanceId, null), this.getSelf());
+		} else {
+			LOG.debug("Inactive Start Event received Activiation Message. Assuming parallel run.");
+			this.getNodeInstanceMediatorService().setState(
+					instanceId, NodeInstaceStates.PASSED_STATE);
+			
+			this.getNodeInstanceMediatorService().setNodeInstanceStartTime(instanceId, new Date());
+			
+			this.getNodeInstanceMediatorService().persistChanges();
+			
+			this.callEventDefinitionActor(message);
+			
+			this.sendMessageToNodeActors(new ActivationMessage(instanceId),
+					this.getOutgoingNodes());
+		}
 	}
 
 	@Override
@@ -142,7 +154,7 @@ public class StartEventNode extends CatchEvent {
 		} 
 		// or create a sub process instance on the current level
 		else {
-			processInstanceMediatorService.createSubProcessInstance(this.getParentsUniqueFlowNodeId(), processInstanceId);
+			processInstanceMediatorService.createSubProcessInstance(this.getUniqueProcessId(), this.getParentsUniqueFlowNodeId(), processInstanceId);
 		}
 
 		// the default activation of other top level start nodes has been deactivated (see redmine #109)

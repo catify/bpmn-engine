@@ -96,7 +96,8 @@ public abstract class FlowElement extends UntypedActor {
 				.getClass().getSimpleName()));
 		
 		if (this.isProcessableInstance((Message) message)) {
-			if (message instanceof ActivationMessage) {
+			if (message instanceof ActivationMessage) {		
+				this.handleLoopCount((Message) message);			
 				activate((ActivationMessage) message);
 			} else if (message instanceof TriggerMessage) {
 				trigger((TriggerMessage) message);
@@ -112,6 +113,19 @@ public abstract class FlowElement extends UntypedActor {
 				// commit message for already passed nodes (which do not need deactivation)
 				new NodeUtils().replySuccessfulCommit(((DeactivationMessage) message).getProcessInstanceId(), this.getSelf(), this.getSender());
 			}
+		}
+	}
+
+	/**
+	 * Handles the loop count of a flow node instance (fni). Will increase the loop count, if a fni is in passed state.
+	 *
+	 * @param message the message
+	 */
+	private void handleLoopCount(Message message) {
+		String processInstanceId = message.getProcessInstanceId();
+		if (nodeInstanceMediatorService.getNodeInstanceState(processInstanceId).equals(NodeInstaceStates.PASSED_STATE)) {
+			int loopCount = nodeInstanceMediatorService.getLoopCount(processInstanceId);
+			nodeInstanceMediatorService.setLoopCount(processInstanceId, ++loopCount);
 		}
 	}
 	
@@ -172,6 +186,11 @@ public abstract class FlowElement extends UntypedActor {
 						"This is expected behaviour. (%s with instance id %s is already at state %s, not processing %s)",
 								this.getClass().getSimpleName(), message.getProcessInstanceId(), nodeInstanceState, message.getClass().getSimpleName()));
 				return false;
+			}
+			
+			else if (message instanceof ActivationMessage && nodeInstanceState.equals(NodeInstaceStates.PASSED_STATE)) {
+				LOG.debug(String.format("%s received by %s node instance. This seems to be a loop.", message, nodeInstanceState));
+				return true;
 			}
 			
 			else {

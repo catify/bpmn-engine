@@ -63,6 +63,7 @@ public class IntegrationTests extends IntegrationTestBase {
 	public void testprocessThrow() throws IOException, JAXBException, InterruptedException {
 		TProcess process = simpleProcessTest("testprocess_throw.bpmn", 3000, 5000, 6, 3);
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
+	    Assert.assertEquals(0, super.getFlowNodeInstance(process, startEvent).getLoopCount());
 	}
 	
 	@Test
@@ -98,8 +99,8 @@ public class IntegrationTests extends IntegrationTestBase {
 		TProcess process = simpleProcessTest("testprocess_exclusive_gateway.bpmn", 3000, 5000, 20, 10);		
 		assertEquals(4, countFlowNodeInstanceWithState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
 		// check nodes
-		checkNodeInstance(process, "_17", NodeInstaceStates.PASSED_STATE);
-		checkNodeInstance(process, "_18", NodeInstaceStates.PASSED_STATE);
+		assertNodeInstanceState(process, "_17", NodeInstaceStates.PASSED_STATE);
+		assertNodeInstanceState(process, "_18", NodeInstaceStates.PASSED_STATE);
 	}
 	
 	@Test
@@ -107,8 +108,8 @@ public class IntegrationTests extends IntegrationTestBase {
 		TProcess process = simpleProcessTest("testprocess_exclusive_gateway_default.bpmn", 3000, 5000, 20, 10);		
 		assertEquals(4, countFlowNodeInstanceWithState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
 		// check nodes
-		checkNodeInstance(process, "_13", NodeInstaceStates.PASSED_STATE);
-		checkNodeInstance(process, "_15", NodeInstaceStates.PASSED_STATE);
+		assertNodeInstanceState(process, "_13", NodeInstaceStates.PASSED_STATE);
+		assertNodeInstanceState(process, "_15", NodeInstaceStates.PASSED_STATE);
 	}
 	
 	@Test
@@ -131,11 +132,11 @@ public class IntegrationTests extends IntegrationTestBase {
 		
 	    Assert.assertFalse(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
 	    
-	    checkNodeInstance(process, "startEvent1", NodeInstaceStates.PASSED_STATE);
-	    checkNodeInstance(process, "subProcess1", NodeInstaceStates.DEACTIVATED_STATE);
-	    checkNodeInstance(process, "endEvent1", NodeInstaceStates.INACTIVE_STATE);
+	    assertNodeInstanceState(process, "startEvent1", NodeInstaceStates.PASSED_STATE);
+	    assertNodeInstanceState(process, "subProcess1", NodeInstaceStates.DEACTIVATED_STATE);
+	    assertNodeInstanceState(process, "endEvent1", NodeInstaceStates.INACTIVE_STATE);
 	    
-	    checkNodeInstance(process, "subSubProcess1", NodeInstaceStates.DEACTIVATED_STATE);
+	    assertNodeInstanceState(process, "subSubProcess1", NodeInstaceStates.DEACTIVATED_STATE);
 	}
 	
 	@Test
@@ -146,11 +147,11 @@ public class IntegrationTests extends IntegrationTestBase {
 		
 	    Assert.assertFalse(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
 	    
-	    checkNodeInstance(process, "startEvent1", NodeInstaceStates.PASSED_STATE);
-	    checkNodeInstance(process, "subProcess1", NodeInstaceStates.DEACTIVATED_STATE);
-	    checkNodeInstance(process, "endEvent1", NodeInstaceStates.INACTIVE_STATE);
+	    assertNodeInstanceState(process, "startEvent1", NodeInstaceStates.PASSED_STATE);
+	    assertNodeInstanceState(process, "subProcess1", NodeInstaceStates.DEACTIVATED_STATE);
+	    assertNodeInstanceState(process, "endEvent1", NodeInstaceStates.INACTIVE_STATE);
 	    
-	    checkNodeInstance(process, "subThrowEvent1", NodeInstaceStates.PASSED_STATE);
+	    assertNodeInstanceState(process, "subThrowEvent1", NodeInstaceStates.PASSED_STATE);
 	}
 
 	@Test

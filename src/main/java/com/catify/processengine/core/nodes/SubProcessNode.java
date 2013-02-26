@@ -54,11 +54,11 @@ public class SubProcessNode extends Task {
 		this.getNodeInstanceMediatorService().setState(
 				message.getProcessInstanceId(), NodeInstaceStates.ACTIVE_STATE);
 		
-		this.activateBoundaryEvents(message);
-		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		
 		this.getNodeInstanceMediatorService().persistChanges();
+		
+		this.activateBoundaryEvents(message);
 		
 		// start the sub process
 		this.sendMessageToNodeActors(new TriggerMessage(message.getProcessInstanceId(), null), getStartNodes());

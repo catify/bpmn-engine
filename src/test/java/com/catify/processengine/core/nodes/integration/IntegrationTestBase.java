@@ -318,13 +318,25 @@ public class IntegrationTestBase {
 	 * @param id the id of the flow node to check
 	 * @param state the desired state
 	 */
-	protected void checkNodeInstance(TProcess process, String id, String state) {
+	protected void assertNodeInstanceState(TProcess process, String id, String state) {
+		FlowNodeInstance nodeInstance = getFlowNodeInstance(process, id);
+		assertEquals(state, nodeInstance.getNodeInstanceState());
+	}
+	
+	/**
+	 * Gets the flow node instance with a given (bpmn) id.
+	 *
+	 * @param process the jaxb process
+	 * @param id the id defined in the bpmn process
+	 * @return the flow node instance
+	 */
+	protected FlowNodeInstance getFlowNodeInstance(TProcess process, String id) {
 		ArrayList<TSubProcess> subProcessJaxb = IdService.getTSubprocessesById(process, id);
 		String flowNodeId = IdService.getUniqueFlowNodeId(client, process, subProcessJaxb, id); // default throw
 		String processId = IdService.getUniqueProcessId(client, process);
-		FlowNodeInstance nodeInstance = flowNodeInstanceRepo.findFlowNodeInstance(processId, flowNodeId, defaultInstanceId);
+		FlowNodeInstance nodeInstance = flowNodeInstanceRepo.findFlowNodeInstance(processId, flowNodeId, defaultInstanceId, 0);
 		assertNotNull(nodeInstance);
-		assertEquals(state, nodeInstance.getNodeInstanceState());
+		return nodeInstance;
 	}
 
 }

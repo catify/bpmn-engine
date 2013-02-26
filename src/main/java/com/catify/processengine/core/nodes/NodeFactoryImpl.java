@@ -682,7 +682,7 @@ public class NodeFactoryImpl implements NodeFactory {
 		}
 		
 		if (flowNodesJaxb.size() == 0) {
-			LOG.error("The node id " + activityNodeId + " could not be found!");
+			LOG.debug("There are no boundary events for node id " + activityNodeId);
 			return null;
 		} else {
 			return flowNodesJaxb;

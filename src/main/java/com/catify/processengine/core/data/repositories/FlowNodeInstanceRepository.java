@@ -46,9 +46,9 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 *            the process instance id
 	 * @return the flow node instance
 	 */
-	@Query("start flownode=node({0}) match flownode-[r:HAS_INSTANCE]->flownodeinstance where r.instanceId = {1} return flownodeinstance")
+	@Query("start flownode=node({0}) match flownode-[r:HAS_INSTANCE]->flownodeinstance where r.processInstanceId = {1} and flownodeinstance.loopCount = {2} return flownodeinstance")
 	FlowNodeInstance findFlowNodeInstance(Long flowNodeGraphId,
-			String processInstanceId);
+			String processInstanceId, int loopCount);
 
 	/**
 	 * Find a flow node instance (starting from a given process). 
@@ -61,8 +61,22 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 *            the process instance id
 	 * @return the flow node instance
 	 */
-	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where flownode.uniqueFlowNodeId = {1} and r2.instanceId = {2} return flownodeinstance")
-	FlowNodeInstance findFlowNodeInstance(String uniqueProcessId, String uniqueFlowNodeId, String processInstanceId);
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where flownode.uniqueFlowNodeId = {1} and r2.processInstanceId = {2} and flownodeinstance.loopCount = {3} return flownodeinstance")
+	FlowNodeInstance findFlowNodeInstance(String uniqueProcessId, String uniqueFlowNodeId, String processInstanceId, int loopCount);
+	
+	/**
+	 * Find a flow node instance (starting from a given process). 
+	 * 
+	 * @param uniqueProcessId
+	 *            the unique process id
+	 * @param uniqueFlowNodeId
+	 *            the node id
+	 * @param processInstanceId
+	 *            the process instance id
+	 * @return the flow node instance
+	 */
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where flownode.uniqueFlowNodeId = {1} and r2.processInstanceId = {2} return MAX(flownodeinstance.loopCount)")
+	Integer getFlowNodeInstanceMaxLoopCount(String uniqueProcessId, String uniqueFlowNodeId, String processInstanceId);
 
 	/**
 	 * Find flow node instances (starting at a list of flow nodes). Can be used if the flow nodes of the instances searched are already known.
@@ -73,7 +87,7 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 *            the process instance id
 	 * @return the set of flow node instances
 	 */
-	@Query("start flownode=node({0}) match flownode-[r:HAS_INSTANCE]->flownodeinstance where r.instanceId = {1} return flownodeinstance")
+	@Query("start flownode=node({0}) match flownode-[r:HAS_INSTANCE]->flownodeinstance where r.processInstanceId = {1} return flownodeinstance")
 	Set<FlowNodeInstance> findFlowNodeInstances(Set<Long> targetNodes, String instanceId);
 	
 	/**
@@ -83,7 +97,7 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 * @param processInstanceId the process instance id
 	 * @return the set of flow node instances
 	 */
-	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance return r2.instanceId")
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance return r2.processInstanceId")
 	Set<String> findAllFlowNodeInstances(String uniqueProcessId);
 	
 	/**
@@ -93,7 +107,7 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 * @param processInstanceId the process instance id
 	 * @return the set of flow node instances
 	 */
-	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where r2.instanceId = {1} return flownodeinstance")
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where r2.processInstanceId = {1} return flownodeinstance")
 	Set<FlowNodeInstance> findAllFlowNodeInstances(String uniqueProcessId, String processInstanceId);
 	
 	/**
@@ -104,7 +118,7 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 * @param state the flow node instance state
 	 * @return the set of flow node instance ids at the given state of that node
 	 */
-	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where flownode.uniqueFlowNodeId = {1} and flownodeinstance.nodeInstanceState = {2} return r2.instanceId")
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where flownode.uniqueFlowNodeId = {1} and flownodeinstance.nodeInstanceState = {2} return r2.processInstanceId")
 	Set<String> findAllFlowNodeInstancesAtState(String uniqueProcessId, String uniqueFlowNodeId, String state);
 	
 	/**
@@ -114,7 +128,7 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 * @param processInstanceId the process instance id
 	 * @return the set of flow node instances
 	 */
-	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where r2.instanceId = {1} return flownodeinstance, flownode.uniqueFlowNodeId")
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance where r2.processInstanceId = {1} return flownodeinstance, flownode.uniqueFlowNodeId")
 	Iterable<Map<String,Object>> findAllFlowNodeInstancesAndFlowNodeIds(String uniqueProcessId, String processInstanceId);
 	
 	/**
@@ -123,7 +137,7 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 * @param uniqueProcessId the unique process id
 	 * @param processInstanceId the process instance id
 	 */
-	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match ()-[rOtherPi]-processinstance<-[rPi:HAS_PROCESS_INSTANCE]-process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance-[rOther]-() where r2.instanceId = {1} and processinstance.instanceId = {1} DELETE r2, rOther, flownodeinstance, rPi, rOtherPi, processinstance")
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match ()-[rOtherPi]-processinstance<-[rPi:HAS_PROCESS_INSTANCE]-process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance-[rOther]-() where r2.processInstanceId = {1} and processinstance.processInstanceId = {1} DELETE r2, rOther, flownodeinstance, rPi, rOtherPi, processinstance")
 	void deleteAllInstanceNodes(String uniqueProcessId, String processInstanceId);
 	
 	/**
@@ -132,7 +146,7 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 * @param uniqueProcessId the unique process id
 	 * @param processInstanceId the process instance id
 	 */
-	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance-[rOther]-() where r2.instanceId = {1} DELETE r2, rOther, flownodeinstance")
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[r1:HAS*1..1000]->flownode-[r2:HAS_INSTANCE]->flownodeinstance-[rOther]-() where r2.processInstanceId = {1} DELETE r2, rOther, flownodeinstance")
 	void deleteAllFlowNodeInstanceNodes(String uniqueProcessId, String processInstanceId);
 	
 	/**
@@ -141,7 +155,7 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 * @param uniqueProcessId the unique process id
 	 * @param processInstanceId the process instance id
 	 */
-	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[rPi:HAS_PROCESS_INSTANCE]->processinstance-[rOther]-() where processinstance.instanceId = {1} DELETE rPi, rOther, processinstance")
+	@Query("start process=node:ProcessNode(uniqueProcessId={0}) match process-[rPi:HAS_PROCESS_INSTANCE]->processinstance-[rOther]-() where processinstance.processInstanceId = {1} DELETE rPi, rOther, processinstance")
 	void deleteAllProcessInstanceNodes(String uniqueProcessId, String processInstanceId);
 	
 	/**
@@ -153,7 +167,7 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	 * @param state the state
 	 * @return the set of flow node instances
 	 */
-	@Query("start currentNode=node:FlowNode(uniqueFlowNodeId={0}) match currentNode<-[r1:HAS]-parentFlowNode-[r2:HAS]->childFlowNode-[r3:HAS_INSTANCE]->flownodeinstance where r3.instanceId = {1} and flownodeinstance.nodeInstanceState = {2} return flownodeinstance")
+	@Query("start currentNode=node:FlowNode(uniqueFlowNodeId={0}) match currentNode<-[r1:HAS]-parentFlowNode-[r2:HAS]->childFlowNode-[r3:HAS_INSTANCE]->flownodeinstance where r3.processInstanceId = {1} and flownodeinstance.nodeInstanceState = {2} return flownodeinstance")
 	Set<FlowNodeInstance> findFlowNodeInstancesAtCurrentLevelByState(String uniqueFlowNodeId, String instanceId, String state);
 	
 	/**
@@ -181,7 +195,7 @@ public interface FlowNodeInstanceRepository extends GraphRepository<FlowNodeInst
 	// prepared archive query, when cypher is able to add new properties to the index
 	
 //	@Query("START process=node:ProcessNode(uniqueProcessId={0}) MATCH process-[r1:HAS*1..1000]->flownode " +
-//	"WITH flownode MATCH path = (flownode-[r2:HAS_INSTANCE]->flownodeinstance) WHERE r2.instanceId = {1} " +
+//	"WITH flownode MATCH path = (flownode-[r2:HAS_INSTANCE]->flownodeinstance) WHERE r2.processInstanceId = {1} " +
 //	"WITH path CREATE a-[r:RELTYPE]->b")
 //Set<FlowNodeInstance> archiveAllFlowNodeInstanceNodes(String uniqueProcessId, String processInstanceId, String uniqueProcessIdArchived);
 }

@@ -113,10 +113,16 @@ public class ProcessInstanceMediatorService {
 
 		Set<FlowNode> flowNodes = neo4jTemplate.fetch(this.process.getFlowNodes());
 		
-		createFlowNodeInstances(processInstanceId, flowNodes);
+		// get current loop count of this start event node increase it to start the next one
+		int loopCount = getLoopCount(uniqueProcessId, flowNodes, processInstanceId);
 		
-		createProcessInstanceNode(uniqueProcessId, processInstanceId, this.process, flowNodes);
+		createFlowNodeInstances(processInstanceId, flowNodes, loopCount);
 		
+		// we only need the first process instance node
+		if (loopCount == 0) {
+			createProcessInstanceNode(uniqueProcessId, processInstanceId, this.process, flowNodes, loopCount);
+		}
+
 		LOG.debug(String.format(
 				"Finished instantiating process %s with instanceId %s",
 				processInstanceId, processInstanceId));
@@ -129,17 +135,20 @@ public class ProcessInstanceMediatorService {
 	 * @param processInstanceId the process instance id
 	 */
 	@Transactional
-	public void createSubProcessInstance(String parentUniqueFlowNodeId, String processInstanceId) {
+	public void createSubProcessInstance(String uniqueProcessId, String parentUniqueFlowNodeId, String processInstanceId) {
 		
-		FlowNode subProcessFlowNode = flowNodeRepositoryService.findByUniqueFlowNodeId(parentUniqueFlowNodeId);
+		FlowNode embeddingSubProcess = flowNodeRepositoryService.findByUniqueFlowNodeId(parentUniqueFlowNodeId);
 		
 		LOG.debug(String.format(
-				"Starting to instantiate sub-process %s with instanceId %s",
-				subProcessFlowNode.getName(), processInstanceId));
+				"Starting to instantiate sub-process (graphId: %s, name: %s) with instanceId %s", embeddingSubProcess.getGraphId(),
+				embeddingSubProcess.getName(), processInstanceId));
 
-		Set<FlowNode> flowNodes = neo4jTemplate.fetch(subProcessFlowNode.getSubProcessNodes());
+		Set<FlowNode> flowNodes = neo4jTemplate.fetch(embeddingSubProcess.getSubProcessNodes());
+
+		// get current loop count of this start event node increase it to start the next one
+		int loopCount = getLoopCount(uniqueProcessId, flowNodes, processInstanceId);
 		
-		createFlowNodeInstances(processInstanceId, flowNodes);
+		createFlowNodeInstances(processInstanceId, flowNodes, loopCount);
 		
 		LOG.debug(String.format(
 				"Finished instantiating process %s with instanceId %s",
@@ -158,7 +167,7 @@ public class ProcessInstanceMediatorService {
 	 */
 	private ProcessInstanceNode createProcessInstanceNode(
 			String uniqueProcessId, String processInstanceId,
-			ProcessNode process, Set<FlowNode> flowNodes) {
+			ProcessNode process, Set<FlowNode> flowNodes, int loopCount) {
 		// create a process instance node
 		ProcessInstanceNode processInstanceNode =  new ProcessInstanceNode(process,
 				processInstanceId, new Date());
@@ -168,7 +177,7 @@ public class ProcessInstanceMediatorService {
 		for (FlowNode flowNode : flowNodes) {
 			if (flowNode.getNodeType().equals(TStartEvent.class.toString())) {
 				FlowNodeInstance startNodeInstance = flowNodeInstanceRepositoryService
-				.findFlowNodeInstance(uniqueProcessId, flowNode.getUniqueFlowNodeId(), processInstanceId);
+				.findFlowNodeInstance(uniqueProcessId, flowNode.getUniqueFlowNodeId(), processInstanceId, loopCount);
 				processInstanceNode.addRelationshipToStartEventInstance(startNodeInstance);
 			}
 		}
@@ -185,7 +194,7 @@ public class ProcessInstanceMediatorService {
 	 * @param flowNodes the flow nodes
 	 * @return the sets the
 	 */
-	private Collection<FlowNodeInstance> createFlowNodeInstances(String processInstanceId, Set<FlowNode> flowNodes) {
+	private Collection<FlowNodeInstance> createFlowNodeInstances(String processInstanceId, Set<FlowNode> flowNodes, int loopCount) {
 		
 		Map<FlowNode, FlowNodeInstance> flowNodeInstances = new HashMap<FlowNode, FlowNodeInstance>();
 		
@@ -213,11 +222,11 @@ public class ProcessInstanceMediatorService {
 			
 			// mirror the flow node relationships to the flow node instances
 			for (FlowNode followingFlowNode : neo4jTemplate.fetch(flowNode.getFollowingFlowNodes())) {
-
+				
 				// (TODO: evaluate if a query beginning at the process might be faster)
 				FlowNodeInstance followingFlowNodeInstance = flowNodeInstanceRepositoryService
 						.findFlowNodeInstance(followingFlowNode.getGraphId(),
-								processInstanceId);
+								processInstanceId, loopCount);
 
 				flowNodeInstance.addFollowingInstance(followingFlowNodeInstance);
 
@@ -238,8 +247,8 @@ public class ProcessInstanceMediatorService {
 	 */
 	public Set<String> getPreviousLoosingNodeIds(String uniqueProcessId,
 			String uniqueFlowNodeId, String processInstanceId) {
-
-		return flowNodeInstanceRepositoryService.findLoosingFlowNodeIds(uniqueProcessId, uniqueFlowNodeId, processInstanceId);
+		int loopCount = getLoopCount(uniqueProcessId, uniqueFlowNodeId, processInstanceId);
+		return flowNodeInstanceRepositoryService.findLoosingFlowNodeIds(uniqueProcessId, uniqueFlowNodeId, processInstanceId, loopCount);
 	}
 
 	/**
@@ -360,5 +369,33 @@ public class ProcessInstanceMediatorService {
 	public Set<FlowNodeInstance> findActiveFlowNodeInstances(String uniqueFlowNodeId,
 			String processInstanceId) {
 		return flowNodeInstanceRepositoryService.findFlowNodeInstancesAtCurrentLevelByState(uniqueFlowNodeId, processInstanceId, NodeInstaceStates.ACTIVE_STATE);
+	}
+	
+	/**
+	 * Gets the loop count a process instance.
+	 *
+	 * @param uniqueProcessId the unique process id
+	 * @param flowNodes the flow nodes of the process
+	 * @param processInstanceId the process instance id
+	 * @return the loop count
+	 */
+	private int getLoopCount(String uniqueProcessId, Set<FlowNode> flowNodes, String processInstanceId) {
+		// get current loop count of this start event node increase it to start the next one
+		int loopCount = flowNodeInstanceRepositoryService.getFlowNodeInstanceMaxLoopCount(uniqueProcessId, flowNodes.iterator().next().getUniqueFlowNodeId(), processInstanceId);
+		return loopCount;
+	}
+	
+	/**
+	 * Gets the loop count a process instance.
+	 *
+	 * @param uniqueProcessId the unique process id
+	 * @param uniqueFlowNodeId the unique flow node id
+	 * @param processInstanceId the process instance id
+	 * @return the loop count
+	 */
+	private int getLoopCount(String uniqueProcessId, String uniqueFlowNodeId, String processInstanceId) {
+		// get current loop count of this start event node increase it to start the next one
+		int loopCount = flowNodeInstanceRepositoryService.getFlowNodeInstanceMaxLoopCount(uniqueProcessId, uniqueFlowNodeId, processInstanceId);
+		return loopCount;
 	}
 }

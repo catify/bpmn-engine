@@ -58,6 +58,9 @@ public class NodeInstanceMediatorService {
 	
 	/** The unique flow node id. */
 	private String uniqueFlowNodeId;
+	
+	/** The loop count of the current flow node instance. */
+	private int loopCount;
 
 	@Autowired
 	private FlowNodeInstanceRepositoryService flowNodeInstanceRepositoryService;
@@ -107,22 +110,24 @@ public class NodeInstanceMediatorService {
 	 */
 	private FlowNodeInstance loadFlowNodeInstance(String uniqueProcessId,
 			String uniqueFlowNodeId, String processInstanceId) {
-		// check if nodeInstance has already been loaded (eg. by another
-		// operation) to avoid unnecessary db lookups
-		if (this.nodeInstance == null
-				|| !this.nodeInstance.getHasInstanceRelationship()
-						.getInstanceId().equals(processInstanceId)) {
+		// check if nodeInstance has already been loaded (eg. by another operation) to avoid unnecessary db lookups
+		if (this.nodeInstance == null || 
+				! ( (this.nodeInstance.getHasInstanceRelationship().getProcessInstanceId().equals(processInstanceId))
+						&& this.nodeInstance.getLoopCount() == this.loopCount)) {
+
+		// we need to get the latest/current flow node instance
+		this.loopCount = flowNodeInstanceRepositoryService.getFlowNodeInstanceMaxLoopCount(uniqueProcessId, uniqueFlowNodeId, processInstanceId);
 			
-			FlowNodeInstance flowNodeInstance = flowNodeInstanceRepositoryService.findFlowNodeInstance(
-					uniqueProcessId, uniqueFlowNodeId, processInstanceId);
-			
-			LOG.debug(String.format(
-					"Searching FlowNodeInstance in db with parameters: %s, %s, %s. Found: %s",
-					uniqueProcessId, uniqueFlowNodeId, processInstanceId,
-					flowNodeInstance));
-			
-			return flowNodeInstance;
-		} else {
+		FlowNodeInstance flowNodeInstance = flowNodeInstanceRepositoryService.findFlowNodeInstance(
+				uniqueProcessId, uniqueFlowNodeId, processInstanceId, this.loopCount);
+		
+		LOG.debug(String.format(
+				"Searching FlowNodeInstance in db with parameters: %s, %s, %s. Found: %s",
+				uniqueProcessId, uniqueFlowNodeId, processInstanceId,
+				flowNodeInstance));
+		
+		return flowNodeInstance;
+		} else { // we are still in the same node instance
 			return this.nodeInstance;
 		}
 	}
@@ -156,6 +161,38 @@ public class NodeInstanceMediatorService {
 			return null;
 		} else {
 			return this.nodeInstance.getNodeInstanceState();
+		}
+	}
+	
+	/**
+	 * Gets the (current maximum) loop count of a node instance.
+	 *
+	 * @param processInstanceId the process instance id
+	 * @return the loop count or 0 if the nodeInstance is NULL
+	 */
+	public int getLoopCount(String processInstanceId) {
+		this.nodeInstance = getNodeInstance(processInstanceId);
+
+		if (this.nodeInstance == null) {
+			return 0;
+		} else {
+			return this.nodeInstance.getLoopCount();
+		} 
+	}
+	
+	/**
+	 * Set the loop count of a node instance.
+	 *
+	 * @param processInstanceId the process instance id
+	 * @return the loop count
+	 */
+	public void setLoopCount(String processInstanceId, int loopCount) {
+		this.nodeInstance = getNodeInstance(processInstanceId);
+
+		if (this.nodeInstance != null) {
+			this.nodeInstance.setLoopCount(loopCount);
+		} else {
+			LOG.error(String.format("Loop Count should be set to %s, but flow node instance was NULL", loopCount));
 		}
 	}
 

@@ -110,7 +110,7 @@ public class ProcessInstanceMediatorServiceTest {
 		
 		flowNodeIds.add(flowNodeId);
 		
-		when(flowNodeInstanceRepositoryService.findLoosingFlowNodeIds("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId"))
+		when(flowNodeInstanceRepositoryService.findLoosingFlowNodeIds("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId", 0))
 			.thenReturn(flowNodeIds);
 		
 		assertEquals(flowNodeIds, processInstanceMediatorServiceMockInjected.getPreviousLoosingNodeIds("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId"));

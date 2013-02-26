@@ -70,6 +70,9 @@ public class FlowNodeInstance {
 	 * a node service will perform.
 	 */
 	private String nodeInstanceState = NodeInstaceStates.INACTIVE_STATE;
+	
+	/** The loop count to track the number of loops on an instance. */
+	private int loopCount = 0;
 
 	/** The incoming fired flows needed until a gateway fires. */
 	private int incomingFiredFlowsNeeded = 0;
@@ -267,6 +270,25 @@ public class FlowNodeInstance {
 		this.nodeInstanceState = nodeInstanceState;
 	}
 
+	
+	/**
+	 * Gets the loop count.
+	 *
+	 * @return the loop count
+	 */
+	public int getLoopCount() {
+		return loopCount;
+	}
+
+	/**
+	 * Sets the loop count.
+	 *
+	 * @param loopCount the new loop count
+	 */
+	public void setLoopCount(int loopCount) {
+		this.loopCount = loopCount;
+	}
+	
 	/**
 	 * Gets the fired flows needed.
 	 * 
