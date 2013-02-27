@@ -19,6 +19,7 @@ import com.catify.processengine.core.nodes.ActivityActionFactory;
 import com.catify.processengine.core.nodes.NodeParameter;
 import com.catify.processengine.core.nodes.NodeUtils;
 import com.catify.processengine.core.services.ActorReferenceService;
+import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * The LoopStrategy holds the {@link LoopType}s for each message type ({@link ActivationMessage}, {@link DeactivationMessage},
@@ -28,13 +29,13 @@ public abstract class LoopStrategy extends UntypedActor {
 	
 	static final Logger LOG = LoggerFactory.getLogger(LoopStrategy.class);
 	
-	/** The task wrapper actor reference to the loop type strategy
+	/** The activity wrapper actor reference to the loop type strategy
 	 * which binds the {@link LoopType}) implementation. */
-	protected ActorRef taskWrapper;
+	protected ActorRef activityWrapper;
 	
-	/** The task action actor reference to the task that implements
+	/** The activity action actor reference to the task that implements
 	 * the bpmn task behavior (service task, receive task etc.). */
-	protected ActorRef taskAction;
+	protected ActorRef activityAction;
 
 	/** The unique process id. 
 	 * @see com.catify.processengine.core.data.model.entities.ProcessNode#uniqueProcessId */
@@ -48,6 +49,9 @@ public abstract class LoopStrategy extends UntypedActor {
 	/** True for catching/receiving nodes. */
 	protected boolean catching;
 	
+	/** The node instance mediator service. */
+	protected NodeInstanceMediatorService nodeInstanceMediatorService;
+	
 	/**
 	 * Instantiates a new loop strategy.
 	 *
@@ -55,11 +59,14 @@ public abstract class LoopStrategy extends UntypedActor {
 	public LoopStrategy(ActorRef taskWrapper, String uniqueProcessId, String uniqueFlowNodeId,
 			DataObjectHandling dataObjectHandling, boolean catching) {
 		super();
-		this.taskWrapper = taskWrapper;
+		this.activityWrapper = taskWrapper;
 		this.uniqueProcessId = uniqueProcessId;
 		this.uniqueFlowNodeId = uniqueFlowNodeId;
 		this.dataObjectHandling = dataObjectHandling;
 		this.catching = catching;
+		
+		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
+				uniqueProcessId, uniqueFlowNodeId));
 	}
 	
 	public final void onReceive(Object message) {
@@ -83,23 +90,24 @@ public abstract class LoopStrategy extends UntypedActor {
 	}
 	
 	/**
-	 * Creates the event definition actor from the eventDefinitionParameter as a child node to the given actor context.
+	 * Reaction to {@link LoopMessage} originated by a task action actor. This method inits another loop instance.
 	 *
-	 * @param uniqueFlowNodeId the unique flow node id
-	 * @param context the context
-	 * @param nodeParameter the node parameter
-	 * @param identifier the identifier of the actor to create
-	 * @return the ActorRef of the EventDefinition
+	 * @param message the message
 	 */
-	public static ActorRef createTaskActionActor(UntypedActorContext context, final NodeParameter nodeParameter) {
-		ActorRef eventDefinitionActor = context.actorOf(new Props(new UntypedActorFactory() {
-			private static final long serialVersionUID = 1L;
-
-			public UntypedActor create() {
-					return new ActivityActionFactory().createServiceNode(nodeParameter.clientId, nodeParameter.processJaxb, nodeParameter.subProcessesJaxb, nodeParameter.flowNodeJaxb, nodeParameter.sequenceFlowsJaxb);
-				}
-		}), ActorReferenceService.getActorReferenceString(nodeParameter.getUniqueFlowNodeId() + "-taskAction-"));
-		return eventDefinitionActor;
+	protected void loop(LoopMessage message) {
+		this.sendMessageToNodeActor(new ActivationMessage(message.getProcessInstanceId()), this.getSelf());
+	}
+	
+	/**
+	 * Gets the loop count from the db (avoiding any caches).
+	 *
+	 * @param message the message
+	 * @return the loop count
+	 */
+	protected int getLoopCount(Message message) {
+		nodeInstanceMediatorService.refreshFlowNodeInstance(uniqueProcessId, uniqueFlowNodeId, message.getProcessInstanceId());
+		int loopCounter = nodeInstanceMediatorService.getLoopCount(message.getProcessInstanceId());
+		return loopCounter;
 	}
 	
 	/**
@@ -124,15 +132,6 @@ public abstract class LoopStrategy extends UntypedActor {
 	protected abstract void trigger(TriggerMessage message); 
 	
 	/**
-	 * Reaction to {@link LoopMessage} originated by a task action actor. This method inits another loop instance.
-	 *
-	 * @param message the message
-	 */
-	protected void loop(LoopMessage message) {
-		this.sendMessageToNodeActor(new ActivationMessage(message.getProcessInstanceId()), this.getSelf());
-	}
-	
-	/**
 	 * Send a message object to a node actor with getSelf()-sender.
 	 * 
 	 * @param message
@@ -150,6 +149,46 @@ public abstract class LoopStrategy extends UntypedActor {
 		} else {
 			LOG.error(String.format("Target actor was NULL (sender: %s, message: %s)", this.getSender(), message));
 		}
+	}
+	
+	/**
+	 * Creates the event definition actor from the eventDefinitionParameter as a child node to the given actor context.
+	 *
+	 * @param uniqueFlowNodeId the unique flow node id
+	 * @param context the context
+	 * @param nodeParameter the node parameter
+	 * @param identifier the identifier of the actor to create
+	 * @return the ActorRef of the EventDefinition
+	 */
+	protected ActorRef createTaskActionActor(UntypedActorContext context, final NodeParameter nodeParameter) {
+		
+		ActorRef eventDefinitionActor = context.actorOf(new Props(new UntypedActorFactory() {
+			private static final long serialVersionUID = 1L;
+			
+			public UntypedActor create() {
+					return new ActivityActionFactory().createServiceNode(nodeParameter.clientId, nodeParameter.processJaxb, nodeParameter.subProcessesJaxb, nodeParameter.flowNodeJaxb, nodeParameter.sequenceFlowsJaxb);
+				}
+		}), ActorReferenceService.getActorReferenceString(nodeParameter.getUniqueFlowNodeId() + "-activityAction"));
+		return eventDefinitionActor;
+	}
+	
+	/**
+	 * Gets the node instance mediator service.
+	 *
+	 * @return the node instance mediator service
+	 */
+	protected NodeInstanceMediatorService getNodeInstanceMediatorService() {
+		return nodeInstanceMediatorService;
+	}
+
+	/**
+	 * Sets the node instance mediator service.
+	 *
+	 * @param nodeInstanceMediatorService the new node instance mediator service
+	 */
+	protected void setNodeInstanceMediatorService(
+			NodeInstanceMediatorService nodeInstanceMediatorService) {
+		this.nodeInstanceMediatorService = nodeInstanceMediatorService;
 	}
 	
 }

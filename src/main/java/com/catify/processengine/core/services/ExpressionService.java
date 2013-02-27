@@ -23,6 +23,7 @@ import com.catify.processengine.core.data.dataobjects.DataObjectSPI;
  * 
  * 
  * @author claus straube
+ * @author christopher köster
  * 
  */
 public class ExpressionService {
@@ -233,6 +234,19 @@ public class ExpressionService {
 		return jc;
 	}
 	
+	public static JexlContext fillContext(Set<String> dataObjectIds, 
+			DataObjectHandling dataObjectHandler,
+			String uniqueProcessId, 
+			String instanceId,
+			int loopCount) {
+		// create context
+		JexlContext jc = fillContext(dataObjectIds, dataObjectHandler, uniqueProcessId, instanceId);
+		
+		jc.set("$LOOPCOUNTER", loopCount);
+		
+		return jc;
+	}
+	
 	/**
 	 * Evaluates a given JEXL {@link Expression} with the given
 	 * objects (loaded over the {@link DataObjectSPI}).
@@ -270,7 +284,7 @@ public class ExpressionService {
 			if(result instanceof Boolean) {
 				return (Boolean) result;
 			} else {
-				throw new IllegalArgumentException(String.format("Your JEXL expression '%s' has not a boolean result.", expression.getExpression()));
+				throw new IllegalArgumentException(String.format("Your JEXL expression '%s' does not have a boolean result.", expression.getExpression()));
 			}
 		}
 		return false;

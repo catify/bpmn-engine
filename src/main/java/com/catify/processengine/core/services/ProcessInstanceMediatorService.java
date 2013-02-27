@@ -202,13 +202,8 @@ public class ProcessInstanceMediatorService {
 			LOG.debug(String
 					.format("FlowNode to be instantiated: %s:%s", flowNode.getFlowNodeId(), flowNode.getNodeType()));
 			
-			FlowNodeInstance flowNodeInstance = new FlowNodeInstance(
-					NodeInstaceStates.INACTIVE_STATE,
-					flowNode.getFiredFlowsNeeded());
-			
-			flowNodeInstance.addAsInstanceOf(flowNode, processInstanceId);
-			
-			flowNodeInstanceRepositoryService.save(flowNodeInstance);
+			FlowNodeInstance flowNodeInstance = createFlowNodeInstance(
+					processInstanceId, flowNode, loopCount);
 			
 			flowNodeInstances.put(flowNode, flowNodeInstance);
 		}   
@@ -234,6 +229,25 @@ public class ProcessInstanceMediatorService {
 			}
 		}
 		return flowNodeInstances.values();
+	}
+
+	/**
+	 * Creates a flow node instance and connects it to its flow node.
+	 *
+	 * @param processInstanceId the process instance id
+	 * @param flowNode the flow node
+	 * @return the flow node instance
+	 */
+	private FlowNodeInstance createFlowNodeInstance(String processInstanceId,
+			FlowNode flowNode, int loopCount) {
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance(
+				NodeInstaceStates.INACTIVE_STATE,
+				flowNode.getFiredFlowsNeeded(), loopCount);
+		
+		flowNodeInstance.addAsInstanceOf(flowNode, processInstanceId);
+		flowNodeInstanceRepositoryService.save(flowNodeInstance);
+		
+		return flowNodeInstance;
 	}
 
 	/**

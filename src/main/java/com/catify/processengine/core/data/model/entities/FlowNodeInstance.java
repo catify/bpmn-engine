@@ -137,7 +137,7 @@ public class FlowNodeInstance {
 	}
 
 	/**
-	 * Get the (fetched) flow node that this instance is an instance of.
+	 * Get the <b>(fetched)</b> flow node that this instance is an instance of.
 	 * 
 	 * @return the flow node instance
 	 */
@@ -147,7 +147,7 @@ public class FlowNodeInstance {
 	}
 	
 	/**
-	 * Get the (not fetched!) flow node that this instance is an instance of.
+	 * Get the <b>(not fetched!)</b> flow node that this instance is an instance of.
 	 * 
 	 * @return the flow node instance
 	 */
@@ -190,28 +190,18 @@ public class FlowNodeInstance {
 	 */
 	public FlowNodeInstance() {
 	}
-
+	
 	/**
 	 * Instantiates a new flow node instance.
-	 * 
-	 * @param nodeInstanceState
-	 *            the node instance state
+	 *
+	 * @param nodeInstanceState the node instance state
+	 * @param firedFlowsNeeded the fired flows needed
+	 * @param loopCount the loop count of this flow node instance
 	 */
-	public FlowNodeInstance(String nodeInstanceState) {
-		this.nodeInstanceState = nodeInstanceState;
-	}
-
-	/**
-	 * Instantiates a new flow node instance.
-	 * 
-	 * @param nodeInstanceState
-	 *            the node instance state
-	 * @param incomingFiredFlowsNeeded
-	 *            the fired flows needed
-	 */
-	public FlowNodeInstance(String nodeInstanceState, int firedFlowsNeeded) {
+	public FlowNodeInstance(String nodeInstanceState, int firedFlowsNeeded, int loopCount) {
 		this.nodeInstanceState = nodeInstanceState;
 		this.incomingFiredFlowsNeeded = firedFlowsNeeded;
+		this.loopCount = loopCount;
 	}
 
 	/**

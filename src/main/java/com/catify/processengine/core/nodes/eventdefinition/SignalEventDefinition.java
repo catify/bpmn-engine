@@ -29,7 +29,6 @@ import akka.actor.ActorRef;
 import akka.event.EventBus;
 
 import com.catify.processengine.core.data.model.NodeInstaceStates;
-import com.catify.processengine.core.data.repositories.FlowNodeInstanceRepository;
 import com.catify.processengine.core.data.services.FlowNodeInstanceRepositoryService;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.CommitMessage;

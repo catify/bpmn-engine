@@ -34,83 +34,93 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 			DataObjectHandling dataObjectHandling, boolean testBefore, BigInteger loopMaximum, String loopCondition, Set<String> allDataObjectIds, boolean catching) {	
 		// FIXME: taskWrapper might be redundant because it should be the sender anyway
 		super(taskWrapper, nodeParameter.getUniqueProcessId(), nodeParameter.getUniqueFlowNodeId(), dataObjectHandling, catching);
-		
+
 		this.testBefore = testBefore; 
-		this.loopMaximum = loopMaximum.longValue();
+		
+		if (loopMaximum != null) {
+			this.loopMaximum = loopMaximum.longValue();
+		}
 		
 		// create all needed object ids
 		this.usedDataObjectIds = ExpressionService.evaluateUsedObjects(loopCondition, allDataObjectIds);
 		
 		// create JEXL expressions from strings
-		this.loopCondition = ExpressionService.createJexlExpression(loopCondition);
+		if (loopCondition != null) {
+			this.loopCondition = ExpressionService.createJexlExpression(loopCondition);
+		}
 		
-		this.taskAction = super.createTaskActionActor(this.getContext(), nodeParameter);
+		this.activityAction = super.createTaskActionActor(this.getContext(), nodeParameter);
 	}
 
 	@Override
 	public void activate(ActivationMessage message) {
-		
-		Long loopCounter = new Long(42); // FIXME: provide method for loop counter retrieval from db
 
 		if (testBefore) {
+
+			int loopCounter = this.getLoopCount(message);
+			
 			// true if loop should continue
 			if (this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
 				message.setPayload(LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling));
-				this.sendMessageToNodeActor(message, this.taskAction);
+				this.sendMessageToNodeActor(message, this.activityAction);
 			// else end loop and activate next nodes via the taskWrapper
 			} else {
 				if (!this.catching) {
 					// this is a throwing task: end the loop to go on end the process
 					// (for catching tasks, ending the loop will only be done for trigger or deactivation messages)
-					this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
+					this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.activityWrapper);
 				}
 			}
 		} else {
 			message.setPayload(LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling));
-			this.sendMessageToNodeActor(message, this.taskAction);
-
-			if (!this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
-				if (!this.catching) {
-					// this is a throwing task: end the loop to go on end the process
-					// (for catching tasks, ending the loop will only be done for trigger or deactivation messages)
-					this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
-				}
-			}
+			this.sendMessageToNodeActor(message, this.activityAction);
 		}
 
 	}
 
 	@Override
 	public void deactivate(DeactivationMessage message) {
-		this.sendMessageToNodeActor(message, this.taskAction);
+		this.sendMessageToNodeActor(message, this.activityAction);
 	}
 
 	@Override
 	public void trigger(TriggerMessage message) {
-		
-		Long loopCounter = new Long(42); // FIXME: provide method for loop counter retrieval from db
-		
+
 		if (testBefore) {
+			int loopCounter = this.getLoopCount(message);
+			
 			// true if loop should continue
 			if (this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
 				LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
-				this.sendMessageToNodeActor(message, this.taskAction);
+				this.sendMessageToNodeActor(message, this.activityAction);
 			// else end loop and activate next nodes via the taskWrapper
 			} else {
 				LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
-				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
+				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.activityWrapper);
 			}
 			
 		} else {
 			LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
-			this.sendMessageToNodeActor(message, this.taskAction);
-			
-			if (!this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
-				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
-			}
+			this.sendMessageToNodeActor(message, this.activityAction);
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.catify.processengine.core.nodes.loops.LoopStrategy#loop(com.catify.processengine.core.messages.LoopMessage)
+	 */
+	@Override
+	protected void loop(LoopMessage message) {
+		if (!testBefore) {
+			int loopCounter = this.getLoopCount(message);
+			if (this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
+				this.sendMessageToNodeActor(new ActivationMessage(message.getProcessInstanceId()), this.getSelf());
+			} else {
+				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.activityWrapper);
+			}
+		} else {
+			this.sendMessageToNodeActor(new ActivationMessage(message.getProcessInstanceId()), this.getSelf());
+		}
+	}
 
 	/**
 	 * Evaluate loop condition.
@@ -119,14 +129,18 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 	 * @param loopCounter the loop counter
 	 * @return true, if expression is true (loop should continue)
 	 */
-	private boolean evaluateLoopCondition(String processInstanceId, Long loopCounter) {
-		if (loopMaximum != null && loopMaximum > loopCounter) {
+	private boolean evaluateLoopCondition(String processInstanceId, int loopCounter) {
+		if ((this.loopMaximum != null && loopCounter >= this.loopMaximum) || (this.loopMaximum == null && this.loopCondition == null)) {
 			return false;
-		} else {
-			// fill the context once and use it for every expression
-			JexlContext context = ExpressionService.fillContext(this.usedDataObjectIds, super.dataObjectHandling, this.uniqueProcessId, processInstanceId);
+		} else if (this.loopCondition != null){
 
-			return ExpressionService.evaluateToBoolean(this.loopCondition, context);
+				JexlContext context = ExpressionService.fillContext(this.usedDataObjectIds, super.dataObjectHandling, this.uniqueProcessId, processInstanceId, loopCounter);
+
+				return ExpressionService.evaluateToBoolean(this.loopCondition, context);
+		} else if (loopCounter < this.loopMaximum) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 

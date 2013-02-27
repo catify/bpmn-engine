@@ -31,6 +31,7 @@ import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
@@ -72,9 +73,6 @@ public class ServiceTaskNode extends Task {
 	@Override
 	protected void activate(ActivationMessage message) {
 		
-		// get the sender, so the service task instance can reply directly to that
-		final ActorRef sender = this.getSender();
-		
 		ActorRef serviceTaskInstance = this.getContext().actorOf(new Props(
 				new UntypedActorFactory() {
 					private static final long serialVersionUID = 1L;
@@ -82,7 +80,7 @@ public class ServiceTaskNode extends Task {
 					// create an instance of a (synchronous) service worker
 					public UntypedActor create() {
 							return new ServiceTaskInstance(getUniqueProcessId(), getUniqueFlowNodeId(), 
-									eventDefinitionParameter, getDataObjectHandling(), sender);
+									eventDefinitionParameter, getDataObjectHandling());
 					}
 				}), this.getTaskInstanceActorRef(message));
 		LOG.debug(String.format("Service task instance craeted %s --> resulting akka object: %s", this.getClass(),
@@ -110,6 +108,27 @@ public class ServiceTaskNode extends Task {
 	@Override
 	protected void trigger(TriggerMessage message) {
 		LOG.warn(String.format("Reaction to %s not implemented in %s. Please check your process.", message.getClass().getSimpleName(), this.getSelf()));
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.catify.processengine.core.nodes.FlowElement#handleNonStandardMessage(java.lang.Object)
+	 */
+	protected void handleNonStandardMessage(Object message) {
+		if (message instanceof LoopMessage) {
+			this.forwardLoopMessageToParent(message);
+		} else {
+			unhandled(message);
+		}
+	}
+
+	/**
+	 * Forward {@link LoopMessage}s to the parent actor, which should be a loop strategy. The LoopMessages are generated in the {@link ServiceTaskInstance}s. 
+	 *
+	 * @param message the message
+	 */
+	private void forwardLoopMessageToParent(Object message) {
+		LoopMessage loopMessage = (LoopMessage) message;
+		this.sendMessageToNodeActor(loopMessage, this.getContext().parent());
 	}
 	
 	/**

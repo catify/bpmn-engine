@@ -62,7 +62,7 @@ public class SendTaskNode extends Task {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
+		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.getContext().parent());
 	}
 
 	@Override

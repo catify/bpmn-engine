@@ -32,6 +32,7 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
@@ -125,12 +126,18 @@ public abstract class FlowElement extends UntypedActor {
 		String processInstanceId = message.getProcessInstanceId();
 		if (nodeInstanceMediatorService.getNodeInstanceState(processInstanceId).equals(NodeInstaceStates.PASSED_STATE)) {
 			int loopCount = nodeInstanceMediatorService.getLoopCount(processInstanceId);
-			nodeInstanceMediatorService.setLoopCount(processInstanceId, ++loopCount);
+			
+			// create a new flow node instance node in the db and use that for further processing
+			nodeInstanceMediatorService.createNewNodeInstance(processInstanceId, ++loopCount);
+			
+//			nodeInstanceMediatorService.setLoopCount(processInstanceId, ++loopCount);
+//			nodeInstanceMediatorService.setState(processInstanceId, NodeInstaceStates.INACTIVE_STATE);
+//			nodeInstanceMediatorService.persistChanges();
 		}
 	}
 	
 	/**
-	 * Implements reaction to an {@link ActivationMessage}.
+	 * Implements reaction to an non standard {@link Message}.
 	 *
 	 * @param message the message
 	 */
@@ -188,7 +195,7 @@ public abstract class FlowElement extends UntypedActor {
 				return false;
 			}
 			
-			else if (message instanceof ActivationMessage && nodeInstanceState.equals(NodeInstaceStates.PASSED_STATE)) {
+			else if ((message instanceof ActivationMessage || message instanceof LoopMessage) && nodeInstanceState.equals(NodeInstaceStates.PASSED_STATE)) {
 				LOG.debug(String.format("%s received by %s node instance. This seems to be a loop.", message, nodeInstanceState));
 				return true;
 			}

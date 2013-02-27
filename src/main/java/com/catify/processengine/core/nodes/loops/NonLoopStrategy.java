@@ -15,40 +15,36 @@ import com.catify.processengine.core.nodes.NodeParameter;
 public class NonLoopStrategy extends LoopStrategy {
 	
 	static final Logger LOG = LoggerFactory.getLogger(NonLoopStrategy.class);
-	
-	/** The task action actor reference to the task that implements
-	 * the bpmn task behavior (service task, receive task etc.). */
-	protected ActorRef taskAction;
 
 	public NonLoopStrategy(ActorRef taskWrapper, NodeParameter nodeParameter,
 			DataObjectHandling dataObjectHandling, boolean catching) {
 		super(taskWrapper, nodeParameter.getUniqueProcessId(), nodeParameter.getUniqueFlowNodeId(), dataObjectHandling, catching);
-		this.taskAction = super.createTaskActionActor(this.getContext(), nodeParameter);
+		this.activityAction = super.createTaskActionActor(this.getContext(), nodeParameter);
 	}
 
 	@Override
 	public void activate(ActivationMessage message) {
 		message.setPayload(LoopBehaviorService.loadPayloadFromDataObject(message.getProcessInstanceId(), uniqueProcessId, dataObjectHandling));
 				
-		this.sendMessageToNodeActor(message, this.taskAction);
+		this.sendMessageToNodeActor(message, this.activityAction);
 		
 		if (!catching) {
-			this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
+			this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.activityWrapper);
 		}
 	}
 
 	@Override
 	public void deactivate(DeactivationMessage message) {
-		this.sendMessageToNodeActor(message, this.taskAction);
+		this.sendMessageToNodeActor(message, this.activityAction);
 	}
 
 	@Override
 	public void trigger(TriggerMessage message) {
 		LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), uniqueProcessId, dataObjectHandling);
 		
-		this.sendMessageToNodeActor(message, this.taskAction);
+		this.sendMessageToNodeActor(message, this.activityAction);
 		
-		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
+		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.activityWrapper);
 	}
 
 	@Override

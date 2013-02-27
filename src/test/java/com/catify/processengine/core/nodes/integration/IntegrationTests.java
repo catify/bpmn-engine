@@ -83,6 +83,22 @@ public class IntegrationTests extends IntegrationTestBase {
 	}
 	
 	@Test
+	public void testprocessStandardLoopMaximumSendTask() throws FileNotFoundException, JAXBException, InterruptedException {
+		TProcess process = simpleProcessTest("testprocess_loop_standard_maximum_sendTask.bpmn", 3000, 5000, 6, 6);
+		Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
+	    MessageIntegrationSPIMock mock = (MessageIntegrationSPIMock) MessageIntegrationSPI.getMessageIntegrationImpl(MessageIntegrationSPIMock.MOCK_PREFIX);
+	    assertEquals(4, mock.sends.size());
+	}
+	
+	@Test
+	public void testprocessStandardLoopConditionSendTask() throws FileNotFoundException, JAXBException, InterruptedException {
+		TProcess process = simpleProcessTest("testprocess_loop_standard_condition_sendTask.bpmn", 3000, 5000, 6, 6);
+		Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));
+	    MessageIntegrationSPIMock mock = (MessageIntegrationSPIMock) MessageIntegrationSPI.getMessageIntegrationImpl(MessageIntegrationSPIMock.MOCK_PREFIX);
+	    assertEquals(1, mock.sends.size());
+	}
+	
+	@Test
 	public void testprocessThrowThrowComplex() throws IOException, JAXBException, InterruptedException {
 		TProcess process = simpleProcessTest("testprocess_throw_throw_complex.bpmn", 3000, 5000, 10, 5);
 	    Assert.assertTrue(checkFlowNodeInstanceState(NodeInstaceStates.PASSED_STATE, process, defaultInstanceId));

@@ -20,7 +20,6 @@ package com.catify.processengine.core.nodes;
 import java.util.Date;
 
 import scala.concurrent.Future;
-import akka.actor.ActorRef;
 
 import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
@@ -41,8 +40,6 @@ import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParame
  */
 public class ServiceTaskInstance extends Task {
 
-	private ActorRef taskWrapper;
-	
 	/**
 	 * Instantiates a new service task node.
 	 *
@@ -52,12 +49,11 @@ public class ServiceTaskInstance extends Task {
 	 * @param dataObjectHandling the data object handling
 	 */	
 	public ServiceTaskInstance(String uniqueProcessId, String uniqueFlowNodeId,
-			EventDefinitionParameter eventDefinitionParameter, DataObjectHandling dataObjectHandling, ActorRef taskWrapper) {
+			EventDefinitionParameter eventDefinitionParameter, DataObjectHandling dataObjectHandling) {
 		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setDataObjectHandling(dataObjectHandling);
 		
 		this.eventDefinitionActor = this.createEventDefinitionActor(eventDefinitionParameter);
-		this.taskWrapper = taskWrapper;
 	}
 	
 	@Override
@@ -80,7 +76,7 @@ public class ServiceTaskInstance extends Task {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
+		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.getContext().parent());
 		
 		// stop this instance node
 		this.getContext().stop(this.getSelf());

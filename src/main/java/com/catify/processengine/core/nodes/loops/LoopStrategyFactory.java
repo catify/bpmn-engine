@@ -67,13 +67,18 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 		TTask taskJaxb = (TTask) nodeParameter.flowNodeJaxb;
 		TStandardLoopCharacteristics loopCharacteristics = (TStandardLoopCharacteristics) taskJaxb.getLoopCharacteristics().getValue();
 		
+		String loopCondition = null;
+		if (loopCharacteristics.getLoopCondition() != null) {
+			loopCondition = loopCharacteristics.getLoopCondition().getContent().get(0).toString();
+		}
+		
 		return new StandardLoopCharacteristicsStrategy(
 				taskWrapper, 
 				nodeParameter,
 				getDataObjectHandling(taskJaxb),
 				loopCharacteristics.isTestBefore(), 
 				loopCharacteristics.getLoopMaximum(), 
-				loopCharacteristics.getLoopCondition().getContent().get(0).toString(), 
+				loopCondition, 
 				super.getAllDataObjectIds(nodeParameter.processJaxb, nodeParameter.subProcessesJaxb),
 				this.checkCatching(nodeParameter.flowNodeJaxb));
 	}
@@ -84,13 +89,23 @@ public class LoopStrategyFactory extends NodeFactoryImpl {
 		TTask taskJaxb = (TTask) nodeParameter.flowNodeJaxb;
 		TMultiInstanceLoopCharacteristics loopCharacteristics = (TMultiInstanceLoopCharacteristics) taskJaxb.getLoopCharacteristics().getValue();
 		
+		String loopCardinality = null;
+		if (loopCharacteristics.getLoopCardinality() != null) {
+			loopCardinality = loopCharacteristics.getLoopCardinality().getContent().get(0).toString();
+		}
+		
+		String completionCondition = null;
+		if (loopCharacteristics.getCompletionCondition() != null) {
+			completionCondition = loopCharacteristics.getCompletionCondition().getContent().get(0).toString();
+		}
+		
 		return new MultiInstanceLoopCharacteristicsStrategy(
 				taskWrapper,
 				nodeParameter,
 				getDataObjectHandling(taskJaxb),
 				loopCharacteristics.isIsSequential(),
-				loopCharacteristics.getLoopCardinality().getContent().get(0).toString(),
-				loopCharacteristics.getCompletionCondition().getContent().get(0).toString(), 
+				loopCardinality,
+				completionCondition, 
 				super.getAllDataObjectIds(nodeParameter.processJaxb, nodeParameter.subProcessesJaxb),
 				this.checkCatching(nodeParameter.flowNodeJaxb));
 	}

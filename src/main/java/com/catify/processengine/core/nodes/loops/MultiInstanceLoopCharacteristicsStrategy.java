@@ -65,7 +65,7 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 				for (Object object : collection) {
 					// for each do something
 					message.setPayload(object);
-					this.sendMessageToNodeActor(message, this.taskAction);
+					this.sendMessageToNodeActor(message, this.activityAction);
 					i++;
 				}
 				// FIXME: provide implementation to save awaited message count in db
@@ -76,7 +76,7 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 		// else end loop and activate next nodes via the taskWrapper
 		} else {
 			if (this.catching) {
-				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
+				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.activityWrapper);
 			}
 		}
 
@@ -84,7 +84,7 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 
 	@Override
 	public void deactivate(DeactivationMessage message) {
-		this.sendMessageToNodeActor(message, this.taskAction);
+		this.sendMessageToNodeActor(message, this.activityAction);
 	}
 
 	@Override
@@ -113,17 +113,17 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 			
 			// persist changes to the data object
 			LoopBehaviorService.savePayloadToDataObject(message.getProcessInstanceId(), message.getPayload(), this.uniqueProcessId, this.dataObjectHandling);
-			this.sendMessageToNodeActor(message, this.taskAction);
+			this.sendMessageToNodeActor(message, this.activityAction);
 			
 			// FIXME: check if this message is the last awaited message for this instance (and its loop)
 			// if so, trigger loop end in taskWrapper
 			if (loopCounter >= _awaitedMessageCount_) {
-				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
+				this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.activityWrapper);
 			}
 
 		// else end loop and activate next nodes via the taskWrapper
 		} else {
-			this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.taskWrapper);
+			this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.activityWrapper);
 		}
 	}
 	

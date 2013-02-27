@@ -119,7 +119,7 @@ public class ProcessInstanceMediatorServiceTest {
 	@Test
 	public void testFindActiveFlowNodeInstances() {
 		HashSet<FlowNodeInstance> flowNodeInstances = new HashSet<FlowNodeInstance>();
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE");
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		flowNodeInstances.add(flowNodeInstance);
 		
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstancesAtCurrentLevelByState("uniqueFlowNodeId", "testInstanceId", NodeInstaceStates.ACTIVE_STATE))

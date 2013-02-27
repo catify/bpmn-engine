@@ -73,7 +73,7 @@ public class NodeInstanceMediatorServiceTest {
 	public void testGetNodeInstance() {
 		assertNotNull(nodeInstanceMediatorServiceMockInjected);
 		
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE");
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		assertNotNull(flowNodeInstance);
 		
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstance("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId", 0)).thenReturn(flowNodeInstance);
@@ -86,7 +86,7 @@ public class NodeInstanceMediatorServiceTest {
 	public void testGetState() {
 		assertNotNull(nodeInstanceMediatorServiceMockInjected);
 		
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE");
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		assertNotNull(flowNodeInstance);
 		
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstance("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId", 0)).thenReturn(flowNodeInstance);
@@ -100,7 +100,7 @@ public class NodeInstanceMediatorServiceTest {
 	public void testGetFiredFlowsNeeded() {
 		assertNotNull(nodeInstanceMediatorServiceMockInjected);
 		
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 1);
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		assertNotNull(flowNodeInstance);
 		
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstance("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId", 0)).thenReturn(flowNodeInstance);
@@ -114,7 +114,7 @@ public class NodeInstanceMediatorServiceTest {
 	public void testGetSequenceFlowsFired() {
 		assertNotNull(nodeInstanceMediatorServiceMockInjected);
 		
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 1);
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		assertNotNull(flowNodeInstance);
 		flowNodeInstance.setFlowsFired(1);
 		
@@ -129,7 +129,7 @@ public class NodeInstanceMediatorServiceTest {
 	public void testSetState() {
 		assertNotNull(nodeInstanceMediatorServiceMockInjected);
 		
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE");
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		assertNotNull(flowNodeInstance);
 		flowNodeInstance.setFlowsFired(1);
 		
@@ -144,7 +144,7 @@ public class NodeInstanceMediatorServiceTest {
 	public void testSetFiredFlowsNeeded() {
 		assertNotNull(nodeInstanceMediatorServiceMockInjected);
 		
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0);
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		assertNotNull(flowNodeInstance);
 		
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstance("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId", 0)).thenReturn(flowNodeInstance);
@@ -158,7 +158,7 @@ public class NodeInstanceMediatorServiceTest {
 	public void testSetSequenceFlowsFired() {
 		assertNotNull(nodeInstanceMediatorServiceMockInjected);
 		
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE");
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		assertNotNull(flowNodeInstance);
 		
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstance("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId", 0)).thenReturn(flowNodeInstance);
@@ -172,7 +172,7 @@ public class NodeInstanceMediatorServiceTest {
 	public void testSetNodeInstanceStartTime() {
 		assertNotNull(nodeInstanceMediatorServiceMockInjected);
 		
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE");
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		assertNotNull(flowNodeInstance);
 		assertNull(flowNodeInstance.getNodeInstanceStartTime());
 		
@@ -189,7 +189,7 @@ public class NodeInstanceMediatorServiceTest {
 	public void testSetNodeInstanceEndTime() {
 		assertNotNull(nodeInstanceMediatorServiceMockInjected);
 		
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE");
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		assertNotNull(flowNodeInstance);
 		assertNull(flowNodeInstance.getNodeInstanceEndTime());
 		
@@ -244,7 +244,7 @@ public class NodeInstanceMediatorServiceTest {
 		
 		assertFalse(nodeInstanceMediatorServiceMockInjected.isInitialized());
 		
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE");
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		assertNotNull(flowNodeInstance);
 
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstance("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId", 0)).thenReturn(flowNodeInstance);
