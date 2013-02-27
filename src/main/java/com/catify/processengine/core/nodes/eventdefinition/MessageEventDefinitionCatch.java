@@ -39,10 +39,10 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  * @author christopher köster
  * 
  */
-public class MessageEventDefinition_Catch extends EventDefinition {
+public class MessageEventDefinitionCatch extends EventDefinition {
 	
 	static final Logger LOG = LoggerFactory
-			.getLogger(MessageEventDefinition_Catch.class);
+			.getLogger(MessageEventDefinitionCatch.class);
 
 	private final String uniqueProcessId;
 	private final String uniqueFlowNodeId;
@@ -62,7 +62,7 @@ public class MessageEventDefinition_Catch extends EventDefinition {
 	 * @param messageIntegration
 	 *            the message event definition
 	 */
-	public MessageEventDefinition_Catch(String uniqueProcessId, String uniqueFlowNodeId,
+	public MessageEventDefinitionCatch(String uniqueProcessId, String uniqueFlowNodeId,
 			String actorRefString, TMessageIntegration messageIntegration) {
 
 		this.uniqueProcessId = uniqueProcessId;

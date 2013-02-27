@@ -28,14 +28,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.services.ProcessInstanceMediatorService;
 
 /**
@@ -68,9 +66,6 @@ public class StartEventNode extends CatchEvent {
 	/** The uniqueFlowNodeId of the parent sub process node of this start event (if any). */
 	private String parentsUniqueFlowNodeId;
 
-	public StartEventNode() {
-	}
-
 	/**
 	 * Instantiates a new start event node.
 	 * 
@@ -90,34 +85,41 @@ public class StartEventNode extends CatchEvent {
 	public StartEventNode(String uniqueProcessId, String uniqueFlowNodeId,
 			EventDefinitionParameter eventDefinitionParameter, List<ActorRef> outgoingNodes,
 			List<ActorRef> otherStartNodes, String parentsUniqueFlowNodeId,
-			DataObjectService dataObjectHandling) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinitionParameter(eventDefinitionParameter);
+			DataObjectHandling dataObjectHandling) {
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setOtherStartNodes(otherStartNodes);
 		this.setParentsUniqueFlowNodeId(parentsUniqueFlowNodeId);
 		this.setDataObjectHandling(dataObjectHandling);
 		
 		// create EventDefinition actor
-		this.eventDefinitionActor = EventDefinitionHandling
-				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
+		this.eventDefinitionActor = this.createEventDefinitionActor(eventDefinitionParameter);
 	}
 	
 	
 
 	@Override
 	protected void activate(ActivationMessage message) {
-		this.getNodeInstanceMediatorService().setState(
-				message.getProcessInstanceId(), NodeInstaceStates.ACTIVE_STATE);
 		
-		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
+		String instanceId = message.getProcessInstanceId();
 		
-		this.getNodeInstanceMediatorService().persistChanges();
-		
-		this.callEventDefinitionActor(message);
+		if (instanceId != null && this.getNodeInstanceMediatorService().getNodeInstanceState(instanceId).equals(NodeInstaceStates.PASSED_STATE)) {
+			LOG.debug("Start Event received Activiation Message. Assuming loop.");
+			this.sendMessageToNodeActor(new TriggerMessage(instanceId, null), this.getSelf());
+		} else {
+			LOG.debug("Inactive Start Event received Activiation Message. Assuming parallel run.");
+			this.getNodeInstanceMediatorService().setState(
+					instanceId, NodeInstaceStates.PASSED_STATE);
+			
+			this.getNodeInstanceMediatorService().setNodeInstanceStartTime(instanceId, new Date());
+			
+			this.getNodeInstanceMediatorService().persistChanges();
+			
+			this.callEventDefinitionActor(message);
+			
+			this.sendMessageToNodeActors(new ActivationMessage(instanceId),
+					this.getOutgoingNodes());
+		}
 	}
 
 	@Override
@@ -152,7 +154,7 @@ public class StartEventNode extends CatchEvent {
 		} 
 		// or create a sub process instance on the current level
 		else {
-			processInstanceMediatorService.createSubProcessInstance(this.getParentsUniqueFlowNodeId(), processInstanceId);
+			processInstanceMediatorService.createSubProcessInstance(this.getUniqueProcessId(), this.getParentsUniqueFlowNodeId(), processInstanceId);
 		}
 
 		// the default activation of other top level start nodes has been deactivated (see redmine #109)
@@ -165,7 +167,7 @@ public class StartEventNode extends CatchEvent {
 			this.getNodeInstanceMediatorService().setNodeInstanceStartTime(processInstanceId, new Date());
 		}
 		
-		this.getDataObjectService().saveObject(this.getUniqueProcessId(),
+		this.getDataObjectHandling().saveObject(this.getUniqueProcessId(),
 				processInstanceId, message.getPayload());
 
 		this.callEventDefinitionActor(message);

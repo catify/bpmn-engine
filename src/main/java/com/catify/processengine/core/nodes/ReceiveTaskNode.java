@@ -18,18 +18,13 @@
 package com.catify.processengine.core.nodes;
 
 import java.util.Date;
-import java.util.List;
 
-import akka.actor.ActorRef;
-
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * The ReceiveTaskNode acts like a catch event with a message event definition.
@@ -38,10 +33,6 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  * 
  */
 public class ReceiveTaskNode extends Task {
-	
-	public ReceiveTaskNode() {
-
-	}
 	
 	/**
 	 * Instantiates a new receive task node.
@@ -53,21 +44,11 @@ public class ReceiveTaskNode extends Task {
 	 * @param outgoingNodes
 	 *            the outgoing nodes
 	 */
-	public ReceiveTaskNode(String uniqueProcessId, String uniqueFlowNodeId,
-			List<ActorRef> outgoingNodes, String actorRefString,
-			EventDefinitionParameter eventDefinitionParameter, DataObjectService dataObjectHandling, List<ActorRef> boundaryEvent) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
-		this.setEventDefinitionParameter(eventDefinitionParameter);
-		this.setDataObjectHandling(dataObjectHandling);
-		this.setBoundaryEvents(boundaryEvent);
+	public ReceiveTaskNode(String uniqueProcessId, String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter) {
+		super(uniqueProcessId, uniqueFlowNodeId);
 		
 		// create EventDefinition actor
-		this.eventDefinitionActor = EventDefinitionHandling
-				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
+		this.eventDefinitionActor = this.createEventDefinitionActor(eventDefinitionParameter);
 	}
 	
 	@Override
@@ -77,8 +58,6 @@ public class ReceiveTaskNode extends Task {
 
 		this.callEventDefinitionActor(message);
 		
-		this.activateBoundaryEvents(message);
-		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		
 		this.getNodeInstanceMediatorService().persistChanges();
@@ -87,8 +66,6 @@ public class ReceiveTaskNode extends Task {
 	@Override
 	protected void deactivate(DeactivationMessage message) {
 		this.callEventDefinitionActor(message);
-		
-		this.deactivateBoundaryEvents(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -101,11 +78,8 @@ public class ReceiveTaskNode extends Task {
 
 	@Override
 	protected void trigger(TriggerMessage message) {
-		this.getDataObjectService().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
 		
 		this.callEventDefinitionActor(message);
-		
-		this.deactivateBoundaryEvents(message);
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -114,8 +88,6 @@ public class ReceiveTaskNode extends Task {
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
-		this.sendMessageToNodeActors(
-				new ActivationMessage(message.getProcessInstanceId()),
-				this.getOutgoingNodes());
+		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.getContext().parent());
 	}
 }

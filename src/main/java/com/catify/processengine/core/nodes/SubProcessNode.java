@@ -25,8 +25,8 @@ import akka.actor.ActorRef;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * The SubProcessNode can embed other FlowElements. To implement this it triggers the embedded start event.
@@ -41,14 +41,9 @@ public class SubProcessNode extends Task {
 	private List<ActorRef> embeddedStartNodes;
 	private List<ActorRef> embeddedNodes;
 
-	public SubProcessNode (String uniqueProcessId, String uniqueFlowNodeId, List<ActorRef> outgoingNodes, 
-			List<ActorRef> embeddedStartNodes, List<ActorRef> embeddedNodes, List<ActorRef> boundaryEvent) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
-		this.setBoundaryEvents(boundaryEvent);
+	public SubProcessNode (String uniqueProcessId, String uniqueFlowNodeId, 
+			List<ActorRef> embeddedStartNodes, List<ActorRef> embeddedNodes) {
+		super(uniqueProcessId, uniqueFlowNodeId);
 		
 		this.embeddedStartNodes = embeddedStartNodes;
 		this.embeddedNodes = embeddedNodes;
@@ -59,11 +54,11 @@ public class SubProcessNode extends Task {
 		this.getNodeInstanceMediatorService().setState(
 				message.getProcessInstanceId(), NodeInstaceStates.ACTIVE_STATE);
 		
-		this.activateBoundaryEvents(message);
-		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		
 		this.getNodeInstanceMediatorService().persistChanges();
+		
+		this.activateBoundaryEvents(message);
 		
 		// start the sub process
 		this.sendMessageToNodeActors(new TriggerMessage(message.getProcessInstanceId(), null), getStartNodes());
@@ -75,8 +70,6 @@ public class SubProcessNode extends Task {
 		
 		this.getNodeInstanceMediatorService().setState(
 				message.getProcessInstanceId(), NodeInstaceStates.DEACTIVATED_STATE);
-		
-		this.deactivateBoundaryEvents(message);
 		
 		this.getNodeInstanceMediatorService().persistChanges();
 		
@@ -91,11 +84,9 @@ public class SubProcessNode extends Task {
 		this.getNodeInstanceMediatorService().setState(
 				message.getProcessInstanceId(), NodeInstaceStates.PASSED_STATE);
 		
-		this.deactivateBoundaryEvents(message);
-		
 		this.getNodeInstanceMediatorService().persistChanges();
-
-		this.sendMessageToNodeActors(new ActivationMessage(message.getProcessInstanceId()), getOutgoingNodes());
+		
+		this.sendMessageToNodeActor(new LoopMessage(message.getProcessInstanceId()), this.getSelf());
 	}
 
 	

@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Value;
  * 
  */
 @Configurable
-public class DataObjectService {
+public class DataObjectHandling {
 
 	/** The data object implementation id set in the spring context. */
 	@Value("${datastore.implementation}")
@@ -49,18 +49,19 @@ public class DataObjectService {
 	/**
 	 * Instantiates a new uninitialized data object service. Should not be used directly.
 	 */
-	public DataObjectService() {
+	public DataObjectHandling() {
 	}
 	
 	/**
 	 * Instantiates a new data object service that saves data via the user configured
-	 * data object service provider. The service provider will be loaded from the 
+	 * data object service provider. The service provider will be loaded from the
 	 * classpath or the java extension directory.
 	 *
 	 * @param dataInputObjectId the data input object id
 	 * @param dataOutputObjectId the data output object id
+	 * @param isCollection true if data object is a collection
 	 */
-	public DataObjectService(String dataInputObjectId, String dataOutputObjectId) {
+	public DataObjectHandling(String dataInputObjectId, String dataOutputObjectId) {
 		this.dataInputObjectId = dataInputObjectId;
 		this.dataOutputObjectId = dataOutputObjectId;
 	}
@@ -83,7 +84,7 @@ public class DataObjectService {
 	 *
 	 * @param dataObjectServiceProvider the data object service provider
 	 */
-	public DataObjectService(DataObjectSPI dataObjectServiceProvider) {
+	public DataObjectHandling(DataObjectSPI dataObjectServiceProvider) {
 		this.dataObjectServiceProvider = dataObjectServiceProvider;
 	}
 
@@ -96,8 +97,10 @@ public class DataObjectService {
 	 */
 	public void saveObject(String uniqueProcessId, String instanceId,
 			Object dataObject) {
-		this.dataObjectServiceProvider.saveObject(uniqueProcessId,
-				this.dataOutputObjectId, instanceId, dataObject);
+		if (this.dataOutputObjectId != null) {
+			this.dataObjectServiceProvider.saveObject(uniqueProcessId,
+					this.dataOutputObjectId, instanceId, dataObject);
+		}
 	}
 
 	/**
@@ -121,7 +124,11 @@ public class DataObjectService {
 	 * @return the data object loaded
 	 */
 	public Object loadObject(String uniqueProcessId, String instanceId,String dataObjectId) {
-		return this.dataObjectServiceProvider.loadObject(uniqueProcessId, dataObjectId, instanceId);
+		if (dataObjectId != null) {
+			return this.dataObjectServiceProvider.loadObject(uniqueProcessId, dataObjectId, instanceId);
+		} else {
+			return null;
+		}
 	}
 	
 	/**

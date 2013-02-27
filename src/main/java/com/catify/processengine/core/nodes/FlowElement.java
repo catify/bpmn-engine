@@ -32,6 +32,7 @@ import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.LoopMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
@@ -77,6 +78,13 @@ public abstract class FlowElement extends UntypedActor {
 	/** The node instance mediator service. */
 	protected NodeInstanceMediatorService nodeInstanceMediatorService;
 	
+	public FlowElement(String uniqueProcessId, String uniqueFlowNodeId) {
+		this.setUniqueProcessId(uniqueProcessId);
+		this.setUniqueFlowNodeId(uniqueFlowNodeId);
+		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
+				uniqueProcessId, uniqueFlowNodeId));
+	}
+	
 	/**
 	 * Template method for reacting to the possible message types.
 	 * This method should not be overridden by
@@ -84,12 +92,13 @@ public abstract class FlowElement extends UntypedActor {
 	 * 
 	 * @param message the message
 	 */
-	public void onReceive(Object message) {
+	public final void onReceive(Object message) {
 		LOG.debug(String.format("%s received %s", this.getSelf(), message
 				.getClass().getSimpleName()));
 		
 		if (this.isProcessableInstance((Message) message)) {
-			if (message instanceof ActivationMessage) {
+			if (message instanceof ActivationMessage) {		
+				this.handleLoopCount((Message) message);			
 				activate((ActivationMessage) message);
 			} else if (message instanceof TriggerMessage) {
 				trigger((TriggerMessage) message);
@@ -98,7 +107,7 @@ public abstract class FlowElement extends UntypedActor {
 				// commit message after deactivation
 				new NodeUtils().replySuccessfulCommit(((DeactivationMessage) message).getProcessInstanceId(), this.getSelf(), this.getSender());
 			} else {
-				unhandled(message);
+				handleNonStandardMessage(message);
 			}
 		} else {
 			if (message instanceof DeactivationMessage) {
@@ -106,6 +115,30 @@ public abstract class FlowElement extends UntypedActor {
 				new NodeUtils().replySuccessfulCommit(((DeactivationMessage) message).getProcessInstanceId(), this.getSelf(), this.getSender());
 			}
 		}
+	}
+
+	/**
+	 * Handles the loop count of a flow node instance (fni). Will increase the loop count, if a fni is in passed state.
+	 *
+	 * @param message the message
+	 */
+	private void handleLoopCount(Message message) {
+		String processInstanceId = message.getProcessInstanceId();
+		if (nodeInstanceMediatorService.getNodeInstanceState(processInstanceId).equals(NodeInstaceStates.PASSED_STATE)) {
+			int loopCount = nodeInstanceMediatorService.getLoopCount(processInstanceId);
+			
+			// create a new flow node instance node in the db and use that for further processing
+			nodeInstanceMediatorService.createNewNodeInstance(processInstanceId, ++loopCount);
+		}
+	}
+	
+	/**
+	 * Implements reaction to an non standard {@link Message}.
+	 *
+	 * @param message the message
+	 */
+	protected void handleNonStandardMessage(Object message) {
+		unhandled(message);
 	}
 
 	/**
@@ -138,30 +171,31 @@ public abstract class FlowElement extends UntypedActor {
 	 * {@link NodeInstaceStates.ACTIVE_STATE} can not be altered afterwards.
 	 */
 	protected boolean isProcessableInstance(Message message) {
-		// if the node checked is an uninitialized (start) node, consider it processable (as it has no saved state yet)
-		if (!this.nodeInstanceMediatorService.isInitialized() || message.getProcessInstanceId()==null
+		// if the node checked is an uninitialized node, consider it processable (as it has no saved state yet)
+		if (!this.nodeInstanceMediatorService.isInitialized() || message.getProcessInstanceId() == null
 				// if this is a start event it might have been initialized, but has not created instances yet
-				|| this.nodeInstanceMediatorService.getNodeInstanceState(message.getProcessInstanceId())==null) {
+				|| this.nodeInstanceMediatorService.getNodeInstanceState(message.getProcessInstanceId()) == null) {
 				return true;
 			} 
 		else {
-			String nodeInstanceState = this.nodeInstanceMediatorService
-					.getNodeInstanceState(message.getProcessInstanceId());
+			String nodeInstanceState = this.nodeInstanceMediatorService.getNodeInstanceState(message.getProcessInstanceId());
 			
-			// if the node checked is in an inactive or active state consider it processable
-			if (nodeInstanceState.equals(NodeInstaceStates.INACTIVE_STATE)
-					|| nodeInstanceState.equals(NodeInstaceStates.ACTIVE_STATE)) {
+			if (nodeInstanceState.equals(NodeInstaceStates.INACTIVE_STATE) || nodeInstanceState.equals(NodeInstaceStates.ACTIVE_STATE)) {
 				return true;
 			} 
-			// if the node checked is in any other state (like deactivated or passed) but this is a DeactivationMessage or CommitMessage consider it done and print appropriate debug log.
+			
 			else if (message instanceof DeactivationMessage || message instanceof CommitMessage) {
-				LOG.debug(String
-						.format("Message received by already finished node instance. This is expected behaviour. (%s with instance id %s is already at state %s, not processing %s)",
-								this.getClass().getSimpleName(), message.getProcessInstanceId(),
-								nodeInstanceState, message.getClass().getSimpleName()));
+				LOG.debug(String.format("Message received by already finished node instance. " +
+						"This is expected behaviour. (%s with instance id %s is already at state %s, not processing %s)",
+								this.getClass().getSimpleName(), message.getProcessInstanceId(), nodeInstanceState, message.getClass().getSimpleName()));
 				return false;
 			}
-			// if the node checked is in any other state (like deactivated or passed) consider it done.
+			
+			else if ((message instanceof ActivationMessage || message instanceof LoopMessage) && nodeInstanceState.equals(NodeInstaceStates.PASSED_STATE)) {
+				LOG.debug(String.format("%s received by %s node instance. This seems to be a loop.", message, nodeInstanceState));
+				return true;
+			}
+			
 			else {
 				LOG.debug(String
 						.format("isActiveInstance-sanity-check failed: %s with instance id %s is already at state %s, not processing %s",

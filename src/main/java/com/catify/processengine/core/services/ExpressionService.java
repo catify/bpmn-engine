@@ -16,13 +16,14 @@ import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
 
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.dataobjects.DataObjectSPI;
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
 
 /**
  * 
  * 
  * @author claus straube
+ * @author christopher köster
  * 
  */
 public class ExpressionService {
@@ -189,7 +190,7 @@ public class ExpressionService {
 	 */
 	public static Object evaluate(Expression expression, 
 			Set<String> dataObjectIds, 
-			DataObjectService dataObjectHandler,
+			DataObjectHandling dataObjectHandler,
 			String uniqueProcessId, 
 			String instanceId) {
 		
@@ -201,8 +202,25 @@ public class ExpressionService {
 		return result;
 	}
 	
+	/**
+	 * Evaluates a given JEXL {@link Expression} and returns it result.
+	 *
+	 * @param expression a JEXL {@link Expression}
+	 * @return the result of the JEXL evaluation
+	 */
+	public static Object evaluate(Expression expression) {
+		
+		JexlContext jc = new MapContext();
+		jc.set("cardinality", expression);
+		
+		// evaluate the expression
+		Object result = expression.evaluate(jc);
+        
+		return result;
+	}
+	
 	public static JexlContext fillContext(Set<String> dataObjectIds, 
-			DataObjectService dataObjectHandler,
+			DataObjectHandling dataObjectHandler,
 			String uniqueProcessId, 
 			String instanceId) {
 		// create context
@@ -212,6 +230,19 @@ public class ExpressionService {
 		for (String id : dataObjectIds) {
 			jc.set(id, dataObjectHandler.loadObject(uniqueProcessId, instanceId, id));
 		}
+		
+		return jc;
+	}
+	
+	public static JexlContext fillContext(Set<String> dataObjectIds, 
+			DataObjectHandling dataObjectHandler,
+			String uniqueProcessId, 
+			String instanceId,
+			int loopCount) {
+		// create context
+		JexlContext jc = fillContext(dataObjectIds, dataObjectHandler, uniqueProcessId, instanceId);
+		
+		jc.set("$LOOPCOUNTER", loopCount);
 		
 		return jc;
 	}
@@ -229,7 +260,7 @@ public class ExpressionService {
 	 */
 	public static boolean evaluateToBoolean(Expression expression, 
 			Set<String> dataObjectIds, 
-			DataObjectService dataObjectHandler,
+			DataObjectHandling dataObjectHandler,
 			String uniqueProcessId, 
 			String instanceId) {
 		
@@ -253,7 +284,7 @@ public class ExpressionService {
 			if(result instanceof Boolean) {
 				return (Boolean) result;
 			} else {
-				throw new IllegalArgumentException(String.format("Your JEXL expression '%s' has not a boolean result.", expression.getExpression()));
+				throw new IllegalArgumentException(String.format("Your JEXL expression '%s' does not have a boolean result.", expression.getExpression()));
 			}
 		}
 		return false;

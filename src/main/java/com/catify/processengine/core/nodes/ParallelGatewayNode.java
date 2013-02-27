@@ -29,7 +29,6 @@ import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.util.GatewayUtil;
 
 /**
@@ -41,9 +40,6 @@ import com.catify.processengine.core.util.GatewayUtil;
 public class ParallelGatewayNode extends FlowElement implements NOfMService {
 
 	static final Logger LOG = LoggerFactory.getLogger(ParallelGatewayNode.class);
-
-	public ParallelGatewayNode() {
-	}
 
 	/**
 	 * Instantiates a new parallel gateway node.
@@ -61,11 +57,8 @@ public class ParallelGatewayNode extends FlowElement implements NOfMService {
 	 */
 	public ParallelGatewayNode(String uniqueProcessId, String uniqueFlowNodeId,
 			List<ActorRef> outgoingNodes) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 	}
 
 	@Override

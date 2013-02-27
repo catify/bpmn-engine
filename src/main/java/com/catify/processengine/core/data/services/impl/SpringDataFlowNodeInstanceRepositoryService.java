@@ -69,7 +69,7 @@ public class SpringDataFlowNodeInstanceRepositoryService implements FlowNodeInst
 	 */
 	@Override
 	public FlowNodeInstance findFlowNodeInstance(String uniqueProcessId,
-			String uniqueFlowNodeId, String instanceId) {
+			String uniqueFlowNodeId, String instanceId, int loopCount) {
 		// two way query for later evaluation)
 //		FlowNode fn = flowNodeRepository.findFlowNode(uniqueProcessId, uniqueFlowNodeId);
 //		FlowNodeInstance fni = flowNodeInstanceRepository.findFlowNodeInstance(fn.getGraphId(), instanceId);
@@ -86,7 +86,7 @@ public class SpringDataFlowNodeInstanceRepositoryService implements FlowNodeInst
 		do {
 			try {
 				return flowNodeInstanceRepository.findFlowNodeInstance(
-						uniqueProcessId, uniqueFlowNodeId, instanceId);
+						uniqueProcessId, uniqueFlowNodeId, instanceId, loopCount);
 			} catch (org.neo4j.kernel.impl.nioneo.store.InvalidRecordException e) {
 				errorCatched = true;
 				LOG.debug("Concurrent searching and deleting lead to a InvalidRecordException in findFlowNodeInstance(). This is expected, retrying query.");
@@ -107,9 +107,22 @@ public class SpringDataFlowNodeInstanceRepositoryService implements FlowNodeInst
 	 */
 	@Override
 	public FlowNodeInstance findFlowNodeInstance(Long flowNodeGraphId,
-			String processInstanceId) {
+			String processInstanceId, int loopCount) {
 		return flowNodeInstanceRepository.findFlowNodeInstance(flowNodeGraphId,
-				processInstanceId);
+				processInstanceId, loopCount);
+	}
+	
+
+	@Override
+	public int getFlowNodeInstanceMaxLoopCount(String uniqueProcessId,
+			String uniqueFlowNodeId, String processInstanceId) {
+		Integer loopCount = flowNodeInstanceRepository.getFlowNodeInstanceMaxLoopCount(uniqueProcessId, uniqueFlowNodeId, processInstanceId);
+
+		if (loopCount == null) {
+			return 0;
+		} else {
+			return loopCount;
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -135,7 +148,6 @@ public class SpringDataFlowNodeInstanceRepositoryService implements FlowNodeInst
 	@Override
 	public Set<String> findAllFlowNodeInstancesAtState(
 			String uniqueProcessId, String uniqueFlowNodeId, String state) {
-		// TODO Auto-generated method stub
 		return flowNodeInstanceRepository.findAllFlowNodeInstancesAtState(uniqueProcessId, uniqueFlowNodeId, state);
 	}
 
@@ -201,10 +213,10 @@ public class SpringDataFlowNodeInstanceRepositoryService implements FlowNodeInst
 	 */
 	@Override
 	public Iterable<FlowNodeInstance> findLoosingFlowNodeInstances(
-			String uniqueProcessId, String uniqueFlowNodeId, String instanceId) {
+			String uniqueProcessId, String uniqueFlowNodeId, String instanceId, int loopCount) {
 
 		FlowNodeInstance startingNode = this.findFlowNodeInstance(
-				uniqueProcessId, uniqueFlowNodeId, instanceId);
+				uniqueProcessId, uniqueFlowNodeId, instanceId, loopCount);
 		
 		return flowNodeInstanceRepository.findAllByTraversal(startingNode,
 				getTraversalDescriptionStopOnStatePassed());
@@ -215,10 +227,10 @@ public class SpringDataFlowNodeInstanceRepositoryService implements FlowNodeInst
 	 */
 	@Override
 	public Set<String> findLoosingFlowNodeIds(
-			String uniqueProcessId, String uniqueFlowNodeId, String instanceId) {
+			String uniqueProcessId, String uniqueFlowNodeId, String instanceId, int loopCount) {
 
 		FlowNodeInstance startingNode = this.findFlowNodeInstance(
-				uniqueProcessId, uniqueFlowNodeId, instanceId);
+				uniqueProcessId, uniqueFlowNodeId, instanceId, loopCount);
 				
 		return flowNodeInstanceRepository.findPreviousFlowNodeIdsNotInGivenStates(
 				startingNode.getGraphId(), NodeInstaceStates.PASSED_STATE, NodeInstaceStates.DEACTIVATED_STATE);

@@ -25,4 +25,8 @@ package com.catify.processengine.core.nodes;
  */
 public abstract class ThrowEvent extends Event {
 
+	public ThrowEvent(String uniqueProcessId, String uniqueFlowNodeId) {
+		super(uniqueProcessId, uniqueFlowNodeId);
+	}
+
 }

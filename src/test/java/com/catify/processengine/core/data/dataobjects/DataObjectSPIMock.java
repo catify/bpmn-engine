@@ -15,6 +15,7 @@ public class DataObjectSPIMock extends DataObjectSPI {
 	
 	public DataObjectSPIMock() {
 		this.db = new HashMap<String, Object>();
+		this.implementationId = "DataSPIMock";
 	}
 	
 	@Override

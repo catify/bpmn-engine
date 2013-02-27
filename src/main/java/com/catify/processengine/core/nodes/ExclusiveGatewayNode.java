@@ -32,13 +32,12 @@ import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.services.ExpressionService;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 import com.catify.processengine.core.util.GatewayUtil;
 
 /**
@@ -66,7 +65,7 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 	/**
 	 * Holds all data objects.
 	 */
-	protected DataObjectService dataObjectHandler;
+	protected DataObjectHandling dataObjectHandler;
 	
 	/**
 	 * Default outgoing sequence, if no expression returns true.
@@ -100,13 +99,10 @@ public class ExclusiveGatewayNode extends FlowElement implements NOfMService {
 			Set<String> allDataObjectIds,
 			Map<ActorRef, String> conditionalExpressionStrings,
 			ActorRef defaultNode,
-			DataObjectService dataObjectHandler) {
+			DataObjectHandling dataObjectHandler) {
 
-		super.setUniqueProcessId(uniqueProcessId);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		super.setOutgoingNodes(outgoingNodes);
-		super.setUniqueFlowNodeId(uniqueFlowNodeId);
-		super.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		
 		this.defaultOutgoingSequence = defaultNode;
 		

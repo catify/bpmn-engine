@@ -144,4 +144,15 @@ public abstract class EventDefinition extends UntypedActor {
 	protected CommitMessage<?> createSuccessfullCommitMessage(String processInstanceId) {
 		return new NodeUtils().createSuccessfulCommitMessage(processInstanceId, this.getSelf(), this.getSender());
 	}
+	
+	/**
+	 * Create a commit message with a 'successful' future and a payload.
+	 *
+	 * @param processInstanceId the process instance id
+	 * @param future the future
+	 * @return the commit message
+	 */
+	protected CommitMessage<?> createSuccessfullCommitMessage(String processInstanceId, Object payload) {
+		return new NodeUtils().createSuccessfulCommitMessage(processInstanceId, this.getSelf(), this.getSender(), payload);
+	}
 }

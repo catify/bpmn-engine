@@ -24,4 +24,8 @@ package com.catify.processengine.core.nodes;
  * 
  */
 public abstract class CatchEvent extends Event {
+
+	public CatchEvent(String uniqueProcessId, String uniqueFlowNodeId) {
+		super(uniqueProcessId, uniqueFlowNodeId);
+	}
 }

@@ -16,7 +16,7 @@ import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 import org.junit.Test;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 
 /**
  * Tests the {@link ExpressionService}.
@@ -96,7 +96,7 @@ public class ExpressionServiceTest {
 		Expression exp1 = ExpressionService.createJexlExpression("foo.a > bar.b");
 		Expression exp2 = ExpressionService.createJexlExpression("foo.a + bar.b");	
 		Set<String> ids = createIdSet("foo", "bar");
-		DataObjectService dos = this.getDataObjectServiceMock();
+		DataObjectHandling dos = this.getDataObjectServiceMock();
 		
 		Object result1 = ExpressionService.evaluate(exp1, ids, dos, PID, IID);
 		assertNotNull(result1);
@@ -121,8 +121,8 @@ public class ExpressionServiceTest {
 		assertFalse((Boolean) result);
 	}
 	
-	private DataObjectService getDataObjectServiceMock() {
-		DataObjectService dos = mock(DataObjectService.class);
+	private DataObjectHandling getDataObjectServiceMock() {
+		DataObjectHandling dos = mock(DataObjectHandling.class);
 		when(dos.loadObject(PID, IID, "foo")).thenReturn(new Foo(3));
 		when(dos.loadObject(PID, IID, "bar")).thenReturn(new Bar(5));
 		

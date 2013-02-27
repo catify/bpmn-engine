@@ -30,7 +30,6 @@ import com.catify.processengine.core.nodes.NodeFactory;
 import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.services.MessageDispatcherService;
 
-// TODO: Auto-generated Javadoc
 /**
  * Each (akka) node that has a throwing message event definition instantiates
  * and binds an object of the MessageEventDefinition_Throw class. This class
@@ -43,10 +42,10 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  * @author christopher köster
  * 
  */
-public class MessageEventDefinition_Throw extends EventDefinition {
+public class MessageEventDefinitionThrow extends EventDefinition {
 
 	static final Logger LOG = LoggerFactory
-			.getLogger(MessageEventDefinition_Throw.class);
+			.getLogger(MessageEventDefinitionThrow.class);
 
 	private final String uniqueProcessId;
 	private final String uniqueFlowNodeId;
@@ -69,7 +68,7 @@ public class MessageEventDefinition_Throw extends EventDefinition {
 	 * @param messageIntegration
 	 *            the message event definition
 	 */
-	public MessageEventDefinition_Throw(String uniqueProcessId,
+	public MessageEventDefinitionThrow(String uniqueProcessId,
 			String uniqueFlowNodeId, String actorRefString,
 			TMessageIntegration messageIntegration) {
 
