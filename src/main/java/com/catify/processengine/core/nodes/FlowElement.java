@@ -129,10 +129,6 @@ public abstract class FlowElement extends UntypedActor {
 			
 			// create a new flow node instance node in the db and use that for further processing
 			nodeInstanceMediatorService.createNewNodeInstance(processInstanceId, ++loopCount);
-			
-//			nodeInstanceMediatorService.setLoopCount(processInstanceId, ++loopCount);
-//			nodeInstanceMediatorService.setState(processInstanceId, NodeInstaceStates.INACTIVE_STATE);
-//			nodeInstanceMediatorService.persistChanges();
 		}
 	}
 	

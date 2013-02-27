@@ -17,21 +17,7 @@
  */
 package com.catify.processengine.core.data.services.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.util.Set;
-
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.catify.processengine.core.data.model.ModelTestBase;
-import com.catify.processengine.core.data.model.NodeInstaceStates;
-import com.catify.processengine.core.data.model.entities.FlowNode;
-import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
-import com.catify.processengine.core.data.model.entities.ProcessNode;
-import com.catify.processengine.core.data.model.entities.RunningNode;
 
 public class FlowNodeInstanceRepositoryServiceImplTest extends ModelTestBase {
 

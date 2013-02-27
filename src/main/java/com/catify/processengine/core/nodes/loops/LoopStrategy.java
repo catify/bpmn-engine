@@ -99,15 +99,16 @@ public abstract class LoopStrategy extends UntypedActor {
 	}
 	
 	/**
-	 * Gets the loop count from the db (avoiding any caches).
+	 * Gets the loop counter from the db (avoiding any caches). The loopCounter is the loopCount (how many loops have been
+	 * done until now) + 1 (the current loop iteration).
 	 *
 	 * @param message the message
 	 * @return the loop count
 	 */
-	protected int getLoopCount(Message message) {
+	protected int getLoopCounter(Message message) {
 		nodeInstanceMediatorService.refreshFlowNodeInstance(uniqueProcessId, uniqueFlowNodeId, message.getProcessInstanceId());
 		int loopCounter = nodeInstanceMediatorService.getLoopCount(message.getProcessInstanceId());
-		return loopCounter;
+		return ++loopCounter;
 	}
 	
 	/**

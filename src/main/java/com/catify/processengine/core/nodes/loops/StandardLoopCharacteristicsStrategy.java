@@ -57,7 +57,7 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 
 		if (testBefore) {
 
-			int loopCounter = this.getLoopCount(message);
+			int loopCounter = this.getLoopCounter(message);
 			
 			// true if loop should continue
 			if (this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
@@ -87,7 +87,7 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 	public void trigger(TriggerMessage message) {
 
 		if (testBefore) {
-			int loopCounter = this.getLoopCount(message);
+			int loopCounter = this.getLoopCounter(message);
 			
 			// true if loop should continue
 			if (this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
@@ -111,7 +111,7 @@ public class StandardLoopCharacteristicsStrategy extends LoopStrategy {
 	@Override
 	protected void loop(LoopMessage message) {
 		if (!testBefore) {
-			int loopCounter = this.getLoopCount(message);
+			int loopCounter = this.getLoopCounter(message);
 			if (this.evaluateLoopCondition(message.getProcessInstanceId(), loopCounter)) {
 				this.sendMessageToNodeActor(new ActivationMessage(message.getProcessInstanceId()), this.getSelf());
 			} else {

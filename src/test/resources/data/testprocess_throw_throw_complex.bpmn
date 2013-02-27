@@ -39,9 +39,9 @@
 			<incoming>sequenceFlow4</incoming>
 			<outgoing>sequenceFlow5</outgoing>
 			<extensionElements>
-				<catify:nOfM count="1" />
+				<catify:nOfM count="2" />
 			</extensionElements>
-			<activationCondition>1</activationCondition>
+			<activationCondition>2</activationCondition>
 		</complexGateway>
 		<endEvent id="endEvent1" name="End Event">
 		</endEvent>

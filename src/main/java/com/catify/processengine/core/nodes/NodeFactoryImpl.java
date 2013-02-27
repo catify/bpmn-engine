@@ -22,12 +22,10 @@ package com.catify.processengine.core.nodes;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.xml.bind.JAXBElement;
 
@@ -475,28 +473,6 @@ public class NodeFactoryImpl implements NodeFactory {
 							(TFlowNode) sequenceFlowJaxb.getTargetRef()));
 		}
 		return null;
-	}
-
-	/**
-	 * get conditional expressions.
-	 *
-	 * @param sequenceFlowsJaxb the sequence flows jaxb
-	 * @return the conditional expression strings
-	 */
-	private Set<String> getConditionalExpressionStrings(List<TSequenceFlow> sequenceFlowsJaxb) {
-
-		Set<String> expressions = new TreeSet<String>();
-		Iterator<TSequenceFlow> it = sequenceFlowsJaxb.iterator();
-
-		while (it.hasNext()) {
-			TSequenceFlow tSequenceFlow = (TSequenceFlow) it.next();
-			String expression = this.getConditionalExpressionString(tSequenceFlow);
-			if (expression != null) {
-				expressions.add(expression);
-			}
-		}
-
-		return expressions;
 	}
 	
 	/**

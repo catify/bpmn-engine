@@ -90,9 +90,7 @@ public class MultiInstanceLoopCharacteristicsStrategy extends LoopStrategy {
 	@Override
 	public void trigger(TriggerMessage message) {
 		
-		Integer loopCounter = new Integer(42); // FIXME: provide method for loop counter retrieval from db
-		
-		loopCounter++;
+		int loopCounter = this.getLoopCounter(message);
 		
 		// true if loop should continue
 		if (!this.evaluateCompletionCondition(message.getProcessInstanceId())) {
