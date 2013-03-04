@@ -247,6 +247,19 @@
 					<header>src/main/resources/apache_license.txt</header>
 				</configuration>
 			</plugin>
+			
+			<!-- gpg -->
+			<plugin>
+				<groupId>org.kohsuke</groupId>
+				<artifactId>pgp-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 			<!-- creates an executable jar -->
 			<plugin>
@@ -262,19 +275,6 @@
 						</manifest>
 					</archive>
 				</configuration>
-			</plugin>
-			
-			<!-- gpg -->
-			<plugin>
-				<groupId>org.kohsuke</groupId>
-				<artifactId>pgp-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 
 			<!-- copies the dependencies -->
