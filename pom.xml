@@ -263,6 +263,19 @@
 					</archive>
 				</configuration>
 			</plugin>
+			
+			<!-- gpg -->
+			<plugin>
+				<groupId>org.kohsuke</groupId>
+				<artifactId>pgp-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 			<!-- copies the dependencies -->
 			<plugin>
@@ -507,37 +520,4 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	<profiles>
-		<profile>
-			<id>default_profile</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-		</profile>
-		<profile>
-			<id>deploy_profile</id>
-			<build>
-				<plugins>
-					<!-- gpg -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<configuration>
-									<keyname>catify</keyname>
-								</configuration>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>
