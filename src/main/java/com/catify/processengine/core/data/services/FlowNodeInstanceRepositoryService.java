@@ -49,7 +49,7 @@ public interface FlowNodeInstanceRepositoryService {
 	 * @return the neo4j flow node instance
 	 */
 	FlowNodeInstance findFlowNodeInstance(String uniqueProcessId,
-			String uniqueFlowNodeId, String instanceId);
+			String uniqueFlowNodeId, String instanceId, int loopCount);
 
 	/**
 	 * Load a flow node instance from db.
@@ -61,7 +61,20 @@ public interface FlowNodeInstanceRepositoryService {
 	 * @return the neo4j flow node instance
 	 */
 	FlowNodeInstance findFlowNodeInstance(Long flowNodeGraphId,
-			String processInstanceId);
+			String processInstanceId, int loopCount);
+	
+	/**
+	 * Find a flow node instance (starting from a given process). 
+	 * 
+	 * @param uniqueProcessId
+	 *            the unique process id
+	 * @param uniqueFlowNodeId
+	 *            the node id
+	 * @param processInstanceId
+	 *            the process instance id
+	 * @return the flow node instance
+	 */
+	int getFlowNodeInstanceMaxLoopCount(String uniqueProcessId, String uniqueFlowNodeId, String processInstanceId);
 
 	/**
 	 * Delete a flow node instance by graph id.
@@ -139,7 +152,7 @@ public interface FlowNodeInstanceRepositoryService {
 	 * @return the set of flow node instances that lost the race
 	 */
 	Iterable<FlowNodeInstance> findLoosingFlowNodeInstances(
-			String uniqueProcessId, String uniqueFlowNodeId, String instanceId);
+			String uniqueProcessId, String uniqueFlowNodeId, String instanceId, int loopCount);
 	
 	/**
 	 * Find flow node ids of previous loosing flow node instances.
@@ -150,7 +163,7 @@ public interface FlowNodeInstanceRepositoryService {
 	 * @return the set of flow node ids
 	 */
 	Set<String> findLoosingFlowNodeIds(String uniqueProcessId,
-			String uniqueFlowNodeId, String instanceId);
+			String uniqueFlowNodeId, String instanceId, int loopCount);
 	
 	/**
 	 * Find all flow nodes of a given process level (not including sub and parent processes) that have a given state.

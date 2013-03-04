@@ -22,14 +22,12 @@ import java.util.List;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * An intermediate catch event can receive (and save) messages sent from outside
@@ -44,9 +42,6 @@ public class IntermediateBoundaryEventNode extends CatchEvent {
 	private ActorRef boundaryActivity;
 	
 	private boolean interrupting;
-
-	public IntermediateBoundaryEventNode() {
-	}
 
 	/**
 	 * Instantiates a new catch event node.
@@ -65,20 +60,15 @@ public class IntermediateBoundaryEventNode extends CatchEvent {
 	 */
 	public IntermediateBoundaryEventNode(String uniqueProcessId,
 			String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter,
-			List<ActorRef> outgoingNodes, DataObjectService dataObjectHandling, ActorRef boundaryActivity, boolean interrupting) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinitionParameter(eventDefinitionParameter);
+			List<ActorRef> outgoingNodes, DataObjectHandling dataObjectHandling, ActorRef boundaryActivity, boolean interrupting) {
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		this.setBoundaryActivity(boundaryActivity);
 		this.setInterrupting(interrupting);
 		
 		// create EventDefinition actor
-		this.eventDefinitionActor = EventDefinitionHandling
-				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
+		this.eventDefinitionActor = this.createEventDefinitionActor(eventDefinitionParameter);
 	}
 
 	@Override
@@ -108,7 +98,7 @@ public class IntermediateBoundaryEventNode extends CatchEvent {
 
 	@Override
 	protected void trigger(TriggerMessage message) {
-		this.getDataObjectService().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
+		this.getDataObjectHandling().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
 		
 		this.callEventDefinitionActor(message);
 		

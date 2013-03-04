@@ -84,6 +84,19 @@ public class NodeUtils {
 	}
 	
 	/**
+	 * Create a commit message with a 'successful' future and a payload. The future will be generated.
+	 *
+	 * @param processInstanceId the process instance id
+	 * @param self the self actor reference
+	 * @param sender the sender actor reference
+	 * @param payload the payload
+	 * @return the commit message
+	 */
+	public CommitMessage<?> createSuccessfulCommitMessage(String processInstanceId, ActorRef self,ActorRef sender, Object payload) {
+		return new CommitMessage<String>(Futures.successful("Successful commit"), processInstanceId, self.toString(), sender.toString(), payload);
+	}
+	
+	/**
 	 * Create a commit message with a 'failed' future and the given failure.
 	 *
 	 * @param failure the failure

@@ -22,16 +22,13 @@ import java.util.List;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
-import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.messages.WinningMessage;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * An EbgConnectedCatchEvent is a specialization of the standard catch event
@@ -49,9 +46,6 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 
 	private ActorRef activatingGatewayNode;
 
-	public EbgConnectedCatchEventNode() {
-	}
-
 	/**
 	 * Instantiates a new catch event node.
 	 * 
@@ -66,39 +60,26 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 	 */
 	public EbgConnectedCatchEventNode(String uniqueProcessId,
 			String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter,
-			List<ActorRef> outgoingNodes, DataObjectService dataObjectHandling) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinitionParameter(eventDefinitionParameter);
+			List<ActorRef> outgoingNodes, DataObjectHandling dataObjectHandling) {
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		
 		// create EventDefinition actor
-		this.eventDefinitionActor = EventDefinitionHandling
-				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
+		this.eventDefinitionActor = this.createEventDefinitionActor(eventDefinitionParameter);
 	}
 
 	/**
-	 * onReceive method of {@linkplain FLowNode} needs to be overridden because
+	 * onReceive method of {@linkplain FLowNode} needs to be extended because
 	 * we need to implement a winning message reaction not used in any of the
 	 * other event nodes.
 	 */
 	@Override
-	public void onReceive(Object message) {
-		if (this.isProcessableInstance((Message) message)) {
-			if (message instanceof ActivationMessage) {
-				activate((ActivationMessage) message);
-			} else if (message instanceof DeactivationMessage) {
-				deactivate((DeactivationMessage) message);
-			} else if (message instanceof TriggerMessage) {
-				trigger((TriggerMessage) message);
-			} else if (message instanceof WinningMessage) {
-				winning((WinningMessage) message);
-			} else {
-				unhandled(message);
-			}
+	protected void handleNonStandardMessage(Object message) {
+		if (message instanceof WinningMessage) {
+			winning((WinningMessage) message);
+		} else {
+			unhandled(message);
 		}
 	}
 
@@ -136,7 +117,7 @@ public class EbgConnectedCatchEventNode extends CatchEvent {
 	 */
 	@Override
 	protected void trigger(TriggerMessage message) {
-		this.getDataObjectService().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
+		this.getDataObjectHandling().saveObject(this.getUniqueProcessId(), message.getProcessInstanceId(), message.getPayload());
 		
 		this.callEventDefinitionActor(message);
 		

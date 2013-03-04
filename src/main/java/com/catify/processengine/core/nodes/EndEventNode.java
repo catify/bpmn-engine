@@ -25,15 +25,15 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinition;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
+import com.catify.processengine.core.nodes.eventdefinition.TerminateEventDefinition;
 import com.catify.processengine.core.services.ProcessInstanceMediatorService;
 
 /**
@@ -55,9 +55,9 @@ public class EndEventNode extends ThrowEvent {
 	
 	/** The data object ids of the whole process. Will be null if this is not a top level end event. */
 	private Set<String> dataObjectIds;
-
-	public EndEventNode() {
-	}
+	
+	/** True if the {@link EventDefinition} is a {@link TerminateEventDefinition}. */
+	private boolean isTerminate;
 
 	/**
 	 * Instantiates a new end event node.
@@ -69,20 +69,16 @@ public class EndEventNode extends ThrowEvent {
 	 * @param dataObjectHandling the data object handling
 	 * @param dataObjectIds the data object ids
 	 */
-	public EndEventNode(String uniqueProcessId, String uniqueFlowNodeId,
-			EventDefinitionParameter eventDefinitionParameter, ActorRef parentSubProcessNode, DataObjectService dataObjectHandling, Set<String> dataObjectIds) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinitionParameter(eventDefinitionParameter);
+	public EndEventNode(String uniqueProcessId, String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter,
+			boolean isTerminate, ActorRef parentSubProcessNode, DataObjectHandling dataObjectHandling, Set<String> dataObjectIds) {
+		super(uniqueProcessId, uniqueFlowNodeId);
+		this.isTerminate = isTerminate;
 		this.parentSubProcessNode = parentSubProcessNode;
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		this.dataObjectIds = dataObjectIds;
 		
 		// create EventDefinition actor
-		this.eventDefinitionActor = EventDefinitionHandling
-				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
+		this.eventDefinitionActor = this.createEventDefinitionActor(eventDefinitionParameter);
 	}
 
 	@Override
@@ -90,7 +86,7 @@ public class EndEventNode extends ThrowEvent {
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceStartTime(message.getProcessInstanceId(), new Date());
 		
-		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
+		message.setPayload(this.getDataObjectHandling().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
 		this.callEventDefinitionActor(message);
 		
@@ -141,10 +137,14 @@ public class EndEventNode extends ThrowEvent {
 		// if the process instance has no active nodes left, consider it ended
 		if (activeFlowNodeInstances.size() == 0) {
 			
-			// embedded end events call their embedding sub processes to move on in the process
+			// embedded end events call their embedding sub processes to move on in the process and this is not a terminate event
 			if (this.parentSubProcessNode != null) {
-				this.sendMessageToNodeActor(new TriggerMessage(processInstanceId, null), this.parentSubProcessNode);
-				LOG.debug(String.format("Sub-Process instance with instance id '%s' ended sucessfully", processInstanceId));
+				if (isTerminate) {
+					LOG.debug(String.format("Sub-Process instance with instance id '%s' terminated sucessfully", processInstanceId));
+				} else {
+					LOG.debug(String.format("Sub-Process instance with instance id '%s' ended sucessfully", processInstanceId));
+					this.sendMessageToNodeActor(new TriggerMessage(processInstanceId, null), this.parentSubProcessNode);
+				}
 			// top level end events will work with the whole process instance to either save or delete it
 			} else {
 				LOG.debug(String.format("Process instance with instance id '%s' ended sucessfully", processInstanceId));

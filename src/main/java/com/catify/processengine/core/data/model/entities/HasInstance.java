@@ -50,9 +50,9 @@ public class HasInstance {
 	@EndNode
 	private FlowNodeInstance flowNodeInstance;
 
-	/** The instance id. */
+	/** The process instance id. */
 	@Indexed
-	private String instanceId;
+	private String processInstanceId;
 
 	/**
 	 * Instantiates a new has instance relationship.
@@ -72,25 +72,25 @@ public class HasInstance {
 		super();
 		this.node = node;
 		this.flowNodeInstance = flowNodeInstance;
-		this.instanceId = instanceId;
+		this.processInstanceId = instanceId;
 	}
 
 	/**
-	 * Gets the instance id.
+	 * Gets the process instance id.
 	 *
 	 * @return the instance id
 	 */
-	public String getInstanceId() {
-		return instanceId;
+	public String getProcessInstanceId() {
+		return processInstanceId;
 	}
 
 	/**
-	 * Sets the instance id.
+	 * Sets the process instance id.
 	 *
 	 * @param instanceId the new instance id
 	 */
-	public void setInstanceId(String instanceId) {
-		this.instanceId = instanceId;
+	public void setProcessInstanceId(String instanceId) {
+		this.processInstanceId = instanceId;
 	}
 
 	/**

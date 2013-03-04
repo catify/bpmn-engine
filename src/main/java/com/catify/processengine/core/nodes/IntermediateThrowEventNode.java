@@ -22,14 +22,12 @@ import java.util.List;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * An intermediate throw event can send (and load) messages outside of the
@@ -40,8 +38,9 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  */
 public class IntermediateThrowEventNode extends ThrowEvent {
 
-	public IntermediateThrowEventNode() {
-	}
+//	public IntermediateThrowEventNode() {
+//		super(null, null);
+//	}
 
 	/**
 	 * Instantiates a new start event node.
@@ -59,23 +58,18 @@ public class IntermediateThrowEventNode extends ThrowEvent {
 	 */
 	public IntermediateThrowEventNode(String uniqueProcessId,
 			String uniqueFlowNodeId, EventDefinitionParameter eventDefinitionParameter,
-			List<ActorRef> outgoingNodes, DataObjectService dataObjectHandling) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setEventDefinitionParameter(eventDefinitionParameter);
+			List<ActorRef> outgoingNodes, DataObjectHandling dataObjectHandling) {
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 		this.setDataObjectHandling(dataObjectHandling);
 		
 		// create EventDefinition actor
-		this.eventDefinitionActor = EventDefinitionHandling
-				.createEventDefinitionActor(uniqueFlowNodeId, this.getContext(), eventDefinitionParameter);
+		this.eventDefinitionActor = this.createEventDefinitionActor(eventDefinitionParameter);
 	}
 
 	@Override
 	protected void activate(ActivationMessage message) {
-		message.setPayload(this.getDataObjectService().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
+		message.setPayload(this.getDataObjectHandling().loadObject(this.getUniqueProcessId(), message.getProcessInstanceId()));
 		
 		this.callEventDefinitionActor(message);
 		

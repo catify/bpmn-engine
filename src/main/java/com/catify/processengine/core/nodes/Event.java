@@ -19,14 +19,8 @@ package com.catify.processengine.core.nodes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
-import akka.actor.ActorRef;
-
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
-import com.catify.processengine.core.messages.Message;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionHandling;
-import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 
 /**
  * Abstract class for all events.
@@ -34,49 +28,22 @@ import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParame
  * @author christopher köster
  * 
  */
-public abstract class Event extends FlowElement {
+public abstract class Event extends Task {
+
+	public Event(String uniqueProcessId, String uniqueFlowNodeId) {
+		super(uniqueProcessId, uniqueFlowNodeId);
+	}
 
 	static final Logger LOG = LoggerFactory.getLogger(Event.class);
-	
-	/** The EventDefinition parameter object of which an EventDefinition actor can be instantiated. */
-	protected EventDefinitionParameter eventDefinitionParameter;
 
-	protected DataObjectService dataObjectHandling;
+	protected DataObjectHandling dataObjectHandling;
 	
-	/** The timeout in seconds. Note: This value is only available after construction is completed. */
-	@Value("${core.eventDefinitionTimeout}")
-	protected long timeoutInSeconds;
-
-	/** The event definition actor bound to this node. */
-	protected ActorRef eventDefinitionActor;
-	
-	/**
-	 * <b>Synchronously</b> calls an EventDefinition actor via sending a message to it and awaiting a result.
-	 * Note: This is a blocking operation!
-	 *
-	 * @param message the message
-	 */
-	protected void callEventDefinitionActor(Message message) {
-		EventDefinitionHandling.callEventDefinitionActor(
-				this.eventDefinitionActor,
-				this.uniqueFlowNodeId, message, this.timeoutInSeconds,
-				this.eventDefinitionParameter);
-	}
-	
-	public DataObjectService getDataObjectService() {
+	public DataObjectHandling getDataObjectHandling() {
 		return dataObjectHandling;
 	}
 
-	public void setDataObjectHandling(DataObjectService dataObjectHandling) {
+	public void setDataObjectHandling(DataObjectHandling dataObjectHandling) {
 		this.dataObjectHandling = dataObjectHandling;
 	}
-	
-	public EventDefinitionParameter getEventDefinitionParameter() {
-		return eventDefinitionParameter;
-	}
 
-	public void setEventDefinitionParameter(
-			EventDefinitionParameter eventDefinitionParameter) {
-		this.eventDefinitionParameter = eventDefinitionParameter;
-	}
 }

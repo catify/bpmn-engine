@@ -29,7 +29,6 @@ import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.messages.WinningMessage;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * An event based gateway triggers immediately if one of the following event
@@ -45,9 +44,6 @@ import com.catify.processengine.core.services.NodeInstanceMediatorService;
  */
 public class EventBasedGatewayNode extends FlowElement {
 
-	public EventBasedGatewayNode() {
-	}
-
 	/**
 	 * Instantiates a new event based gateway node.
 	 * 
@@ -62,11 +58,8 @@ public class EventBasedGatewayNode extends FlowElement {
 	 */
 	public EventBasedGatewayNode(String uniqueProcessId,
 			String uniqueFlowNodeId, List<ActorRef> outgoingNodes) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
+		super(uniqueProcessId, uniqueFlowNodeId);
 		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
 	}
 
 	@Override

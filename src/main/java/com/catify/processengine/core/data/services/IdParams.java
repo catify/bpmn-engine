@@ -17,6 +17,7 @@
  */
 package com.catify.processengine.core.data.services;
 
+import com.catify.processengine.core.nodes.NodeParameter;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
@@ -59,6 +60,16 @@ public class IdParams {
 	 */
 	public IdParams(EventDefinitionParameter params) {
 		this.setProcessParams(params.clientId,  params.processJaxb.getName(), this.extractProcessVersion(params.processJaxb), params.processJaxb.getId());
+	}
+	
+	/**
+	 * Fill Bean to get the Process and Node ID.
+	 * 
+	 * @param params
+	 */
+	public IdParams(NodeParameter params) {
+		this.setProcessParams(params.clientId,  params.processJaxb.getName(), this.extractProcessVersion(params.processJaxb), params.processJaxb.getId());
+		this.setNodeParams(params.flowNodeJaxb.getId(), params.flowNodeJaxb.getName(), subProcesses);
 	}
 	
 	/**
@@ -149,7 +160,7 @@ public class IdParams {
 	}
 	
 	/**
-	 * Creates a unique  process ID with the given prefix (prefix + client id + process name + process id + process version).
+	 * Creates a unique process ID with the given prefix (prefix + client id + process name + process id + process version).
 	 * 
 	 * @param prefix
 	 * @return process id with prefix

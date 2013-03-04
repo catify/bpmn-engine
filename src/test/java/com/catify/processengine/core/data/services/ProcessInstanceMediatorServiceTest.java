@@ -110,7 +110,7 @@ public class ProcessInstanceMediatorServiceTest {
 		
 		flowNodeIds.add(flowNodeId);
 		
-		when(flowNodeInstanceRepositoryService.findLoosingFlowNodeIds("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId"))
+		when(flowNodeInstanceRepositoryService.findLoosingFlowNodeIds("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId", 0))
 			.thenReturn(flowNodeIds);
 		
 		assertEquals(flowNodeIds, processInstanceMediatorServiceMockInjected.getPreviousLoosingNodeIds("uniqueProcessId", "uniqueFlowNodeId", "testInstanceId"));
@@ -119,7 +119,7 @@ public class ProcessInstanceMediatorServiceTest {
 	@Test
 	public void testFindActiveFlowNodeInstances() {
 		HashSet<FlowNodeInstance> flowNodeInstances = new HashSet<FlowNodeInstance>();
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE");
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
 		flowNodeInstances.add(flowNodeInstance);
 		
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstancesAtCurrentLevelByState("uniqueFlowNodeId", "testInstanceId", NodeInstaceStates.ACTIVE_STATE))

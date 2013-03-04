@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.UntypedActor;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.messages.ArchiveMessage;
 import com.catify.processengine.core.messages.DeletionMessage;
 
@@ -46,7 +46,7 @@ public class ProcessInstanceCleansingService extends UntypedActor {
 	@Autowired
 	private ProcessInstanceMediatorService processInstanceMediatorService;
 	
-	private DataObjectService dataObjectService = new DataObjectService();
+	private DataObjectHandling dataObjectService = new DataObjectHandling();
 	
 	public ProcessInstanceCleansingService() {
 		
@@ -88,7 +88,7 @@ public class ProcessInstanceCleansingService extends UntypedActor {
 	 *
 	 * @return the data object service
 	 */
-	public DataObjectService getDataObjectService() {
+	public DataObjectHandling getDataObjectService() {
 		return dataObjectService;
 	}
 
@@ -97,7 +97,7 @@ public class ProcessInstanceCleansingService extends UntypedActor {
 	 *
 	 * @param dataObjectService the new data object service
 	 */
-	public void setDataObjectService(DataObjectService dataObjectService) {
+	public void setDataObjectService(DataObjectHandling dataObjectService) {
 		this.dataObjectService = dataObjectService;
 	}
 

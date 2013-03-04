@@ -95,7 +95,7 @@ public class ModelTestBase {
 
 	public FlowNodeInstance createFlowNodeInstance(String state) {
 
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance(state);
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance(state, 0, 0);
 
 		assertNotNull(flowNodeInstance);
 

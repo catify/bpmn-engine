@@ -22,26 +22,31 @@ package com.catify.processengine.core.nodes;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.xml.bind.JAXBElement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
+import akka.actor.UntypedActorFactory;
 
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.dataobjects.DataObjectIdService;
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
 import com.catify.processengine.core.data.dataobjects.NoDataObjectSP;
 import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
+import com.catify.processengine.core.nodes.loops.LoopStrategy;
+import com.catify.processengine.core.nodes.loops.LoopStrategyFactory;
 import com.catify.processengine.core.processdefinition.jaxb.TBoundaryEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TComplexGateway;
@@ -53,7 +58,6 @@ import com.catify.processengine.core.processdefinition.jaxb.TFlowElement;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;
 import com.catify.processengine.core.processdefinition.jaxb.TIntermediateCatchEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TIntermediateThrowEvent;
-import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.processdefinition.jaxb.TParallelGateway;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TReceiveTask;
@@ -62,7 +66,7 @@ import com.catify.processengine.core.processdefinition.jaxb.TSequenceFlow;
 import com.catify.processengine.core.processdefinition.jaxb.TServiceTask;
 import com.catify.processengine.core.processdefinition.jaxb.TStartEvent;
 import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
-import com.catify.processengine.core.processdefinition.jaxb.services.ExtensionService;
+import com.catify.processengine.core.processdefinition.jaxb.TTerminateEventDefinition;
 import com.catify.processengine.core.services.ActorReferenceService;
 
 /**
@@ -77,8 +81,12 @@ public class NodeFactoryImpl implements NodeFactory {
 	public static final Logger LOG = LoggerFactory
 			.getLogger(NodeFactoryImpl.class);
 	
+	/** The actor system. */
+	@Autowired
+	protected ActorSystem actorSystem;
+	
 	@Override
-	public synchronized FlowElement createServiceNode(String clientId, TProcess processJaxb,  ArrayList<TSubProcess> subProcessesJaxb,
+	public synchronized FlowElement createServiceNode(String clientId, TProcess processJaxb,  List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 		// event nodes
 		if (flowNodeJaxb instanceof TStartEvent) {
@@ -153,7 +161,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return
 	 */
 	private FlowElement createIntermediateBoundaryEventNode(String clientId,
-			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 		
 		TBoundaryEvent boundaryEvent = (TBoundaryEvent) flowNodeJaxb;
@@ -164,7 +172,7 @@ public class NodeFactoryImpl implements NodeFactory {
 				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
 				this.getOutgoingActorReferences(clientId, processJaxb, subProcessesJaxb,
 						boundaryEvent, sequenceFlowsJaxb),
-				this.getDataObjectService(flowNodeJaxb),
+				this.getDataObjectHandling(flowNodeJaxb),
 				this.getBoundaryActivity(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
 				boundaryEvent.isCancelActivity());
 	}
@@ -180,7 +188,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param sequenceFlowsJaxb the list of jaxb sequence flows of that process
 	 * @return the start event node
 	 */
-	private FlowElement createStartEventNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	private FlowElement createStartEventNode(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TStartEvent startEventJaxb = (TStartEvent) flowNodeJaxb;
@@ -195,7 +203,7 @@ public class NodeFactoryImpl implements NodeFactory {
 				this.getOtherStartNodeActorReferences(clientId, processJaxb, subProcessesJaxb, startEventJaxb,
 						sequenceFlowsJaxb),
 				this.getParentSubProcessUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb),
-				this.getDataObjectService(flowNodeJaxb));
+				this.getDataObjectHandling(flowNodeJaxb));
 	}
 
 	/**
@@ -210,7 +218,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the catch event node
 	 */
 	private FlowElement createIntermediateCatchEventNode(
-			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+			String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TCatchEvent intermediateCatchEventJaxb = (TCatchEvent) flowNodeJaxb;
@@ -234,7 +242,7 @@ public class NodeFactoryImpl implements NodeFactory {
 					new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb), 
 					this.getOutgoingActorReferences(clientId, processJaxb, subProcessesJaxb,
 							intermediateCatchEventJaxb, sequenceFlowsJaxb),
-					this.getDataObjectService(flowNodeJaxb));
+					this.getDataObjectHandling(flowNodeJaxb));
 			// else instantiate the standard catch node
 		} else {
 			return new IntermediateCatchEventNode(
@@ -244,7 +252,7 @@ public class NodeFactoryImpl implements NodeFactory {
 					new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
 					this.getOutgoingActorReferences(clientId, processJaxb, subProcessesJaxb,
 							intermediateCatchEventJaxb, sequenceFlowsJaxb),
-					this.getDataObjectService(flowNodeJaxb));
+					this.getDataObjectHandling(flowNodeJaxb));
 		}
 	}
 
@@ -260,7 +268,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the throw event node
 	 */
 	private FlowElement createIntermediateThrowEventNode(
-			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+			String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TIntermediateThrowEvent intermediateThrowEventJaxb = (TIntermediateThrowEvent) flowNodeJaxb;
@@ -272,7 +280,7 @@ public class NodeFactoryImpl implements NodeFactory {
 				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
 				this.getOutgoingActorReferences(clientId, processJaxb, subProcessesJaxb,
 						intermediateThrowEventJaxb, sequenceFlowsJaxb),
-				this.getDataObjectService(flowNodeJaxb));
+				this.getDataObjectHandling(flowNodeJaxb));
 	}
 
 	/**
@@ -285,22 +293,37 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param sequenceFlowsJaxb the list of jaxb sequence flows of that process
 	 * @return the end event node
 	 */
-	private FlowElement createEndEventNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	private FlowElement createEndEventNode(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		TEndEvent endEventJaxb = (TEndEvent) flowNodeJaxb;
+		
+		boolean isTerminate = checkIfTerminateEvent(endEventJaxb);
 		
 		return new EndEventNode(
 				IdService.getUniqueProcessId(clientId, processJaxb),
 				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
 						endEventJaxb),
 				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
+				isTerminate,
 				this.getParentSubProcessActorReference(clientId, 
 						processJaxb, subProcessesJaxb, endEventJaxb, sequenceFlowsJaxb),
-				this.getDataObjectService(flowNodeJaxb),
+				this.getDataObjectHandling(flowNodeJaxb),
 				this.getAllDataObjectIds(processJaxb, subProcessesJaxb));
 	}
 	
+	private boolean checkIfTerminateEvent(TEndEvent endEventJaxb) {
+		if (endEventJaxb.getEventDefinition().size() > 0) {
+			if (endEventJaxb.getEventDefinition().get(0).getValue() instanceof TTerminateEventDefinition) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * Gets all data object ids of a process (including sub process object ids).
 	 *
@@ -308,7 +331,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param subProcessesJaxb the list of parent jaxb sub processes
 	 * @return the data object ids
 	 */
-	private Set<String> getAllDataObjectIds(TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb) {
+	protected Set<String> getAllDataObjectIds(TProcess processJaxb, List<TSubProcess> subProcessesJaxb) {
 		
 		// only top level end processes need info about the data objects, 
 		// because only they will be allowed to delete them
@@ -337,7 +360,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the complex gateway node
 	 */
 	private FlowElement createComplexGatewayNode(
-			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+			String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TComplexGateway complexGatewayJaxb = (TComplexGateway) flowNodeJaxb;
@@ -361,7 +384,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the event based gateway node
 	 */
 	private FlowElement createEventBasedGatewayNode(
-			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+			String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TEventBasedGateway eventBasedGatewayJaxb = (TEventBasedGateway) flowNodeJaxb;
@@ -386,7 +409,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the parallel gateway node
 	 */
 	private FlowElement createParallelGatewayNode(
-			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+			String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		final TParallelGateway parallelGatewayJaxb = (TParallelGateway) flowNodeJaxb;
@@ -410,12 +433,12 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the flow element
 	 */
 	private FlowElement createExclusiveGatewayNode(String clientId,
-			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 		
 		final TExclusiveGateway exclusiveGatewayJaxb = (TExclusiveGateway) flowNodeJaxb;
 		
-		this.getConditionalExpressionStrings(sequenceFlowsJaxb);
+//		this.getConditionalExpressionStrings(sequenceFlowsJaxb);
 		
 		return new ExclusiveGatewayNode(
 				IdService.getUniqueProcessId(clientId, processJaxb), //process id
@@ -424,7 +447,7 @@ public class NodeFactoryImpl implements NodeFactory {
 				this.getAllDataObjectIds(processJaxb, subProcessesJaxb), // the used data object ids
 				this.getOutgoingActorReferencesAndExpressions(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb), // all expressions including actor refs
 				this.getDefaultOutgoingSequence(clientId, processJaxb, subProcessesJaxb, exclusiveGatewayJaxb), // the default actor ref
-				this.getDataObjectService(flowNodeJaxb)); // the data object handler for the service
+				this.getDataObjectHandling(flowNodeJaxb)); // the data object handler for the service
 	}
 	
 	/**
@@ -437,7 +460,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param exclusiveGatewayJaxb the exclusive gateway jaxb
 	 * @return the default outgoing sequence
 	 */
-	private ActorRef getDefaultOutgoingSequence(String clientId,  TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	private ActorRef getDefaultOutgoingSequence(String clientId,  TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TExclusiveGateway exclusiveGatewayJaxb) {
 		
 		Object def = exclusiveGatewayJaxb.getDefault();
@@ -450,29 +473,6 @@ public class NodeFactoryImpl implements NodeFactory {
 							(TFlowNode) sequenceFlowJaxb.getTargetRef()));
 		}
 		return null;
-	}
-
-	/**
-	 * get conditional expressions.
-	 *
-	 * @param sequenceFlowsJaxb the sequence flows jaxb
-	 * @return the conditional expression strings
-	 */
-	private Set<String> getConditionalExpressionStrings(
-			List<TSequenceFlow> sequenceFlowsJaxb) {
-
-		Set<String> expressions = new TreeSet<String>();
-		Iterator<TSequenceFlow> it = sequenceFlowsJaxb.iterator();
-
-		while (it.hasNext()) {
-			TSequenceFlow tSequenceFlow = (TSequenceFlow) it.next();
-			String expression = this.getConditionalExpressionString(tSequenceFlow);
-			if (expression != null) {
-				expressions.add(expression);
-			}
-		}
-
-		return expressions;
 	}
 	
 	/**
@@ -501,21 +501,11 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param sequenceFlowsJaxb the list of jaxb sequence flows of that process
 	 * @return the sub process node
 	 */
-	private FlowElement createSubProcessNode(String clientId,
-			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+	protected FlowElement createSubProcessNode(String clientId,
+			TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
-		
-		final TSubProcess subProcessJaxb = (TSubProcess) flowNodeJaxb;
-
-		return new SubProcessNode(
-				IdService.getUniqueProcessId(clientId, processJaxb),
-				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-						subProcessJaxb), 
-				this.getOutgoingActorReferences(clientId, 
-						processJaxb, subProcessesJaxb, subProcessJaxb, sequenceFlowsJaxb),
-				this.getEmbeddedStartNodeActorReferences(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb),
-				this.getEmbeddedNodeActorReferences(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb),
-				this.getBoundaryEvents(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb));
+		return getLoopTaskWrapper(clientId, processJaxb, subProcessesJaxb,
+				flowNodeJaxb, sequenceFlowsJaxb);
 	}
 
 	/**
@@ -528,23 +518,65 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param sequenceFlowsJaxb the list of jaxb sequence flows of that process
 	 * @return the send task node
 	 */
-	private FlowElement createSendTaskNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
+	protected FlowElement createSendTaskNode(final String clientId, final TProcess processJaxb, final List<TSubProcess> subProcessesJaxb,
+			final TFlowNode flowNodeJaxb, final List<TSequenceFlow> sequenceFlowsJaxb) {
+		return getLoopTaskWrapper(clientId, processJaxb, subProcessesJaxb,
+				flowNodeJaxb, sequenceFlowsJaxb);
+	}
 
-		final TSendTask sendTaskJaxb = (TSendTask) flowNodeJaxb;
+	/**
+	 * Gets the loop task wrapper which isolates the looping behavior from the task action. 
+	 * It therefore creates and calls the according {@link LoopStrategy} which itself creates and calls
+	 * the task action.
+	 *
+	 * @param clientId the client id
+	 * @param processJaxb the jaxb process
+	 * @param subProcessesJaxb the sub processes jaxb
+	 * @param flowNodeJaxb the jaxb parallel gateway node
+	 * @param sequenceFlowsJaxb the list of jaxb sequence flows of that process
+	 * @return the loop task wrapper
+	 */
+	private FlowElement getLoopTaskWrapper(final String clientId,
+			final TProcess processJaxb,
+			final List<TSubProcess> subProcessesJaxb,
+			final TFlowNode flowNodeJaxb,
+			final List<TSequenceFlow> sequenceFlowsJaxb) {
+		final NodeParameter nodeParameter = new NodeParameter(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb);
+		final String uniqueFlowNodeId = nodeParameter.getUniqueFlowNodeId();
+		
+		// create the loop strategy actor which itself creates the task action actor
+		ActorRef strategy = this.createLoopStrategy(flowNodeJaxb, nodeParameter, uniqueFlowNodeId);
+		
+		// return the LoopTaskWrapper which holds the LoopTypeStrategy
+		return new ActivityLoopWrapper(nodeParameter.getUniqueProcessId(), uniqueFlowNodeId, 
+				getOutgoingActorReferences(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb, sequenceFlowsJaxb),
+				strategy,
+				getBoundaryEvents(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb));
+	}
 
-		return new SendTaskNode(
-				IdService.getUniqueProcessId(clientId, processJaxb),
-				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-						sendTaskJaxb), 
-				this.getOutgoingActorReferences(clientId, 
-						processJaxb, subProcessesJaxb, sendTaskJaxb, sequenceFlowsJaxb),
-				ActorReferenceService.getActorReferenceString(
-								IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-										flowNodeJaxb)),  
-				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb), 
-				this.getDataObjectService(flowNodeJaxb),
-				this.getBoundaryEvents(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb));
+	/**
+	 * Creates the loop strategy depending on the loop configuration of a node.
+	 *
+	 * @param flowNodeJaxb the jaxb flow node 
+	 * @param nodeParameter the node parameter
+	 * @param uniqueFlowNodeId the unique flow node id
+	 * @return the LoopStrategy actor ref
+	 */
+	private ActorRef createLoopStrategy(final TFlowNode flowNodeJaxb,
+			final NodeParameter nodeParameter, final String uniqueFlowNodeId) {
+		ActorRef strategy = this.actorSystem.actorOf(new Props(new UntypedActorFactory() {
+			private static final long serialVersionUID = 1L;
+
+			public UntypedActor create() {				
+				return new LoopStrategyFactory().createLoopStrategy(
+						new ActorReferenceService().getActorReference(uniqueFlowNodeId), // task wrapper actor Ref
+						nodeParameter);
+				}
+			}).withDispatcher("file-mailbox-dispatcher"), 
+			ActorReferenceService.getActorReferenceString(uniqueFlowNodeId) + "-strategy");
+		
+		LOG.debug(String.format("%s --> resulting akka object: %s", flowNodeJaxb, strategy.toString()));
+		return strategy;
 	}
 
 	/**
@@ -557,7 +589,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the boundary activity
 	 */
 	private ActorRef getBoundaryActivity(String clientId, TProcess processJaxb,
-			ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb) {
+			List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb) {
 
 		TBoundaryEvent boundaryEvent = (TBoundaryEvent) flowNodeJaxb;
 
@@ -578,8 +610,8 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param flowNodeJaxb the jaxb flow node
 	 * @return the boundary activity
 	 */
-	private List<ActorRef> getBoundaryEvents(String clientId, TProcess processJaxb,
-			ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb) {
+	protected List<ActorRef> getBoundaryEvents(String clientId, TProcess processJaxb,
+			List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb) {
 
 		List<TFlowNode> boundaryEventsJaxb = this.getTBoundaryEventById(processJaxb, flowNodeJaxb.getId());
 
@@ -626,7 +658,7 @@ public class NodeFactoryImpl implements NodeFactory {
 		}
 		
 		if (flowNodesJaxb.size() == 0) {
-			LOG.error("The node id " + activityNodeId + " could not be found!");
+			LOG.debug("There are no boundary events for node id " + activityNodeId);
 			return null;
 		} else {
 			return flowNodesJaxb;
@@ -675,23 +707,10 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param sequenceFlowsJaxb the list of jaxb sequence flows of that process
 	 * @return the send task node
 	 */
-	private FlowElement createReceiveTaskNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	protected FlowElement createReceiveTaskNode(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
-
-		final TReceiveTask receiveTaskJaxb = (TReceiveTask) flowNodeJaxb;
-
-		return new ReceiveTaskNode(
-				IdService.getUniqueProcessId(clientId, processJaxb),
-				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-						receiveTaskJaxb), 
-				this.getOutgoingActorReferences(clientId, 
-						processJaxb, subProcessesJaxb, receiveTaskJaxb, sequenceFlowsJaxb),
-				ActorReferenceService.getActorReferenceString(
-								IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-										flowNodeJaxb)), 
-				new EventDefinitionParameter(clientId, processJaxb, subProcessesJaxb,flowNodeJaxb),
-				this.getDataObjectService(flowNodeJaxb),
-				this.getBoundaryEvents(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb));
+		return getLoopTaskWrapper(clientId, processJaxb, subProcessesJaxb,
+				flowNodeJaxb, sequenceFlowsJaxb);
 	}
 
 	/**
@@ -704,22 +723,10 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param sequenceFlowsJaxb the list of jaxb sequence flows of that process
 	 * @return the service task node
 	 */
-	private FlowElement createServiceTaskNode(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	protected FlowElement createServiceTaskNode(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
-
-		final TServiceTask serviceTaskJaxb = (TServiceTask) flowNodeJaxb;
-
-		TMessageIntegration messageIntegration = ExtensionService.getTMessageIntegration(flowNodeJaxb);
-		
-		return new ServiceTaskNode(
-				IdService.getUniqueProcessId(clientId, processJaxb),
-				IdService.getUniqueFlowNodeId(clientId, processJaxb, subProcessesJaxb,
-						serviceTaskJaxb), 
-				this.getOutgoingActorReferences(clientId, 
-						processJaxb, subProcessesJaxb, serviceTaskJaxb, sequenceFlowsJaxb),
-				messageIntegration,
-				this.getDataObjectService(flowNodeJaxb),
-				this.getBoundaryEvents(clientId, processJaxb, subProcessesJaxb, flowNodeJaxb));
+		return getLoopTaskWrapper(clientId, processJaxb, subProcessesJaxb,
+				flowNodeJaxb, sequenceFlowsJaxb);
 	}
 
 	/**
@@ -735,7 +742,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param sequenceFlowsJaxb the sequence flowsJaxb
 	 * @return a list of strings of the incoming actor references
 	 */
-	private List<TFlowNode> getIncomingFlowNodes(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+	private List<TFlowNode> getIncomingFlowNodes(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb, List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		List<TFlowNode> incomingingNodes = new ArrayList<TFlowNode>();
@@ -777,8 +784,8 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param sequenceFlowsJaxb the sequence flowsJaxb
 	 * @return a list of strings of the outgoing actor references
 	 */
-	private List<ActorRef> getOutgoingActorReferences( 
-			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+	protected List<ActorRef> getOutgoingActorReferences( 
+			String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		List<ActorRef> outgoingNodes = new ArrayList<ActorRef>();
@@ -799,7 +806,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param sequenceFlowsJaxb the sequence flows jaxb
 	 * @return the outgoing actor references and expressions
 	 */
-	private Map<ActorRef, String> getOutgoingActorReferencesAndExpressions(String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+	private Map<ActorRef, String> getOutgoingActorReferencesAndExpressions(String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 		Map<ActorRef, String> outRefs = new TreeMap<ActorRef, String>();
 		
@@ -848,7 +855,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the ActorRef of the parent Sub Process or null if there is none
 	 */
 	private ActorRef getParentSubProcessActorReference( 
-			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+			String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		String subProcessUinqueFlowNodeId = getParentSubProcessUniqueFlowNodeId(
@@ -872,7 +879,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return the unique flow node id of the parent sub process or null if there is none
 	 */
 	private String getParentSubProcessUniqueFlowNodeId(String clientId,
-			TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb,
+			TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
 			TFlowNode flowNodeJaxb) {
 		ArrayList<TSubProcess> localSubProcessesJaxb = new ArrayList<TSubProcess>(subProcessesJaxb);
 
@@ -907,7 +914,7 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @return a list of strings of the other start node actor references
 	 */
 	private List<ActorRef> getOtherStartNodeActorReferences(
-			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+			String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		List<ActorRef> otherStartNodes = new ArrayList<ActorRef>();
@@ -948,8 +955,8 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param sequenceFlowsJaxb the sequence flowsJaxb
 	 * @return a list of strings of the other start node actor references
 	 */
-	private List<ActorRef> getEmbeddedStartNodeActorReferences(
-			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+	protected List<ActorRef> getEmbeddedStartNodeActorReferences(
+			String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		List<ActorRef> embeddedStartNodes = new ArrayList<ActorRef>();
@@ -983,8 +990,8 @@ public class NodeFactoryImpl implements NodeFactory {
 	 * @param sequenceFlowsJaxb the sequence flowsJaxb
 	 * @return a list of strings of the other start node actor references
 	 */
-	private List<ActorRef> getEmbeddedNodeActorReferences(
-			String clientId, TProcess processJaxb, ArrayList<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
+	protected List<ActorRef> getEmbeddedNodeActorReferences(
+			String clientId, TProcess processJaxb, List<TSubProcess> subProcessesJaxb, TFlowNode flowNodeJaxb,
 			List<TSequenceFlow> sequenceFlowsJaxb) {
 
 		if (flowNodeJaxb instanceof TSubProcess) {
@@ -1012,18 +1019,18 @@ public class NodeFactoryImpl implements NodeFactory {
 		}
 	}
 	
-	private DataObjectService getDataObjectService(TFlowNode flowNodeJaxb) {
+	public DataObjectHandling getDataObjectHandling(TFlowNode flowNodeJaxb) {
 
 		Map<String, String> dataObjectIds = DataObjectIdService.getDataObjectIds(flowNodeJaxb);
 		
 		// only create a DataObjectService with a data object service provider if there is at least on object id
 		if (dataObjectIds.size() > 0) {
 			LOG.debug("Node factory appending data object service provider");
-			return new DataObjectService(dataObjectIds.get(DataObjectIdService.DATAINPUTOBJECTID), dataObjectIds.get(DataObjectIdService.DATAOUTPUTOBJECTID));
+			return new DataObjectHandling(dataObjectIds.get(DataObjectIdService.DATAINPUTOBJECTID), dataObjectIds.get(DataObjectIdService.DATAOUTPUTOBJECTID));
 		} 
 		// otherwise provide a dummy DataObjectService
 		else {
-			return new DataObjectService(new NoDataObjectSP());
+			return new DataObjectHandling(new NoDataObjectSP());
 		}
 	}
 

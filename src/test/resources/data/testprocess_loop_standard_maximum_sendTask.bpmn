@@ -21,7 +21,7 @@
 	typeLanguage="http://www.w3.org/2001/XMLSchema"
 	xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
 
-	<process id="testprocess_throw_throw_complex" isClosed="false" isExecutable="true"
+	<process id="testprocess_loop_standard_maximum_sendTask" isClosed="false" isExecutable="true"
 		processType="Private">
 		<extensionElements>
 			<catify:version id="VERSION_ID" version="testProcessVersion1" />
@@ -29,31 +29,18 @@
 		<startEvent id="startEvent1" isInterrupting="true" name="Start Event"
 			parallelMultiple="false">
 		</startEvent>
-		<intermediateThrowEvent id="throwEvent1" name="Intermediate Event">
-		</intermediateThrowEvent>
-		<intermediateThrowEvent id="throwEvent2" name="Intermediate Event">
-		</intermediateThrowEvent>
-		<complexGateway gatewayDirection="Unspecified" id="complexGateway1"
-			name="Complex Gateway">
-			<incoming>sequenceFlow3</incoming>
-			<incoming>sequenceFlow4</incoming>
-			<outgoing>sequenceFlow5</outgoing>
+		<sendTask completionQuantity="1" id="sendTask1" implementation="##WebService" isForCompensation="false" name="Send Task" startQuantity="1">
 			<extensionElements>
-				<catify:nOfM count="2" />
+				<catify:messageIntegration prefix="integration_mock"
+					integrationstring="file:data/integrationOutput" />
 			</extensionElements>
-			<activationCondition>2</activationCondition>
-		</complexGateway>
+      		<standardLoopCharacteristics loopMaximum="3" testBefore="true"/>
+    	</sendTask>
 		<endEvent id="endEvent1" name="End Event">
 		</endEvent>
 		<sequenceFlow id="sequenceFlow1" sourceRef="startEvent1"
-			targetRef="throwEvent1" />
-		<sequenceFlow id="sequenceFlow2" sourceRef="startEvent1"
-			targetRef="throwEvent2" />
-		<sequenceFlow id="sequenceFlow3" sourceRef="throwEvent1"
-			targetRef="complexGateway1" />
-		<sequenceFlow id="sequenceFlow4" sourceRef="throwEvent2"
-			targetRef="complexGateway1" />
-		<sequenceFlow id="sequenceFlow5" sourceRef="complexGateway1"
+			targetRef="sendTask1" />
+		<sequenceFlow id="sequenceFlow2" sourceRef="sendTask1"
 			targetRef="endEvent1" />
 	</process>
 

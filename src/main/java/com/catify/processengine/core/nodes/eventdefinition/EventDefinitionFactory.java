@@ -45,9 +45,9 @@ import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TReceiveTask;
 import com.catify.processengine.core.processdefinition.jaxb.TSendTask;
+import com.catify.processengine.core.processdefinition.jaxb.TServiceTask;
 import com.catify.processengine.core.processdefinition.jaxb.TSignalEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TStartEvent;
-import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 import com.catify.processengine.core.processdefinition.jaxb.TTask;
 import com.catify.processengine.core.processdefinition.jaxb.TTerminateEventDefinition;
 import com.catify.processengine.core.processdefinition.jaxb.TThrowEvent;
@@ -74,8 +74,7 @@ public class EventDefinitionFactory {
 	
 	public EventDefinition getEventDefinition(EventDefinitionParameter eventDefinitionParameter) {
 		// get the event definition (if any)
-		TEventDefinition eventDefinitionJaxb = getTEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb,
-				eventDefinitionParameter.subProcessesJaxb, eventDefinitionParameter.flowNodeJaxb);
+		TEventDefinition eventDefinitionJaxb = getTEventDefinition(eventDefinitionParameter.flowNodeJaxb);
 	
 		// if there is no event definition, create an EmptyEventDefinition actor
 		if (eventDefinitionJaxb == null) {
@@ -107,8 +106,7 @@ public class EventDefinitionFactory {
 				return createLinkEventDefinition(eventDefinitionParameter, (TLinkEventDefinition) eventDefinitionJaxb );
 			}
 			// return empty event definition for unimplemented event definitions
-			LOG.error(String.format("Unimplemented event definition %s found. Associated events will fail!", getTEventDefinition(eventDefinitionParameter.clientId, eventDefinitionParameter.processJaxb,
-					eventDefinitionParameter.subProcessesJaxb, eventDefinitionParameter.flowNodeJaxb)));
+			LOG.error(String.format("Unimplemented event definition %s found. Associated events will fail!", getTEventDefinition(eventDefinitionParameter.flowNodeJaxb)));
 			return null;
 		}
 	}
@@ -249,44 +247,45 @@ public class EventDefinitionFactory {
 	 * @param processJaxb the processJaxb
 	 * @param flowNodeJaxb the flow nodeJaxb
 	 * @param messageEventDefinitionJaxb the event definitionJaxb
-	 * @return the event definition
+	 * @return the event definition actor
 	 */
 	private EventDefinition createMessageEventDefinition(EventDefinitionParameter params, TMessageIntegration messageIntegration) {
 		return getMessageEventDefinition(params, messageIntegration);
 	}
 
 	/**
-	 * TODO --> comment
+	 * Create message {@link EventDefinition} actor based on the underlying node type.
 	 * 
-	 * @param params
-	 * @param messageIntegration
-	 * @return
+	 * @param params EventDefinitionParameter
+	 * @param messageIntegration jaxb TMessageIntegration
+	 * @return the event definition actor
 	 */
 	private EventDefinition getMessageEventDefinition(EventDefinitionParameter params, TMessageIntegration messageIntegration) {
 		// message event is catching
-		if (params.flowNodeJaxb instanceof TCatchEvent || params.flowNodeJaxb instanceof TReceiveTask) {
-			
-			// create catching message event definition to be used in akka actor	
+		if (params.flowNodeJaxb instanceof TCatchEvent || params.flowNodeJaxb instanceof TReceiveTask) {	
 			return getMessageEventDefinitionCatch(params, messageIntegration);
 	
 		// message event is throwing
 		} else if (params.flowNodeJaxb instanceof TThrowEvent || params.flowNodeJaxb instanceof TSendTask) {
-			
 			return getMessageEventDefinitionThrow(params, messageIntegration);
+			
+		// message event is request/reply
+		} else if (params.flowNodeJaxb instanceof TServiceTask) {
+			return getMessageEventDefinitionRequestReply(params, messageIntegration);
 		}
 		return null;
 	}
 
 	/**
-	 * TODO --> comment
+	 * Create a message {@link EventDefinition} actor for catching nodes (eg. catch event, receive task).
 	 * 
-	 * @param params
-	 * @param messageIntegration
-	 * @return
+	 * @param params EventDefinitionParameter
+	 * @param messageIntegration jaxb TMessageIntegration
+	 * @return the event definition actor
 	 */
 	public EventDefinition getMessageEventDefinitionCatch(EventDefinitionParameter params, TMessageIntegration messageIntegration) {
 		EventDefinition eventDefinition;
-		eventDefinition = new MessageEventDefinition_Catch(
+		eventDefinition = new MessageEventDefinitionCatch(
 				IdService.getUniqueProcessId(params),
 				IdService.getUniqueFlowNodeId(params), 
 				ActorReferenceService.getActorReferenceString(
@@ -296,16 +295,35 @@ public class EventDefinitionFactory {
 	}
 
 	/**
-	 * TODO --> comment
+	 * Create a message {@link EventDefinition} actor for throwing nodes (eg. throw event, send task).
 	 * 
-	 * @param params
-	 * @param messageIntegration
-	 * @return
+	 * @param params EventDefinitionParameter
+	 * @param messageIntegration jaxb TMessageIntegration
+	 * @return the event definition actor
 	 */
 	public EventDefinition getMessageEventDefinitionThrow(EventDefinitionParameter params, TMessageIntegration messageIntegration) {
 		EventDefinition eventDefinition;
 		// create throwing message event definition to be used in akka actor
-		eventDefinition = new MessageEventDefinition_Throw(
+		eventDefinition = new MessageEventDefinitionThrow(
+				IdService.getUniqueProcessId(params),
+				IdService.getUniqueFlowNodeId(params), 
+				ActorReferenceService.getActorReferenceString(
+						IdService.getUniqueFlowNodeId(params)),  
+				messageIntegration);
+		return eventDefinition;
+	}
+	
+	/**
+	 * Create a message {@link EventDefinition} actor for request/reply nodes (eg. service task).
+	 * 
+	 * @param params EventDefinitionParameter
+	 * @param messageIntegration jaxb TMessageIntegration
+	 * @return the event definition actor
+	 */
+	public EventDefinition getMessageEventDefinitionRequestReply(EventDefinitionParameter params, TMessageIntegration messageIntegration) {
+		EventDefinition eventDefinition;
+		// create throwing message event definition to be used in akka actor
+		eventDefinition = new MessageEventDefinitionRequestReply(
 				IdService.getUniqueProcessId(params),
 				IdService.getUniqueFlowNodeId(params), 
 				ActorReferenceService.getActorReferenceString(
@@ -391,9 +409,7 @@ public class EventDefinitionFactory {
 	 * @param flowNodeJaxb the jaxb flow node 
 	 * @return the jaxb event definition or null if none is found
 	 */
-	private TEventDefinition getTEventDefinition(String clientId,
-			TProcess processJaxb, List<TSubProcess> subProcessesJaxb,
-			TFlowNode flowNodeJaxb) {
+	public TEventDefinition getTEventDefinition(TFlowNode flowNodeJaxb) {
 		if (flowNodeJaxb instanceof TCatchEvent) {
 			if (((TCatchEvent) flowNodeJaxb).getEventDefinition().size() > 0) {
 				return ((TCatchEvent) flowNodeJaxb).getEventDefinition().get(0).getValue();

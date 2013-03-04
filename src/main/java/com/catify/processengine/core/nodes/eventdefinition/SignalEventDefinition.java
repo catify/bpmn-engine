@@ -29,7 +29,7 @@ import akka.actor.ActorRef;
 import akka.event.EventBus;
 
 import com.catify.processengine.core.data.model.NodeInstaceStates;
-import com.catify.processengine.core.data.repositories.FlowNodeInstanceRepository;
+import com.catify.processengine.core.data.services.FlowNodeInstanceRepositoryService;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
@@ -53,7 +53,7 @@ public class SignalEventDefinition extends EventDefinition {
 	private EventDefinitionParameter params;
 	
 	@Autowired
-	private FlowNodeInstanceRepository repo;
+	private FlowNodeInstanceRepositoryService repo;
 	
 	/**
 	 * Creates a signal event definition.

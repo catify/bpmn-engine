@@ -18,7 +18,6 @@
 package com.catify.processengine.core.nodes;
 
 import java.util.Date;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -28,14 +27,15 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectService;
+import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
+import com.catify.processengine.core.messages.LoopMessage;
+import com.catify.processengine.core.messages.Message;
 import com.catify.processengine.core.messages.TriggerMessage;
-import com.catify.processengine.core.processdefinition.jaxb.TMessageIntegration;
+import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.services.ActorReferenceService;
-import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
 /**
  * The ServiceTaskNode is the supervisor for the {@link ServiceTaskInstance}, which implements the actual bpmn service task. 
@@ -51,45 +51,27 @@ public class ServiceTaskNode extends Task {
 	@Autowired
 	private NodeFactory nodeFactory;
 	
-	/** The in out message integration. */
-	private TMessageIntegration messageIntegrationInOut;
+	private EventDefinitionParameter eventDefinitionParameter;
 	
-	/**
-	 * Instantiates a new service task.
-	 */
-	public ServiceTaskNode() {
-
-	}
-
 	/**
 	 * Instantiates a new service task node.
 	 *
 	 * @param uniqueProcessId the process id
 	 * @param uniqueFlowNodeId the unique flow node id
-	 * @param outgoingNodes the outgoing nodes
-	 * @param messageIntegrationInOut the message integration in out
+	 * @param eventDefinitionParameter the event definition parameter
 	 * @param dataObjectHandling the data object handling
+	 * @param taskWrapper 
 	 */
 	public ServiceTaskNode(String uniqueProcessId, String uniqueFlowNodeId,
-			List<ActorRef> outgoingNodes,
-			TMessageIntegration messageIntegrationInOut, DataObjectService dataObjectHandling, List<ActorRef> boundaryEvent) {
-		this.setUniqueProcessId(uniqueProcessId);
-		this.setUniqueFlowNodeId(uniqueFlowNodeId);
-		this.setOutgoingNodes(outgoingNodes);
-		this.setNodeInstanceMediatorService(new NodeInstanceMediatorService(
-				uniqueProcessId, uniqueFlowNodeId));
-		this.setMessageIntegrationInOut(messageIntegrationInOut);
-		this.setBoundaryEvents(boundaryEvent);
-		
+			EventDefinitionParameter eventDefinitionParameter, DataObjectHandling dataObjectHandling) {
+		super(uniqueProcessId, uniqueFlowNodeId);
 		// all service task instances share this service object, it might therefore need some kind of synchronization
 		this.setDataObjectHandling(dataObjectHandling);
+		this.eventDefinitionParameter = eventDefinitionParameter;
 	}
-
+	
 	@Override
 	protected void activate(ActivationMessage message) {
-
-		// activate boundary event
-		this.activateBoundaryEvents(message);
 		
 		ActorRef serviceTaskInstance = this.getContext().actorOf(new Props(
 				new UntypedActorFactory() {
@@ -98,10 +80,9 @@ public class ServiceTaskNode extends Task {
 					// create an instance of a (synchronous) service worker
 					public UntypedActor create() {
 							return new ServiceTaskInstance(getUniqueProcessId(), getUniqueFlowNodeId(), 
-									getOutgoingNodes(), messageIntegrationInOut, getDataObjectService(), 
-									getBoundaryEvents());
+									eventDefinitionParameter, getDataObjectHandling());
 					}
-				}), ActorReferenceService.getAkkaComplientString(message.getProcessInstanceId()));
+				}), this.getTaskInstanceActorRef(message));
 		LOG.debug(String.format("Service task instance craeted %s --> resulting akka object: %s", this.getClass(),
 				serviceTaskInstance.toString()));
 		
@@ -111,7 +92,7 @@ public class ServiceTaskNode extends Task {
 	@Override
 	protected void deactivate(DeactivationMessage message) {		
 		// if a service task instance is still active and waiting, stop it (invokes akka stop hooks) 
-		this.getContext().stop(this.getContext().actorFor(message.getProcessInstanceId()));
+		this.getContext().stop(this.getContext().actorFor(this.getTaskInstanceActorRef(message)));
 		
 		this.getNodeInstanceMediatorService().setNodeInstanceEndTime(message.getProcessInstanceId(), new Date());
 		
@@ -128,22 +109,36 @@ public class ServiceTaskNode extends Task {
 	protected void trigger(TriggerMessage message) {
 		LOG.warn(String.format("Reaction to %s not implemented in %s. Please check your process.", message.getClass().getSimpleName(), this.getSelf()));
 	}
-
-	/**
-	 * Gets the in out message integration .
-	 *
-	 * @return the message integration in out
+	
+	/* (non-Javadoc)
+	 * @see com.catify.processengine.core.nodes.FlowElement#handleNonStandardMessage(java.lang.Object)
 	 */
-	public TMessageIntegration getMessageIntegrationInOut() {
-		return messageIntegrationInOut;
+	protected void handleNonStandardMessage(Object message) {
+		if (message instanceof LoopMessage) {
+			this.forwardLoopMessageToParent(message);
+		} else {
+			unhandled(message);
+		}
 	}
 
 	/**
-	 * Sets the in out message integration.
+	 * Forward {@link LoopMessage}s to the parent actor, which should be a loop strategy. The LoopMessages are generated in the {@link ServiceTaskInstance}s. 
 	 *
-	 * @param messageIntegrationInOut the new message integration in out
+	 * @param message the message
 	 */
-	public void setMessageIntegrationInOut(TMessageIntegration messageIntegrationInOut) {
-		this.messageIntegrationInOut = messageIntegrationInOut;
+	private void forwardLoopMessageToParent(Object message) {
+		LoopMessage loopMessage = (LoopMessage) message;
+		this.sendMessageToNodeActor(loopMessage, this.getContext().parent());
 	}
+	
+	/**
+	 * Gets the task instance ActorRef which is a concatenation of the uniqueFlowNodeId and the processInstanceId of a message.
+	 *
+	 * @param message the message
+	 * @return the task instance actor ref
+	 */
+	private String getTaskInstanceActorRef(Message message) {
+		return ActorReferenceService.getAkkaComplientString(this.getUniqueFlowNodeId()+message.getProcessInstanceId());
+	}
+
 }
