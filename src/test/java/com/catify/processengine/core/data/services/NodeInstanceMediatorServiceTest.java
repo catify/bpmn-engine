@@ -36,6 +36,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
 import com.catify.processengine.core.services.NodeInstanceMediatorService;
 
@@ -139,15 +140,16 @@ public class NodeInstanceMediatorServiceTest {
 	public void testSetState() {
 		assertNotNull(nodeInstanceMediatorServiceMockInjected);
 		
-		FlowNodeInstance flowNodeInstance = new FlowNodeInstance("TESTSTATE", 0, 0);
+		FlowNodeInstance flowNodeInstance = new FlowNodeInstance(NodeInstaceStates.ACTIVE_STATE, 0, 0);
 		assertNotNull(flowNodeInstance);
+		assertEquals(NodeInstaceStates.ACTIVE_STATE, flowNodeInstance.getNodeInstanceState());
 		flowNodeInstance.setFlowsFired(1);
 		
 		when(flowNodeInstanceRepositoryService.findFlowNodeInstance(UPID, UFID, UIID, 0)).thenReturn(flowNodeInstance);
 		
-		nodeInstanceMediatorServiceMockInjected.setState(UIID, "TESTSTATE");
+		nodeInstanceMediatorServiceMockInjected.setState(UIID, NodeInstaceStates.PASSED_STATE);
 		
-		assertEquals("TESTSTATE", flowNodeInstance.getNodeInstanceState());
+		assertEquals(NodeInstaceStates.PASSED_STATE, flowNodeInstance.getNodeInstanceState());
 	}
 
 	@Test
