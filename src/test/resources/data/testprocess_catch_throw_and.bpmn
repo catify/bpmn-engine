@@ -1,57 +1,102 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- ******************************************************* Copyright (C) 
-	2013 catify <info@catify.com> ******************************************************* 
-	Licensed under the Apache License, Version 2.0 (the "License"); you may not 
-	use this file except in compliance with the License. You may obtain a copy 
-	of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
-	by applicable law or agreed to in writing, software distributed under the 
-	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
-	OF ANY KIND, either express or implied. See the License for the specific 
-	language governing permissions and limitations under the License. -->
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
-	xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
-	xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1340971831366"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-
-	xmlns:catify="http://www.catify.com/processengine/core/processdefinition"
-
-	exporter="Yaoqiang BPMN Editor" exporterVersion="2.0"
-	expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366"
-	name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366"
-	typeLanguage="http://www.w3.org/2001/XMLSchema"
-	xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
-
-	<process id="testprocess_catch_throw_and" isClosed="false" isExecutable="true"
-		processType="Private">
-		<extensionElements>
-			<catify:version id="VERSION_ID" version="testProcessVersion1" />
-		</extensionElements>
-		<startEvent id="startEvent1" isInterrupting="true" name="Start Event"
-			parallelMultiple="false">
-		</startEvent>
-		<intermediateCatchEvent id="catchEvent1" name="Intermediate Event"
-			parallelMultiple="false">
-		</intermediateCatchEvent>
-		<intermediateThrowEvent id="throwEvent1" name="Intermediate Event">
-		</intermediateThrowEvent>
-		<parallelGateway gatewayDirection="Unspecified" id="parallelGateway1"
-			name="Parallel Gateway">
-			<incoming>sequenceFlow3</incoming>
-			<incoming>sequenceFlow4</incoming>
-			<outgoing>sequenceFlow5</outgoing>
-		</parallelGateway>
-		<endEvent id="endEvent1" name="End Event">
-		</endEvent>
-		<sequenceFlow id="sequenceFlow1" sourceRef="startEvent1"
-			targetRef="catchEvent1" />
-		<sequenceFlow id="sequenceFlow2" sourceRef="startEvent1"
-			targetRef="throwEvent1" />
-		<sequenceFlow id="sequenceFlow3" sourceRef="catchEvent1"
-			targetRef="parallelGateway1" />
-		<sequenceFlow id="sequenceFlow4" sourceRef="throwEvent1"
-			targetRef="parallelGateway1" />
-		<sequenceFlow id="sequenceFlow5" sourceRef="parallelGateway1"
-			targetRef="endEvent1" />
-	</process>
-
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:catify="http://www.catify.com/processengine/core/processdefinition" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1340971831366" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exporter="Yaoqiang BPMN Editor" exporterVersion="2.0" expressionLanguage="http://www.w3.org/1999/XPath" id="_1340971831366" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1340971831366" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
+  <process id="testprocess_catch_throw_and" isClosed="false" isExecutable="true" processType="Private">
+    <extensionElements>
+      <catify:version id="VERSION_ID" version="testProcessVersion1"/>
+    </extensionElements>
+    <startEvent id="startEvent1" isInterrupting="true" name="start" parallelMultiple="false">
+      <outgoing>sequenceFlow1</outgoing>
+      <outgoing>sequenceFlow2</outgoing>
+    </startEvent>
+    <intermediateCatchEvent id="catchEvent1" name="event1" parallelMultiple="false">
+      <incoming>sequenceFlow1</incoming>
+      <outgoing>sequenceFlow3</outgoing>
+    </intermediateCatchEvent>
+    <intermediateThrowEvent id="throwEvent1" name="event2">
+      <incoming>sequenceFlow2</incoming>
+      <outgoing>sequenceFlow4</outgoing>
+    </intermediateThrowEvent>
+    <parallelGateway gatewayDirection="Unspecified" id="parallelGateway1" name="parallel">
+      <incoming>sequenceFlow3</incoming>
+      <incoming>sequenceFlow4</incoming>
+      <outgoing>sequenceFlow5</outgoing>
+    </parallelGateway>
+    <endEvent id="endEvent1" name="end">
+      <incoming>sequenceFlow5</incoming>
+    </endEvent>
+    <sequenceFlow id="sequenceFlow1" sourceRef="startEvent1" targetRef="catchEvent1"/>
+    <sequenceFlow id="sequenceFlow2" sourceRef="startEvent1" targetRef="throwEvent1"/>
+    <sequenceFlow id="sequenceFlow3" sourceRef="catchEvent1" targetRef="parallelGateway1"/>
+    <sequenceFlow id="sequenceFlow4" sourceRef="throwEvent1" targetRef="parallelGateway1"/>
+    <sequenceFlow id="sequenceFlow5" sourceRef="parallelGateway1" targetRef="endEvent1"/>
+  </process>
+  <bpmndi:BPMNDiagram documentation="background=#FFFFFF;count=1;horizontalcount=1;orientation=0;width=597.6;height=842.4;imageableWidth=587.6;imageableHeight=832.4;imageableX=5.0;imageableY=5.0" id="Yaoqiang_Diagram-_1" name="New Diagram">
+    <bpmndi:BPMNPlane bpmnElement="testprocess_catch_throw_and">
+      <bpmndi:BPMNShape bpmnElement="endEvent1" id="Yaoqiang-endEvent1">
+        <dc:Bounds height="32.0" width="32.0" x="307.0" y="200.33333333333334"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="18.80048076923077" width="26.76923076923077" x="359.6153846153846" y="290.4715544871795"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="parallelGateway1" id="Yaoqiang-parallelGateway1">
+        <dc:Bounds height="42.0" width="42.0" x="205.0" y="195.33333333333334"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="18.80048076923077" width="42.92307692307692" x="254.5384615384615" y="288.87179487179486"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="throwEvent1" id="Yaoqiang-throwEvent1">
+        <dc:Bounds height="32.0" width="32.0" x="112.0" y="237.66666666666669"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="18.80048076923077" width="42.92307692307692" x="156.53846153846152" y="327.8048878205128"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="catchEvent1" id="Yaoqiang-catchEvent1">
+        <dc:Bounds height="32.0" width="32.0" x="112.0" y="162.33333333333334"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="18.80048076923077" width="42.92307692307692" x="156.53846153846152" y="252.4715544871795"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startEvent1" id="Yaoqiang-startEvent1">
+        <dc:Bounds height="32.0" width="32.0" x="20.0" y="200.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="18.80048076923077" width="29.846153846153843" x="71.07692307692308" y="290.13822115384613"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow5" id="Yaoqiang-sequenceFlow5" sourceElement="parallelGateway1" targetElement="endEvent1">
+        <di:waypoint x="0.0" y="0.0"/>
+        <di:waypoint x="0.0" y="0.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="-1.0" width="-1.0" x="-1.0" y="-1.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow4" id="Yaoqiang-sequenceFlow4" sourceElement="throwEvent1" targetElement="parallelGateway1">
+        <di:waypoint x="0.0" y="0.0"/>
+        <di:waypoint x="0.0" y="0.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="-1.0" width="-1.0" x="-1.0" y="-1.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow3" id="Yaoqiang-sequenceFlow3" sourceElement="catchEvent1" targetElement="parallelGateway1">
+        <di:waypoint x="0.0" y="0.0"/>
+        <di:waypoint x="0.0" y="0.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="-1.0" width="-1.0" x="-1.0" y="-1.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow2" id="Yaoqiang-sequenceFlow2" sourceElement="startEvent1" targetElement="throwEvent1">
+        <di:waypoint x="0.0" y="0.0"/>
+        <di:waypoint x="0.0" y="0.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="-1.0" width="-1.0" x="-1.0" y="-1.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sequenceFlow1" id="Yaoqiang-sequenceFlow1" sourceElement="startEvent1" targetElement="catchEvent1">
+        <di:waypoint x="0.0" y="0.0"/>
+        <di:waypoint x="0.0" y="0.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="-1.0" width="-1.0" x="-1.0" y="-1.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
 </definitions>
