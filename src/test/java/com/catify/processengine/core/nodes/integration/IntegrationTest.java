@@ -43,7 +43,7 @@ import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 /**
  * 
  * 
- * @author chris
+ * @author chris köster
  * @author claus straube
  *
  */

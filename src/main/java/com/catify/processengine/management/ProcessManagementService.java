@@ -36,7 +36,7 @@ import com.catify.processengine.core.processdefinition.jaxb.TSubProcess;
 public interface ProcessManagementService {
 
 	/**
-	 * Start all deployed processes found in the {@link ProcessImportService.DEPLOYDIR}.
+	 * Start all deployed processes found in the {@link ProcessImportServiceImpl.DEPLOYDIR}.
 	 *
 	 * @param clientId the client id
 	 * @throws FileNotFoundException the file not found exception

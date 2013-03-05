@@ -40,7 +40,7 @@ import com.catify.processengine.core.services.MessageDispatcherService;
  */
 public abstract class MessageIntegrationSPI {
 	
-	static final Logger LOG = LoggerFactory.getLogger(MessageIntegrationSPI.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(MessageIntegrationSPI.class);
 
 	 /**
  	 * Gets the message integration implementation.

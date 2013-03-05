@@ -55,9 +55,9 @@ public class ProcessManagementServiceImpl implements ProcessManagementService {
 	public void startAllDeployedProcesses(String clientId) throws FileNotFoundException, JAXBException {
 		
 		// get a file list of all processes in the 'deployed' folder
-		File deployDir = new File(ProcessImportService.DEPLOYDIR);
+		File deployDir = new File(ProcessImportServiceImpl.DEPLOYDIR);
 		if (!deployDir.exists()) {
-			LOG.warn("The folder " + ProcessImportService.DEPLOYDIR + " does not exist. There are no processes to deploy.");
+			LOG.warn("The folder " + ProcessImportServiceImpl.DEPLOYDIR + " does not exist. There are no processes to deploy.");
 		} else {
 			String[] fileList = deployDir.list(new FilenameFilter() {
 			    public boolean accept(File d, String name) {
@@ -84,9 +84,9 @@ public class ProcessManagementServiceImpl implements ProcessManagementService {
 	@Override
 	public void startDeployedProcess(String clientId, String processDefinitionFileName) throws FileNotFoundException, JAXBException {
 		
-		File deployDir = new File(ProcessImportService.DEPLOYDIR);
+		File deployDir = new File(ProcessImportServiceImpl.DEPLOYDIR);
 		if (!deployDir.exists()) {
-			LOG.warn("The folder " + ProcessImportService.DEPLOYDIR + " does not exist. There are no processes to deploy.");
+			LOG.warn("The folder " + ProcessImportServiceImpl.DEPLOYDIR + " does not exist. There are no processes to deploy.");
 		} else {
 		
 		// transform the xml's to jaxb and init them
@@ -96,7 +96,7 @@ public class ProcessManagementServiceImpl implements ProcessManagementService {
 		this.logProcessDefinitionStart(processDefinitionFileName);
 		
 		processInitializer.initializeProcessDefinition(clientId, xmlJaxbTransformer.getTDefinitionsFromBpmnXml(
-				ProcessImportService.DEPLOYDIR 
+				ProcessImportServiceImpl.DEPLOYDIR 
 				+ File.separator
 				+ processDefinitionFileName));
 		}

@@ -83,18 +83,21 @@ public class MessageIntegrationSPIMock extends MessageIntegrationSPI {
 	@Override
 	public void send(IntegrationMessage integrationMessage) {
 		this.sends.add(integrationMessage);
+		LOG.debug(String.format("Sending message."));
 	}
 
 	@Override
 	public void receive(IntegrationMessage integrationMessage,
 			Map<String, Object> metaData) {
 		this.receives.add(integrationMessage);
+		LOG.debug(String.format("Receiving message."));
 		this.messageDispatcherService.dispatchToEngine(integrationMessage, metaData);
 	}
 
 	@Override
 	public Object requestReply(IntegrationMessage message) {
 		this.requestReplys.add(message);
+		LOG.debug(String.format("Request and Reply message."));
 		return message;
 	}
 
