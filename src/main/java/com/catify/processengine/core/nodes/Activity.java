@@ -32,7 +32,7 @@ import akka.actor.UntypedActorFactory;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
+import com.catify.processengine.core.spi.DataObjectHandling;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.Message;

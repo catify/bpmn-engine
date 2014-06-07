@@ -1,4 +1,4 @@
-package com.catify.processengine.core.data.dataobjects;
+package com.catify.processengine.core.spi;
 
 import java.util.List;
 import java.util.ServiceLoader;

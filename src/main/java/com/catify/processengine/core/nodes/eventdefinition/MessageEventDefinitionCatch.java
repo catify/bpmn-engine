@@ -20,7 +20,7 @@ package com.catify.processengine.core.nodes.eventdefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.catify.processengine.core.integration.MessageIntegrationSPI;
+import com.catify.processengine.core.spi.MessageIntegrationSPI;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;

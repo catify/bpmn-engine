@@ -32,8 +32,8 @@ import org.springframework.beans.factory.annotation.Value;
 import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.TimerBean;
-import com.catify.processengine.core.data.dataobjects.TimerSPI;
+import com.catify.processengine.core.spi.TimerBean;
+import com.catify.processengine.core.spi.TimerSPI;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.CommitMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;

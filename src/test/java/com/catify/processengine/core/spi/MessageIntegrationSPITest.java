@@ -18,7 +18,7 @@
 /**
  * 
  */
-package com.catify.processengine.core.messageintegration;
+package com.catify.processengine.core.spi;
 
 /**
  * @author chris

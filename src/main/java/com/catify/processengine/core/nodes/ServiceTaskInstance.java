@@ -21,7 +21,7 @@ import java.util.Date;
 
 import scala.concurrent.Future;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
+import com.catify.processengine.core.spi.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.CommitMessage;

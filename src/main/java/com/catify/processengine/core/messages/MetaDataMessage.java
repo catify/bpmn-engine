@@ -22,7 +22,7 @@ package com.catify.processengine.core.messages;
 
 import java.util.Map;
 
-import com.catify.processengine.core.integration.MessageIntegrationSPI;
+import com.catify.processengine.core.spi.MessageIntegrationSPI;
 
 /**
  * The meta data message carries the meta data generated in the message

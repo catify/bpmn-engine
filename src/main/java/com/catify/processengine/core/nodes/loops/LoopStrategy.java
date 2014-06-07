@@ -9,7 +9,7 @@ import akka.actor.UntypedActor;
 import akka.actor.UntypedActorContext;
 import akka.actor.UntypedActorFactory;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
+import com.catify.processengine.core.spi.DataObjectHandling;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;
 import com.catify.processengine.core.messages.LoopMessage;

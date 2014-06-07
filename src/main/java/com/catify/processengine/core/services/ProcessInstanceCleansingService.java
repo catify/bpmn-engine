@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.UntypedActor;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
+import com.catify.processengine.core.spi.DataObjectHandling;
 import com.catify.processengine.core.messages.ArchiveMessage;
 import com.catify.processengine.core.messages.DeletionMessage;
 

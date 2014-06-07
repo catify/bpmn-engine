@@ -27,7 +27,7 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
+import com.catify.processengine.core.spi.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.messages.ActivationMessage;
 import com.catify.processengine.core.messages.DeactivationMessage;

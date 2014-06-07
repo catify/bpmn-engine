@@ -40,9 +40,9 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
-import com.catify.processengine.core.data.dataobjects.DataObjectIdService;
-import com.catify.processengine.core.data.dataobjects.NoDataObjectSP;
+import com.catify.processengine.core.spi.DataObjectHandling;
+import com.catify.processengine.core.spi.DataObjectIdService;
+import com.catify.processengine.core.spi.NoDataObjectSP;
 import com.catify.processengine.core.data.services.IdService;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinitionParameter;
 import com.catify.processengine.core.nodes.loops.LoopStrategy;

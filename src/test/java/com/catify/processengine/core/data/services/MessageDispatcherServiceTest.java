@@ -30,8 +30,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.catify.processengine.core.integration.IntegrationMessage;
-import com.catify.processengine.core.integration.MessageIntegrationSPI;
+import com.catify.processengine.core.spi.IntegrationMessage;
+import com.catify.processengine.core.spi.MessageIntegrationSPI;
 import com.catify.processengine.core.services.MessageDispatcherService;
 
 @RunWith(SpringJUnit4ClassRunner.class)

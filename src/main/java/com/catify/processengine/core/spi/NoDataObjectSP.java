@@ -18,7 +18,7 @@
 /**
  * 
  */
-package com.catify.processengine.core.data.dataobjects;
+package com.catify.processengine.core.spi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

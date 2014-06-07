@@ -31,8 +31,8 @@ import org.springframework.beans.factory.annotation.Value;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 
-import com.catify.processengine.core.integration.IntegrationMessage;
-import com.catify.processengine.core.integration.MessageIntegrationSPI;
+import com.catify.processengine.core.spi.IntegrationMessage;
+import com.catify.processengine.core.spi.MessageIntegrationSPI;
 import com.catify.processengine.core.messages.MetaDataMessage;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.nodes.eventdefinition.EventDefinition;

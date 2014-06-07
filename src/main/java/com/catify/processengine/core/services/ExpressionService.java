@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
-import com.catify.processengine.core.data.dataobjects.DataObjectSPI;
+import com.catify.processengine.core.spi.DataObjectHandling;
+import com.catify.processengine.core.spi.DataObjectSPI;
 
 /**
  * 

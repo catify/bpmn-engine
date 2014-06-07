@@ -1,5 +1,7 @@
-package com.catify.processengine.core.data.dataobjects;
+package com.catify.processengine.core.spi;
 
+import com.catify.processengine.core.spi.TimerBean;
+import com.catify.processengine.core.spi.TimerSPI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

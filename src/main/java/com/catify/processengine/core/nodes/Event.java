@@ -20,7 +20,7 @@ package com.catify.processengine.core.nodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
+import com.catify.processengine.core.spi.DataObjectHandling;
 
 /**
  * Abstract class for all events.

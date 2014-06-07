@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.ActorRef;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
+import com.catify.processengine.core.spi.DataObjectHandling;
 import com.catify.processengine.core.data.model.NodeInstaceStates;
 import com.catify.processengine.core.data.model.entities.FlowNodeInstance;
 import com.catify.processengine.core.messages.ActivationMessage;

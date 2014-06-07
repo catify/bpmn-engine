@@ -3,7 +3,7 @@ package com.catify.processengine.core.nodes.loops;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectHandling;
+import com.catify.processengine.core.spi.DataObjectHandling;
 
 /**
  * The Class NonLoop implements the basic task behavior when no looping is specified in the bpmn process.

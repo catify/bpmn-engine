@@ -19,7 +19,7 @@ package com.catify.processengine.core.data.model.entities;
 
 import java.util.Map;
 
-import com.catify.processengine.core.data.dataobjects.DataObjectIdService;
+import com.catify.processengine.core.spi.DataObjectIdService;
 import com.catify.processengine.core.processdefinition.jaxb.TComplexGateway;
 import com.catify.processengine.core.processdefinition.jaxb.TExclusiveGateway;
 import com.catify.processengine.core.processdefinition.jaxb.TFlowNode;

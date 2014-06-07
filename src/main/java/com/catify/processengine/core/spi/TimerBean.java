@@ -1,4 +1,4 @@
-package com.catify.processengine.core.data.dataobjects;
+package com.catify.processengine.core.spi;
 
 /**
  * The {@link TimerBean} defines all attributes that

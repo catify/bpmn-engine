@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import akka.actor.UntypedActor;
 
-import com.catify.processengine.core.integration.MessageIntegrationSPI;
+import com.catify.processengine.core.spi.MessageIntegrationSPI;
 import com.catify.processengine.core.messages.MetaDataMessage;
 
 /**

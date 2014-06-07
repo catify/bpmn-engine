@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.catify.processengine.core.messageintegration;
+package com.catify.processengine.core.spi;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.catify.processengine.core.integration.IntegrationMessage;
-import com.catify.processengine.core.integration.MessageIntegrationSPI;
+import com.catify.processengine.core.spi.IntegrationMessage;
+import com.catify.processengine.core.spi.MessageIntegrationSPI;
 import com.catify.processengine.core.processdefinition.jaxb.TMetaData;
 import com.catify.processengine.core.services.MessageDispatcherService;
 

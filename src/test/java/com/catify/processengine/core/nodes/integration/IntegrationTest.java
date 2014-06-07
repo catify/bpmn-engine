@@ -35,8 +35,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.catify.processengine.core.data.model.NodeInstaceStates;
-import com.catify.processengine.core.integration.MessageIntegrationSPI;
-import com.catify.processengine.core.messageintegration.MessageIntegrationSPIMock;
+import com.catify.processengine.core.spi.MessageIntegrationSPI;
+import com.catify.processengine.core.spi.MessageIntegrationSPIMock;
 import com.catify.processengine.core.messages.TriggerMessage;
 import com.catify.processengine.core.processdefinition.jaxb.TProcess;
 

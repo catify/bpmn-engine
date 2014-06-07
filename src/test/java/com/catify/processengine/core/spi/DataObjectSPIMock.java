@@ -1,5 +1,6 @@
-package com.catify.processengine.core.data.dataobjects;
+package com.catify.processengine.core.spi;
 
+import com.catify.processengine.core.spi.DataObjectSPI;
 import java.util.HashMap;
 import java.util.Map;
 
